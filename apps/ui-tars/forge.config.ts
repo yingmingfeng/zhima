@@ -9,6 +9,7 @@ import path, { resolve } from 'node:path';
 import { MakerDMG } from '@electron-forge/maker-dmg';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
+import { build as nsisBuild } from 'app-builder-lib';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import type { ForgeConfig } from '@electron-forge/shared-types';
@@ -150,9 +151,60 @@ async function cleanSources(
 
 console.log('ignorePattern', ignorePattern);
 
+/**
+ * Custom NSIS maker using app-builder-lib (electron-builder) directly.
+ * Generates a Windows NSIS installer that supports custom install paths.
+ */
+class MakerNSIS {
+  name = 'nsis';
+  platforms = ['win32'];
+  __isElectronForgeMaker = true;
+  config: Record<string, any>;
+
+  constructor(config?: Record<string, any>) {
+    this.config = config || {};
+  }
+
+  isSupportedOnCurrentPlatform() {
+    return process.platform === 'win32';
+  }
+
+  prepareConfig(_targetArch: string) {
+    // no special preparation needed
+  }
+
+  ensureExternalBinariesExist() {
+    // No external binaries required; app-builder-lib bundles its own NSIS compiler
+  }
+
+  clone() {
+    return new MakerNSIS(this.config);
+  }
+
+  async make({
+    dir,
+    makeDir,
+    targetArch,
+  }: {
+    dir: string;
+    makeDir: string;
+    targetArch: string;
+  }) {
+    return nsisBuild({
+      prepackaged: dir,
+      config: {
+        directories: { output: path.resolve(makeDir) },
+        productName: 'UI-TARS',
+        nsis: this.config,
+      },
+      win: [`nsis:${targetArch}`],
+    });
+  }
+}
+
 const config: ForgeConfig = {
   packagerConfig: {
-    name: 'UI TARS',
+    name: 'UI-TARS',
     icon: 'resources/icon',
     extraResource: ['./resources/app-update.yml'],
     asar: {
@@ -201,6 +253,16 @@ const config: ForgeConfig = {
       // CamelCase version without spaces
       name: 'UiTars',
       setupIcon: 'resources/icon.ico',
+    }),
+    new MakerNSIS({
+      oneClick: false,
+      perMachine: false,
+      allowToChangeInstallationDirectory: true,
+      createDesktopShortcut: true,
+      createStartMenuShortcut: true,
+      shortcutName: 'UI-TARS',
+      installerIcon: 'resources/icon.ico',
+      uninstallerIcon: 'resources/icon.ico',
     }),
     // https://github.com/electron/forge/issues/3712
     new MakerDMG({
