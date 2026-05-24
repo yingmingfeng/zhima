@@ -8,7 +8,7 @@ import react from '@vitejs/plugin-react';
 import {
   defineConfig,
   externalizeDepsPlugin,
-  bytecodePlugin,
+  // bytecodePlugin,  注释bytecode导入
 } from 'electron-vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -40,10 +40,10 @@ export default defineConfig({
       },
     },
     plugins: [
-      bytecodePlugin({
-        chunkAlias: 'app_private',
-        protectedStrings: [process.env.UI_TARS_APP_PRIVATE_KEY_BASE64!],
-      }),
+      // bytecodePlugin({  注释bytecode插件
+      //   chunkAlias: 'app_private',
+      //   protectedStrings: [process.env.UI_TARS_APP_PRIVATE_KEY_BASE64!],
+      // }),
       tsconfigPaths(),
       externalizeDepsPlugin({
         include: [...getExternalPkgs()],
@@ -83,6 +83,7 @@ export default defineConfig({
       },
       minify: true,
     },
+    base: './', // ➕ 添加这一行（修复生产环境资源路径）
     css: {
       preprocessorOptions: {
         scss: {
