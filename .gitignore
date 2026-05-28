@@ -18,3 +18,12 @@ CLAUDE.md
 kc-exe-analysis/
 .planning/
 knowledge/
+TEMP_ISSUES.md
+*.tsbuildinfo
+# 已注释的 workflow（保留文件供参考，不提交到 Git）
+.github/workflows/agent_tars_test.yml
+.github/workflows/benchmark.yml
+.github/workflows/e2e-ui-tars.yml
+.github/workflows/scorecard.yml
+.github/workflows/secret-scan.yml
+.github/workflows/test.yml

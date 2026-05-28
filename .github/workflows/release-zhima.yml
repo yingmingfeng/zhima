@@ -1,0 +1,115 @@
+# ============================================================
+# Release Zhima — 自动打包发布
+# 触发：git tag v* && git push --tags
+# ============================================================
+
+name: Release Zhima
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CI: true
+  HUSKY: 0
+  NODE_OPTIONS: --max-old-space-size=8192
+
+jobs:
+  build:
+    name: ${{ matrix.os }} (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            arch: x64
+            platform: win32
+          - os: windows-latest
+            arch: arm64
+            platform: win32
+          - os: macos-latest
+            arch: arm64
+            platform: darwin
+          - os: macos-latest
+            arch: x64
+            platform: darwin
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        run: npm install -g pnpm@9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          for i in 1 2 3; do
+            echo "--- pnpm install attempt $i ---"
+            pnpm install && echo "Success!" && break
+            if [ $i -lt 3 ]; then
+              echo "Failed, retrying in 10s..."
+              sleep 10
+            fi
+          done
+
+      - name: Build
+        env:
+          NODE_ENV: production
+        run: |
+          cd apps/ui-tars
+          npm run clean
+          npm run typecheck
+          npx electron-vite build
+
+      - name: Package
+        run: |
+          cd apps/ui-tars
+          npx electron-forge make --arch=${{ matrix.arch }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            apps/ui-tars/out/**/*Setup*.exe
+            apps/ui-tars/out/**/*.dmg
+            apps/ui-tars/out/**/*.zip
+            apps/ui-tars/out/**/latest*.yml
+          if-no-files-found: error
+
+  release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          pattern: installer-*
+          merge-multiple: true
+
+      - name: Read version
+        run: |
+          VERSION=$(node -p "require('./apps/ui-tars/package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          files: release-artifacts/**/*
+          draft: ${{ github.event_name == 'workflow_dispatch' }}
+          generate_release_notes: true

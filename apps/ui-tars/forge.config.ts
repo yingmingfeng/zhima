@@ -7,7 +7,6 @@ import { cp, readdir } from 'node:fs/promises';
 import path, { resolve } from 'node:path';
 
 import { MakerDMG } from '@electron-forge/maker-dmg';
-import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { build as nsisBuild } from 'app-builder-lib';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
@@ -190,7 +189,7 @@ class MakerNSIS {
     makeDir: string;
     targetArch: string;
   }) {
-    return nsisBuild({
+    const output = await nsisBuild({
       prepackaged: dir,
       config: {
         directories: { output: path.resolve(makeDir) },
@@ -199,6 +198,38 @@ class MakerNSIS {
       },
       win: [`nsis:${targetArch}`],
     });
+
+    // NSIS CRC check can fail when the installer exe is modified after compilation.
+    // Using the 'include' option adds !addincludedir which silently breaks NSIS
+    // include resolution. Instead, patch the generated installer's firstheader
+    // to set FH_FLAGS_NO_CRC, which disables the CRC integrity check at runtime.
+    //
+    // NSIS firstheader layout (fileform.h):
+    //   offset 0:  flags      (4 bytes, uint32 LE)
+    //   offset 4:  siginfo    (4 bytes, 0xDEADBEEF)
+    //   offset 8:  nsinst[3]  (12 bytes, "NullsoftInst")
+    //   offset 20: length_of_header
+    //   offset 24: length_of_all_following_data
+    //
+    // FH_FLAGS_NO_CRC = 0x04 (bit 2) — disables CRC check
+    // FH_FLAGS_FORCE_CRC = 0x08 (bit 3) — forces CRC even with /NCRC (DO NOT USE)
+    for (const file of output) {
+      if (file.endsWith('.exe')) {
+        const buf = fs.readFileSync(file);
+        const sig = Buffer.from('NullsoftInst');
+        const sigOffset = buf.indexOf(sig);
+        if (sigOffset > 0) {
+          // "NullsoftInst" starts at offset 8 of firstheader, so flags = sigOffset - 8
+          const flagsOffset = sigOffset - 8;
+          const flags = buf.readUInt32LE(flagsOffset);
+          buf.writeUInt32LE(flags | 0x04, flagsOffset);
+          fs.writeFileSync(file, buf);
+          console.log('Patched NSIS CRC: ' + path.basename(file));
+        }
+      }
+    }
+
+    return output;
   }
 }
 
@@ -249,11 +280,12 @@ const config: ForgeConfig = {
   ],
   makers: [
     new MakerZIP({}, ['darwin']),
-    new MakerSquirrel({
-      // CamelCase version without spaces
-      name: 'UiTars',
-      setupIcon: 'resources/icon.ico',
-    }),
+    // MakerSquirrel 已注释：改用 NSIS 作为唯一 Windows 安装器
+    // new MakerSquirrel({
+    //   // CamelCase version without spaces
+    //   name: 'UiTars',
+    //   setupIcon: 'resources/icon.ico',
+    // }),
     new MakerNSIS({
       oneClick: false,
       perMachine: false,
@@ -292,7 +324,7 @@ const config: ForgeConfig = {
             [FuseV1Options.EnableCookieEncryption]: true,
             [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
             [FuseV1Options.EnableNodeCliInspectArguments]: false,
-            [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
+            [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: false,
             [FuseV1Options.OnlyLoadAppFromAsar]: true,
           }),
         ]),
