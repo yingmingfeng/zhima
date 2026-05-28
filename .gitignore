@@ -14,3 +14,7 @@ scripts/merge-yml/*.yml
 .tarko
 .mcp*_token
 .understand-anything
+CLAUDE.md
+kc-exe-analysis/
+.planning/
+knowledge/

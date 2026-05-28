@@ -1,8 +1,8 @@
-🔔 We apologize, but the deployment guide for UI-TARS-1.0 has been deprecated and is no longer maintained. For deploying UI-TARS-1.0, please refer to [archive/deployment.md](./archive-1.0/deployment.md).
+🔔 很抱歉，UI-TARS-1.0 的部署指南已弃用且不再维护。如需部署 UI-TARS-1.0，请参阅 [archive/deployment.md](./archive-1.0/deployment.md)。
 
-However, we have great news! ✨ UI-TARS-1.5 is now available with significant improvements. For the latest deployment instructions, please refer to our official deployment guide:
+不过，有个好消息！✨ UI-TARS-1.5 现已可用，带来了显著改进。有关最新部署说明，请参阅我们的官方部署指南：
 
-- [UI-TARS-1.5 Deployment Guide](https://github.com/bytedance/UI-TARS/blob/main/README_deploy.md)
+- [UI-TARS-1.5 部署指南](https://github.com/bytedance/UI-TARS/blob/main/README_deploy.md)
 - [UI-TARS 模型部署教程](https://bytedance.sg.larkoffice.com/docx/TCcudYwyIox5vyxiSDLlgIsTgWf)
 
-Thank you for your understanding and continued support as we strive to provide better performance and user experience! 🙌
+感谢你的理解与持续支持，我们将不断努力提供更优的性能和用户体验！🙌

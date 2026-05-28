@@ -1,66 +1,66 @@
-# Preset Management Guide
+# 预设管理指南
 
 > [!IMPORTANT]  
-> Currently, **UI-TARS Desktop** does not directly provide server-side capabilities, so we do not provide a Preset for the open source community. welcome community developers to contribute your presets [here](../examples/presets/).
+> 目前，**芝麻 (Zhima)** 不直接提供服务端能力，因此我们暂未为开源社区提供预设。欢迎社区开发者在此处贡献你的预设：[examples/presets](../examples/presets/)。
 
-A **preset** is a collection of [settings](./setting.md)  (_Introduced at [#61](https://github.com/bytedance/UI-TARS-desktop/pull/61)_), **UI-TARS Desktop** supports import presets via `files` or `URLs`:
+**预设** 是 [设置](./setting.md) 的集合（在 [#61](https://github.com/yingmingfeng/zhima/pull/61) 中引入），**芝麻 (Zhima)** 支持通过 `文件` 或 `URL` 导入预设：
 
 ```mermaid
 graph TD
-    A[Import Preset] --> B{Preset Type}
-    B -->|File| C[YAML File]
-    B -->|URL| D[URL Endpoint]
-    C --> E[Manual Updates 🔧]
-    D --> F[Auto Sync ⚡]
+    A[导入预设] --> B{预设类型}
+    B -->|文件| C[YAML 文件]
+    B -->|URL| D[URL 端点]
+    C --> E[手动更新 🔧]
+    D --> F[自动同步 ⚡]
 ```
 
 <br>
 
 
-## Preset Types Comparison
+## 预设类型对比
 
-| Feature               | Local Presets          | Remote Presets         |
-|-----------------------|------------------------|------------------------|
-| **Storage**           | Device-local           | Cloud-hosted          |
-| **Update Mechanism**  | Manual                 | Automatic             |
-| **Access Control**    | Read/Write             | Read-Only             |
-| **Versioning**        | Manual                 | Git-integrated        |
+| 功能                 | 本地预设              | 远程预设              |
+|----------------------|-----------------------|-----------------------|
+| **存储方式**         | 设备本地              | 云端托管              |
+| **更新机制**         | 手动                  | 自动                  |
+| **访问控制**         | 读/写                 | 只读                  |
+| **版本管理**         | 手动                  | Git 集成              |
 
 
 
 <br>
 
 
-## Examples
+## 示例
 
-### Import from file
+### 从文件导入
 
-**UI-TARS Desktop** supports importing presets from files. Once the file is parsed successfully, the settings will be automatically updated.
+**芝麻 (Zhima)** 支持从文件导入预设。文件解析成功后，设置将自动更新。
 
-| Function | Snapshot |
+| 功能 | 截图 |
 | --- | ---|
-| Open Setting |<img width="320" alt="image" src="../apps/ui-tars/images/preset/import-preset-from-local.png" /> |
-| Import Success | <img width="320" alt="image" src="../apps/ui-tars/images/preset/local_success.png" />|
-| Exception: Invalid Content | <img width="320" alt="image" src="../apps/ui-tars/images/preset/local_error.png" /> |
+| 打开设置 |<img width="320" alt="image" src="../apps/ui-tars/images/preset/import-preset-from-local.png" /> |
+| 导入成功 | <img width="320" alt="image" src="../apps/ui-tars/images/preset/local_success.png" />|
+| 异常：无效内容 | <img width="320" alt="image" src="../apps/ui-tars/images/preset/local_error.png" /> |
 
 
 <br>
 
 
-### Import from URL
+### 从 URL 导入
 
-**UI-TARS Desktop** also supports importing presets from URLs. If automatic updates are set, presets will be automatically pulled every time the application is started.
+**芝麻 (Zhima)** 也支持从 URL 导入预设。如果设置了自动更新，每次启动应用时将自动拉取预设。
 
-| Function | Snapshot |
+| 功能 | 截图 |
 | --- | ---|
-| Open Setting | <img width="320" alt="image" src="../apps/ui-tars/images/preset/import-preset-from-local.png" /> |
-| Import Success (Default) | <img width="320" alt="image" src="../apps/ui-tars/images/preset/remote_success.png" /> |
+| 打开设置 | <img width="320" alt="image" src="../apps/ui-tars/images/preset/import-preset-from-local.png" /> |
+| 导入成功（默认） | <img width="320" alt="image" src="../apps/ui-tars/images/preset/remote_success.png" /> |
 
 
 <br>
 
 
-### Preset Example
+### 预设示例
 
 ```yaml
 name: UI TARS Desktop Example Preset
@@ -73,5 +73,5 @@ reportStorageBaseUrl: https://your-report-storage-endpoint.com/upload
 utioBaseUrl: https://your-utio-endpoint.com/collect
 ```
 
-See all [example presets](../examples/presets).
+查看所有 [预设示例](../examples/presets)。
 

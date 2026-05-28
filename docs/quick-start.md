@@ -1,128 +1,105 @@
-# Quick Start
+# 快速开始
 
-We're excited to announce the support for UI-TARS-1.5! 🎉🎉🎉
+欢迎使用芝麻 (Zhima)！本指南将帮助您快速下载、安装和配置桌面端。
 
-The previous version of UI-TARS Desktop version 0.0.8 will be upgraded to a new Desktop App 0.1.0 with support for both Computer and Browser operator.
-
-<br />
-
-## Prerequisites
-
-Please install **Chrome** ([stable](https://www.google.com/chrome/)/[beta](https://www.google.com/chrome/beta/)/[dev](https://www.google.com/chrome/dev/)/[canary](https://www.google.com/chrome/canary/)), **Edge** ([stable](https://www.microsoft.com/en-us/edge/download)/[beta/dev/canary](https://www.microsoft.com/en-us/edge/download/insider)), or **Firefox** ([stable](https://www.mozilla.org/en-US/firefox/new/)/[beta/dev/nightly](https://www.mozilla.org/zh-CN/firefox/channel/desktop/)) for **Browser Operator**.
-
-UI-TARS-desktop is currently only available for single monitor setup. Multi-monitor configuration may cause failure for some tasks.
+芝麻支持 **Computer Operator**（桌面操控）与 **Browser Operator**（浏览器操控）两种模式，兼容多种 VLM 模型后端。
 
 <br />
 
-## Download
+## 环境要求
 
-You can download the [latest release](https://github.com/bytedance/UI-TARS-desktop/releases/latest) version of UI-TARS Desktop from our releases page.
+**Browser Operator** 模式需要安装 **Chrome**（[stable](https://www.google.com/chrome/)/[beta](https://www.google.com/chrome/beta/)/[dev](https://www.google.com/chrome/dev/)/[canary](https://www.google.com/chrome/canary/)）、**Edge**（[stable](https://www.microsoft.com/en-us/edge/download)/[beta/dev/canary](https://www.microsoft.com/en-us/edge/download/insider)）或 **Firefox**（[stable](https://www.mozilla.org/en-US/firefox/new/)/[beta/dev/nightly](https://www.mozilla.org/zh-CN/firefox/channel/desktop/)）。
 
-> **Note**: If you have [Homebrew](https://brew.sh/) installed, you can install UI-TARS Desktop by running the following command:
-> ```bash
-> brew install --cask ui-tars
-> ```
+芝麻目前仅支持单显示器环境。多显示器配置可能导致部分任务失败。
 
 <br />
 
-## Install
+## 下载
+
+从 [Releases 页面](https://github.com/yingmingfeng/zhima/releases/latest) 下载芝麻最新版本的安装包。
+
+<br />
+
+## 安装
 
 ### MacOS
 
-1. Drag **UI TARS** application into the **Applications** folder
-  <img src="../apps/ui-tars/images/mac_install.png" width="500px" />
+1. 将 **UI TARS** 应用拖入 **Applications** 文件夹
+   <img src="../apps/ui-tars/images/mac_install.png" width="500px" />
 
-2. Enable the permission of **UI TARS** in MacOS:
-  - System Settings -> Privacy & Security -> **Accessibility**
-  - System Settings -> Privacy & Security -> **Screen Recording**
-  <img src="../apps/ui-tars/images/mac_permission.png" width="500px" />
+2. 在 MacOS 中授予 **UI TARS** 必要权限：
+   - 系统设置 -> 隐私与安全性 -> **辅助功能**
+   - 系统设置 -> 隐私与安全性 -> **屏幕录制**
+   <img src="../apps/ui-tars/images/mac_permission.png" width="500px" />
 
-3. Then open **UI TARS** application, you can see the following interface:
-  <img src="../apps/ui-tars/images/mac_app.png" width="500px" />
-
+3. 打开 **UI TARS** 应用，您将看到如下界面：
+   <img src="../apps/ui-tars/images/mac_app.png" width="500px" />
 
 ### Windows
 
-**Still to run** the application, you can see the following interface:
+**直接运行** 应用，您将看到如下界面：
 
 <img src="../apps/ui-tars/images/windows_install.png" width="400px" style="margin-left: 4em;" />
 
 <br />
 
+## 获取模型并运行本地操作器
 
-## Run remote operator
+### 在 [Hugging Face](https://endpoints.huggingface.co/catalog) 上使用 UI-TARS-1.5
 
-The Remote Operator service will be discontinued on August 20, 2025. If you wish to deploy your own Remote Computer and Browser Agent after the free trial, you can explore Volcano Engine's OS Agent Services.
+1. 在页面右上角点击 `Deploy from Hugging Face` 按钮
+   <img src="../apps/ui-tars/images/quick_start/huggingface_deploy.png" width="500px" />
 
-Deployment Links (in Chinese): [Computer Use Agent](https://console.volcengine.com/vefaas/region:vefaas+cn-beijing/application/create?templateId=680b0a890e881f000862d9f0&channel=github&source=ui-tars) and [Browser Use Agent](https://console.volcengine.com/vefaas/region:vefaas+cn-beijing/application/create?templateId=67f7b4678af5a6000850556c&channel=github&source=ui-tars)
+2. 选择模型 UI-TARS-1.5-7B
+   <img src="../apps/ui-tars/images/quick_start/huggingface_uitars_1.5.png" width="500px" />
 
+3. 参考 [README_deploy.md](https://github.com/bytedance/UI-TARS/blob/main/README_deploy.md) 获取详细部署说明，以获取 **Base URL**、**API Key** 和 **Model Name**。
 
-<br />
-
-
-## Get model and run local operator
-
-### UI-TARS-1.5 on [Hugging Face](https://endpoints.huggingface.co/catalog)
-
-1. Click the button `Deploy from Hugging Face` on the top right corner of the page
-  <img src="../apps/ui-tars/images/quick_start/huggingface_deploy.png" width="500px" />
-
-2. Select the model UI-TARS-1.5-7B
-  <img src="../apps/ui-tars/images/quick_start/huggingface_uitars_1.5.png" width="500px" />
-
-3. Refer to [README_deploy.md](https://github.com/bytedance/UI-TARS/blob/main/README_deploy.md) for detailed deployment instructions to obtain the **Base URL**, **API Key**, and **Model Name**.
-
-4. Open the UI-TARS Desktop App [Settings]((./setting.md)) and configure:
+4. 打开芝麻的[设置页面](./setting.md)并配置：
 
 ```yaml
 Language: en
 VLM Provider: Hugging Face for UI-TARS-1.5
-VLM Base URL: https:xxx
+VLM Base URL: https://xxx
 VLM API KEY: your_api_key
 VLM Model Name: xxx
 ```
 
 > [!NOTE]
-> 1. For VLM Provider, make sure to select "**Hugging Face for UI-TARS-1.5**" to ensure proper VLM Action parsing.
-> 2. For VLM Base URL & VLM Model Name, you can checkout your huggingface endpoint page to see detail information. Please make sure Base URL ends with '/v1/'
+> 1. VLM Provider 务必选择 "**Hugging Face for UI-TARS-1.5**"，以确保 VLM 动作解析正常运作。
+> 2. 可在 Hugging Face Endpoint 页面查看详细的 Base URL 与 Model Name 信息。请确保 Base URL 以 '/v1/' 结尾。
 >
 > <img src="../apps/ui-tars/images/quick_start/base_url.png" width="500px" />
 
 <img src="../apps/ui-tars/images/quick_start/huggingface_setting.png" width="500px" />
 
-5. Click button starting a new chat
+5. 点击按钮开始新对话
 
-  <img src="../apps/ui-tars/images/quick_start/start_button.png" width="500px" />
+   <img src="../apps/ui-tars/images/quick_start/start_button.png" width="500px" />
 
-6. Input the command to start a round of GUI operation tasks!
+6. 输入指令，开始一轮 GUI 操作任务！
 
-  <img src="../apps/ui-tars/images/quick_start/start_task.png" width="500px" />
-
-
+   <img src="../apps/ui-tars/images/quick_start/start_task.png" width="500px" />
 
 <br />
 
+### 在 [火山引擎](https://console.volcengine.com/ark/region:ark+cn-beijing/model/detail?Id=doubao-1-5-ui-tars) 上使用 Doubao-1.5-UI-TARS
 
+1. 访问[火山引擎 Doubao-1.5-UI-TARS 页面](https://console.volcengine.com/ark/region:ark+cn-beijing/model/detail?Id=doubao-1-5-ui-tars)
 
-### Doubao-1.5-UI-TARS on [VolcEngine](https://console.volcengine.com/ark/region:ark+cn-beijing/model/detail?Id=doubao-1-5-ui-tars)
+2. 点击页面右上角的`立即体验`按钮
+   <img src="../apps/ui-tars/images/quick_start/volcengine_try.png" width="500px" />
 
+3. 点击 `API 接入` 链接
+   <img src="../apps/ui-tars/images/quick_start/volcengine_api.png" width="500px" />
 
-1. Visit the [VolcEngine Doubao-1.5-UI-TARS page](https://console.volcengine.com/ark/region:ark+cn-beijing/model/detail?Id=doubao-1-5-ui-tars)
+4. 在抽屉面板的 STEP 1 中获取您的 **API Key**
+   <img src="../apps/ui-tars/images/quick_start/volcengine_api_key.png" width="500px" />
 
+5. 在 STEP 2 中完成用户信息认证，切换到 OpenAI SDK 选项卡以获取 **Base URL** 和 **Model Name**：
+   <img src="../apps/ui-tars/images/quick_start/volcengine_api_info.png" width="500px" />
 
-2. Click the button `Try (立即体验)` on the top right corner of the page
-  <img src="../apps/ui-tars/images/quick_start/volcengine_try.png" width="500px" />
-
-3. Click the `API inference (API 接入)` link
-  <img src="../apps/ui-tars/images/quick_start/volcengine_api.png" width="500px" />
-
-4. Get your **API Key** from STEP 1 in the drawer panel.
-  <img src="../apps/ui-tars/images/quick_start/volcengine_api_key.png" width="500px" />
-
-5. In STEP 2, authenticate your user info and switch to the OpenAI SDK tab to obtain **Base Url** and **Model name**：
-  <img src="../apps/ui-tars/images/quick_start/volcengine_api_info.png" width="500px" />
-
-6. Open the UI-TARS Desktop App [Settings]((./setting.md)) and configure:
+6. 打开芝麻的[设置页面](./setting.md)并配置：
 
 ```yaml
 Language: cn
@@ -133,29 +110,27 @@ VLM Model Name: doubao-1.5-ui-tars-250328
 ```
 
 > [!NOTE]
-> For VLM Provider, make sure to select "**VolcEngine Ark for Doubao-1.5-UI-TARS**" to ensure proper VLM Action parsing.
+> VLM Provider 务必选择 "**VolcEngine Ark for Doubao-1.5-UI-TARS**"，以确保 VLM 动作解析正常运作。
 
-  <img src="../apps/ui-tars/images/quick_start/volcengine_settings.png" width="500px" />
+<img src="../apps/ui-tars/images/quick_start/volcengine_settings.png" width="500px" />
 
+7. 开始新对话前选择所需的使用场景
 
-7. Select the desired usage scenario before starting a new chat
-
-  <img src="../apps/ui-tars/images/quick_start/start_button.png" width="500px" />
+   <img src="../apps/ui-tars/images/quick_start/start_button.png" width="500px" />
 
 > [!NOTE]
-> Before using `Browser Operator` mode, please ensure that Chrome, Edge, or Firefox is installed on your device.
+> 使用 `Browser Operator` 模式前，请确保您的设备已安装 Chrome、Edge 或 Firefox。
 
-8. Input the command to start a round of GUI operation tasks!
+8. 输入指令，开始一轮 GUI 操作任务！
 
-  <img src="../apps/ui-tars/images/quick_start/start_task.png" width="500px" />
+   <img src="../apps/ui-tars/images/quick_start/start_task.png" width="500px" />
 
-<br>
+<br />
 
+## 了解更多
 
-## More
+到此为止，您应该已经成功启动了芝麻桌面端！为了更好地使用芝麻并确保稳定运行，建议查阅以下文档：
 
-At this point, you should have successfully launched the UI-TARS-Desktop App! To get the most out of UI-TARS and ensure stable usage, we recommend reviewing the following documentation:
-
-- Read the [Settings Configuration Guide](./setting.md) and set up VLM/Chat parameters. Selecting the appropriate VLM Provider can optimize desktop app performance when using model.
-- Read the [UI-TARS-1.5 Deployment Guide](https://github.com/bytedance/UI-TARS/blob/main/README_deploy.md) for more detail about the UI-TARS-1.5's latest deployment methods.
-- Read the [UI-TARS 模型部署教程](https://bytedance.sg.larkoffice.com/docx/TCcudYwyIox5vyxiSDLlgIsTgWf) for more detail about the Doubao-1.5-UI-TARS's latest deployment methods.
+- 阅读[设置配置指南](./setting.md)，配置 VLM/Chat 参数。选择合适的 VLM Provider 可以优化桌面端的模型使用性能。
+- 阅读 [UI-TARS-1.5 部署指南](https://github.com/bytedance/UI-TARS/blob/main/README_deploy.md)，了解 UI-TARS-1.5 的最新部署方式。
+- 阅读 [UI-TARS 模型部署教程](https://bytedance.sg.larkoffice.com/docx/TCcudYwyIox5vyxiSDLlgIsTgWf)，了解 Doubao-1.5-UI-TARS 的最新部署方式。

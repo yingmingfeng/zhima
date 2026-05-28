@@ -240,7 +240,7 @@ const config: ForgeConfig = {
     {
       name: '@electron-forge/publisher-github',
       config: {
-        repository: { owner: 'bytedance', name: 'ui-tars-desktop' },
+        repository: { owner: 'yingmingfeng', name: 'zhima' },
         draft: true,
         force: true,
         generateReleaseNotes: true,

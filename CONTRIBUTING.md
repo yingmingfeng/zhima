@@ -1,55 +1,54 @@
-# Contributing to UI-TARS Desktop
+# 贡献指南
 
-First off, thanks for taking the time to contribute! ❤️
+首先，感谢您抽出时间贡献本项目！❤️
 
-All types of contributions are encouraged and valued. Please make sure to read the relevant section before making your contribution. It will make it a lot easier for us maintainers and smooth out the experience for all involved. The community looks forward to your contributions. 🎉
+我们欢迎并重视各种类型的贡献。在做出贡献之前，请务必阅读相关章节。这将使我们维护者的工作更加轻松，也让所有参与者的体验更加顺畅。社区期待您的贡献！🎉
 
-> And if you like the project, but just don't have time to contribute, that's fine. There are other easy ways to support the project and show your appreciation, which we would also be very happy about:
-> - Star the project
-> - Tweet about it
-> - Refer this project in your project's readme
-> - Mention the project at local meetups and tell your friends/colleagues
+> 如果您喜欢这个项目，但暂时没有时间贡献，那也没关系。还有其他简单的方式可以支持本项目并表达您的感谢，我们同样非常欢迎：
+> - 给项目点 Star
+> - 在社交媒体上分享本项目
+> - 在您的项目自述文件中引用本项目
+> - 在本地技术交流活动中提及本项目，并告诉您的朋友/同事
 
+## 我有问题 / 报告 Bug
 
-## I Have a Question / Bug Report
+> 如果您想提问或报告 Bug，我们假设您已经阅读了可用的文档。
 
-> If you want to ask a question or report a bug, we assume that you have read the available Documentation.
+在提问之前，建议先搜索现有的 [Issues](https://github.com/yingmingfeng/zhima/issues) 寻找答案。如果您找到了相关 issue 但仍需澄清，可以在该 issue 中写下您的问题。同样建议先在互联网上搜索答案。
 
-Before you ask a question, it is best to search for existing [Issues](https://github.com/bytedance/ui-tars-desktop/issues) that might help you. In case you have found a suitable issue and still need clarification, you can write your question in this issue. It is also advisable to search the internet for answers first.
+如果经过以上步骤您仍然需要提问或澄清，我们建议：
 
-If you then still feel the need to ask a question and need clarification, we recommend the following:
+- 创建一个 [Issue](https://github.com/yingmingfeng/zhima/issues/new)
+- 提供尽可能多的上下文信息，描述您遇到的问题
+- 提供项目和平台版本信息（nodejs、npm 等），视情况提供相关细节
 
-- Open an [Issue](https://github.com/bytedance/ui-tars-desktop/issues/new).
-- Provide as much context as you can about what you're running into.
-- Provide project and platform versions (nodejs, npm, etc), depending on what seems relevant.
+我们会尽快处理该 issue。
 
-We will then take care of the issue as soon as possible.
+## 我想贡献力量
 
-## I Want To Contribute
-
-### Prerequisites
+### 前置条件
 
 - [Node.js](https://nodejs.org/en/download/) >= 20
 - [pnpm](https://pnpm.io/installation) >= 9
 
-#### Technology Stack
+#### 技术栈
 
-This is a [Monorepo](https://pnpm.io/workspaces) project including the following technologies:
+这是一个 [Monorepo](https://pnpm.io/workspaces) 项目，包含以下技术：
 
-- Cross-platform framework: [Electron](https://www.electronjs.org/)
-- Interface:
+- 跨平台框架：[Electron](https://www.electronjs.org/)
+- 界面框架：
   - [React](https://react.dev/)
   - [Vite](https://vitejs.dev/)
-- State management and communication:
+- 状态管理与通信：
   - [Zustand](https://zustand.docs.pmnd.rs/)
-  - [@ui-tars/electron-ipc](https://github.com/bytedance/UI-TARS-desktop/tree/main/packages/ui-tars/electron-ipc)
-- Automation framework/toolkit:
+  - [@ui-tars/electron-ipc](https://github.com/yingmingfeng/zhima/tree/main/packages/ui-tars/electron-ipc)
+- 自动化框架/工具包：
   - [nut.js](https://nutjs.dev/)
-- Test framework
+- 测试框架：
   - [Vitest](https://vitest.dev/)
   - [Playwright](https://playwright.dev/)
 
-### Structure of the project
+### 项目结构
 
 ```bash
 .
@@ -83,125 +82,89 @@ This is a [Monorepo](https://pnpm.io/workspaces) project including the following
 │       ├── tsconfig.node.json
 │       ├── utio
 │       └── visualizer
-└── vitest.*.mts            # Unit test configuration
+└── vitest.*.mts            # 单元测试配置
 ```
 
-> **Note**: The `src` directory is located in the top-level directory instead of the `apps/{main,preload,renderer}` directories because Electron Forge previously did not support Pnpm's hoisting mechanism([electron/forge#2633](https://github.com/electron/forge/issues/2633)), requiring the `src` directory to be placed in the top-level directory.
+> **注意**：`src` 目录位于顶层目录而非 `apps/{main,preload,renderer}` 目录下，这是因为 Electron Forge 之前不支持 Pnpm 的 hoisting 机制（[electron/forge#2633](https://github.com/electron/forge/issues/2633)），需要将 `src` 目录放置在顶层。
 
-
-#### Clone the repository
+#### 克隆仓库
 
 ```bash
-$ git clone https://github.com/bytedance/ui-tars-desktop.git
-$ cd ui-tars-desktop
+$ git clone https://github.com/yingmingfeng/zhima.git
+$ cd zhima
 ```
 
-### Development
+### 开发
 
-#### Install dependencies
+#### 安装依赖
 
 ```bash
 $ pnpm install
 ```
 
-#### Run the application
+#### 运行应用
 
 ```bash
-$ pnpm run dev:ui-tars    # Start UI-TARS Desktop
+$ pnpm run dev:ui-tars    # 启动芝麻 (Zhima)
 ```
 
-After the application starts, you can see the UI-TARS interface within the application.
+应用启动后，您可以在应用界面中看到芝麻 (Zhima) 的界面。
 
-> **Note**: On MacOS, you need to grant permissions to the app (e.g., iTerm2, Terminal) you are using to run commands.
+> **注意**：在 MacOS 上，您需要为运行命令的应用（如 iTerm2、Terminal）授予相应权限。
 
-#### Main process reload
+#### 主进程重载
 
-By default, `pnpm run dev` only has frontend Hot Module Replacement (HMR) hot updates. If you need to simultaneously reload the main process during debugging, you can execute `pnpm run dev:w`.
+默认情况下，`pnpm run dev` 仅支持前端热模块替换（HMR）热更新。如果您需要在调试时同时重载主进程，可以执行 `pnpm run dev:w`。
 
 ```bash
 $ pnpm run dev:w
 ```
 
-#### Building
+#### 构建
 
-Run `pnpm run build` in current system, it will output into `out/*` directory.
+在当前系统下运行 `pnpm run build`，构建产物将输出到 `out/*` 目录。
 
-To build the products of other systems, run:
-- Mac x64: `pnpm run publish:mac-x64`
-- Mac ARM: `pnpm run publish:mac-arm64`
-- Windows x64: `pnpm run publish:win32`
-- Windows ARM: `pnpm run publish:win32-arm64`
+要构建其他系统的产物，请运行：
+- Mac x64：`pnpm run publish:mac-x64`
+- Mac ARM：`pnpm run publish:mac-arm64`
+- Windows x64：`pnpm run publish:win32`
+- Windows ARM：`pnpm run publish:win32-arm64`
 
-### Release
+### 文档
 
-#### Desktop Application
+文档位于 `docs/*.md` 目录中，采用 Markdown 格式。目前尚未建立文档站点，但 `docs/*.md` 目录未来将会转换为文档站点。
 
-The CI pipeline to execute is [.github/workflows/release.yml](.github/workflows/release.yml), only manual triggered by maintainers. If you're a maintainer, you can follow the steps below to release the application:
+## 代码风格指南
 
-1. Edit the `version` in `package.json`
-2. Git commit and push to the `release/${version}` branch, create a PR targeting `main` branch, titled `release(app): ${version}`
-3. Trigger the release [workflow](https://github.com/bytedance/UI-TARS-desktop/actions/workflows/release.yml) manually after the PR is merged
+### 预提交钩子
 
-Currently, the release workflow supports the following platforms:
+我们使用 [Husky](https://typicode.github.io/husky/#/) 和 [lint-staged](https://github.com/okonet/lint-staged) 来强制执行预提交钩子。这些钩子包括：
 
-- MacOS x64
-- MacOS arm64
-- Windows x64
+- `prettier --write` — 格式化代码
+- `npm run typecheck` — 严格检查类型
 
-#### Packages
+### 提交信息
 
-##### Latest version
+我们使用 [Conventional Commits](https://www.conventionalcommits.org/) 来规范化提交信息格式。
 
-If you want to publish the `latest` version packages to the npm registry, you can run the following command:
+### CI / 测试
 
-1. `pnpm changeset` to specify the changelogs for the packages you want to publish
-2. Git commit and push to the `release-pkgs/${version}` branch, create a PR targeting `main` branch, titled `release(pkgs): ${version}`
-3. `pnpm run publish:packages` to publish the packages in latest `origin/main` branch after the PR is merged
+每次 PR 或主分支推送都会触发 CI 流水线，运行单元测试和 E2E 测试。
 
-##### Beta version
-
-If you want to publish the `beta` version packages to the npm registry, you can run the following command:
-
-1. `pnpm changeset` to specify the changelogs for the packages you want to publish
-2. Git commit and push to the branch
-3. `pnpm run publish-beta:packages` to publish the packages in current branch
-
-
-### Documentation
-
-The documents are placed in the `docs/*.md` directory, formatted in markdown.  There is currently no documentation site, but the `docs/*.md` directory will be converted into a documentation site in the future.
-
-## Styleguides
-
-### Pre-commit Hooks
-
-We use [Husky](https://typicode.github.io/husky/#/) and [lint-staged](https://github.com/okonet/lint-staged) to enforce the pre-commit hooks. The hooks include:
-
-- `prettier --write` to format the code
-- `npm run typecheck` to strictly check the type
-
-### Commit Messages
-
-We use [Conventional Commits](https://www.conventionalcommits.org/) to standardize the commit messages.
-
-### CI / Testing
-
-Each PR or main branch push will trigger the CI pipeline to run the unit test and E2E test.
-
-#### Unit test
+#### 单元测试
 
 ```bash
 pnpm run test
 ```
 
-#### E2E test
+#### E2E 测试
 
 ```bash
 pnpm run test:e2e
 ```
 
-## Submitting Changes
+## 提交变更
 
-* Push your changes to a feature branch in your fork of the repository.
-* Submit a pull request to this repository
-* Accept the CLA in your PR.
+- 将您的更改推送到您 fork 仓库的特性分支
+- 向本仓库提交 Pull Request
+- 在您的 PR 中接受 CLA
