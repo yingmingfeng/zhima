@@ -1,11 +1,12 @@
 {
   "files": [],
   "references": [
-    { "path": "./tsconfig.node.json" },
-    { "path": "./tsconfig.web.json" },
+    { "path": "./tsconfig.node.json" },// Node 端（主进程 + preload）
+    { "path": "./tsconfig.web.json" },// Web 端（渲染进程）
   ],
   "compilerOptions": {
     "target": "ES2022",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "paths": {

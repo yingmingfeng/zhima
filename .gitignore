@@ -15,10 +15,9 @@ scripts/merge-yml/*.yml
 .mcp*_token
 .understand-anything
 CLAUDE.md
-kc-exe-analysis/
+personal_docs/
 .planning/
 knowledge/
-TEMP_ISSUES.md
 *.tsbuildinfo
 # 已注释的 workflow（保留文件供参考，不提交到 Git）
 .github/workflows/agent_tars_test.yml
@@ -27,3 +26,4 @@ TEMP_ISSUES.md
 .github/workflows/scorecard.yml
 .github/workflows/secret-scan.yml
 .github/workflows/test.yml
+.qoder

@@ -19,10 +19,12 @@ export async function createTray() {
   // 创建两种状态的图标
   const normalIcon = nativeImage
     .createFromPath(path.join(__dirname, '../../resources/logo-vector.png'))
-    .resize({ width: 16, height: 16 });
+    .resize({ width: 32, height: 32 });
 
   const pauseIcon = nativeImage
-    .createFromPath(path.join(__dirname, '../../resources/pause-light.png'))
+    .createFromPath(
+      path.join(__dirname, '../../resources/tray-pause-light.png'),
+    )
     .resize({ width: 16, height: 16 });
 
   tray = new Tray(normalIcon);
