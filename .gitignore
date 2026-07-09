@@ -27,3 +27,5 @@ knowledge/
 .github/workflows/secret-scan.yml
 .github/workflows/test.yml
 .qoder
+.agent
+.claude
