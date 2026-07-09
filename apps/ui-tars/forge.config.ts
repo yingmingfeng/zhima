@@ -193,7 +193,6 @@ class MakerNSIS {
       prepackaged: dir,
       config: {
         directories: { output: path.resolve(makeDir) },
-        productName: 'UI-TARS',
         nsis: this.config,
       },
       win: [`nsis:${targetArch}`],
@@ -235,7 +234,7 @@ class MakerNSIS {
 
 const config: ForgeConfig = {
   packagerConfig: {
-    name: 'UI-TARS',
+    name: 'Zhima',
     icon: 'resources/icon',
     extraResource: ['./resources/app-update.yml'],
     asar: {
@@ -249,7 +248,7 @@ const config: ForgeConfig = {
         ? noopAfterCopy
         : setLanguages([...keepLanguages.values()]),
     ],
-    executableName: 'UI-TARS',
+    executableName: 'zhima',
     ...(enableOsxSign
       ? {
           osxSign: {
@@ -287,12 +286,14 @@ const config: ForgeConfig = {
     //   setupIcon: 'resources/icon.ico',
     // }),
     new MakerNSIS({
+      artifactName: `Zhima-Setup-${pkg.version}.exe`,
       oneClick: false,
       perMachine: false,
       allowToChangeInstallationDirectory: true,
       createDesktopShortcut: true,
       createStartMenuShortcut: true,
-      shortcutName: 'UI-TARS',
+      shortcutName: '芝麻',
+      uninstallDisplayName: '芝麻',
       installerIcon: 'resources/icon.ico',
       uninstallerIcon: 'resources/icon.ico',
     }),

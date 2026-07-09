@@ -12,21 +12,21 @@
         "**/out/**"
       ]
     },
-    "ui-tars-desktop#build": {
+    "zhima#build": {
       "outputs": [
-        "apps/ui-tars-desktop/dist/**",
-        "apps/ui-tars-desktop/out/**"
+        "apps/ui-tars/dist/**",
+        "apps/ui-tars/out/**"
       ]
     },
-    "ui-tars-desktop#build:e2e": {
+    "zhima#build:e2e": {
       "outputs": [
-        "apps/ui-tars-desktop/out/**",
-        "apps/ui-tars-desktop/dist/**"
+        "apps/ui-tars/out/**",
+        "apps/ui-tars/dist/**"
       ]
     },
-    "ui-tars-desktop#test:e2e": {
+    "zhima#test:e2e": {
       "dependsOn": [
-        "ui-tars-desktop#build:e2e"
+        "zhima#build:e2e"
       ]
     },
     "//#format": {},
