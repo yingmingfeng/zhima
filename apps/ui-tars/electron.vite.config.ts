@@ -10,7 +10,7 @@ import {
   externalizeDepsPlugin,
   // bytecodePlugin,  注释bytecode导入
 } from 'electron-vite';
-import tsconfigPaths from 'vite-tsconfig-paths';
+import tsconfigPaths from 'vite-tsconfig-paths'; // 让 Vite 读取 tsconfig.json 中的 paths 配置
 
 import pkg from './package.json';
 import { getExternalPkgs } from './scripts/getExternalPkgs';

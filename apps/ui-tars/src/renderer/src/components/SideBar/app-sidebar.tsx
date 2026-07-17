@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { useCallback, useState, type ComponentProps } from 'react';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate } from 'react-router';
 import { Home } from 'lucide-react';
 
 import {
@@ -19,7 +19,6 @@ import { useSession } from '@renderer//hooks/useSession';
 
 import { NavHistory } from './nav-history';
 import { NavSettings } from './nav-footer';
-import { UITarsHeader } from './nav-header';
 
 import { Operator } from '@main/store/types';
 import { useGlobalSettings, GlobalSettings } from '../Settings/global';
@@ -37,7 +36,6 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     setActiveSession,
   } = useSession();
   const navigate = useNavigate();
-  const location = useLocation();
   const { openSettings } = useGlobalSettings();
   const { status } = useStore();
   const [isNavDialogOpen, setNavDialogOpen] = useState(false);
@@ -140,10 +138,13 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 
   return (
     <>
-      <Sidebar collapsible="icon" className="select-none" {...props}>
+      <Sidebar
+        collapsible="icon"
+        className="select-none border-r border-sidebar-border pt-14"
+        {...props}
+      >
         <DragArea></DragArea>
         <SidebarHeader>
-          <UITarsHeader showTrigger={location.pathname === '/'} />
           <SidebarMenu className="items-center">
             <SidebarMenuButton
               className="font-medium"

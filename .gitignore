@@ -15,6 +15,7 @@ scripts/merge-yml/*.yml
 .mcp*_token
 .understand-anything
 CLAUDE.md
+AGENTS.md
 personal_docs/
 .planning/
 knowledge/

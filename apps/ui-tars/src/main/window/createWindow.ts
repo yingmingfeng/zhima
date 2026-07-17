@@ -61,7 +61,7 @@ export function createWindow({
         ...baseWindowConfig,
         icon,
         autoHideMenuBar: true,
-        frame: true,
+        frame: false,
       };
       break;
     }

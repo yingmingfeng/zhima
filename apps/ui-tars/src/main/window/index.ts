@@ -27,8 +27,8 @@ export function show() {
 export function createMainWindow() {
   mainWindow = createWindow({
     routerPath: '/',
-    width: 1200,
-    height: 700,
+    width: 1440,
+    height: 672,
     alwaysOnTop: false,
   });
 

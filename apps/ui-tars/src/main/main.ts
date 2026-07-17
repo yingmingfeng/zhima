@@ -173,6 +173,31 @@ const registerIPCHandlers = (
     return sanitizeState(state);
   });
 
+  // Window controls
+  ipcMain.handle('window:minimize', () => {
+    const win = BrowserWindow.getFocusedWindow();
+    win?.minimize();
+  });
+
+  ipcMain.handle('window:maximize', () => {
+    const win = BrowserWindow.getFocusedWindow();
+    if (win?.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win?.maximize();
+    }
+  });
+
+  ipcMain.handle('window:close', () => {
+    const win = BrowserWindow.getFocusedWindow();
+    win?.close();
+  });
+
+  ipcMain.handle('window:isMaximized', () => {
+    const win = BrowserWindow.getFocusedWindow();
+    return win?.isMaximized() ?? false;
+  });
+
   // 初始化时注册已有窗口
   wrappers.forEach((wrapper) => {
     if (wrapper instanceof BrowserWindow) {
@@ -230,5 +255,4 @@ app
 
     logger.info('app.whenReady end');
   })
-
   .catch(console.log);

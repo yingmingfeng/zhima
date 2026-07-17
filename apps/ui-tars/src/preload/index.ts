@@ -51,6 +51,12 @@ const electronHandler = {
       ipcRenderer.on('setting-updated', (_, state) => callback(state));
     },
   },
+  windowControls: {
+    minimize: () => ipcRenderer.invoke('window:minimize'),
+    maximize: () => ipcRenderer.invoke('window:maximize'),
+    close: () => ipcRenderer.invoke('window:close'),
+    isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+  },
 };
 
 // Initialize zustand bridge
