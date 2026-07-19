@@ -149,9 +149,9 @@ const Widget = () => {
       style={{ borderWidth: isWin ? '1px' : '0' }}
     >
       <div className="flex draggable-area">
-        {/* Logo */}
+        {/* 图标 */}
         <img src={logo} alt="logo" className="-ml-2 h-6 mr-auto" />
-        {/* Mode Badge */}
+        {/* 模式标签 */}
         <div className="flex justify-center items-center text-xs border px-2 rounded-full text-gray-500">
           {getOperatorIcon(currentOperator)}
           {getOperatorLabel(currentOperator)}
@@ -166,7 +166,7 @@ const Widget = () => {
             const ActionIcon = ActionIconMap[action.type] || MousePointerClick;
             return (
               <div key={idx}>
-                {/* Actions */}
+                {/* 操作 */}
                 {!!action.type && (
                   <>
                     <div className="flex items-baseline">
@@ -191,7 +191,7 @@ const Widget = () => {
                     </div>
                   </>
                 )}
-                {/* Reflection */}
+                {/* 反思 */}
                 {!!action.reflection && (
                   <>
                     <div className="text-lg font-medium mt-2">Reflection</div>
@@ -200,7 +200,7 @@ const Widget = () => {
                     </div>
                   </>
                 )}
-                {/* Thought */}
+                {/* 思考 */}
                 {!!action.thought && (
                   <>
                     <div className="text-lg font-medium mt-2">Thought</div>
@@ -209,7 +209,7 @@ const Widget = () => {
                     </div>
                   </>
                 )}
-                {/* Human Query */}
+                {/* 用户查询 */}
                 {!!action.query && (
                   <>
                     <div className="text-lg font-medium">Human Query</div>

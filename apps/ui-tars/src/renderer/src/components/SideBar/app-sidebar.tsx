@@ -140,7 +140,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     <>
       <Sidebar
         collapsible="icon"
-        className="select-none border-r border-sidebar-border pt-14"
+        className="select-none border-r-0 pt-14"
         {...props}
       >
         <DragArea></DragArea>

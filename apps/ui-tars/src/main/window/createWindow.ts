@@ -96,7 +96,10 @@ export function createWindow({
   browserWindow.on('ready-to-show', () => {
     const shouldShowWindow =
       !app.getLoginItemSettings().wasOpenedAsHidden && !showInBackground;
-    if (shouldShowWindow) browserWindow.show();
+    if (shouldShowWindow) {
+      browserWindow.center();
+      browserWindow.show();
+    }
   });
 
   if (!appUpdater) {

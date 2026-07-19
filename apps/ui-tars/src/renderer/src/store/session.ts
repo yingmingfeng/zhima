@@ -26,7 +26,7 @@ interface SessionState {
   setError: (error: Error | null) => void;
   setLoading: (loading: boolean) => void;
 
-  // messages
+  // 消息
   createMessage: (
     sessionId: string,
     messages: ConversationWithSoM[],
@@ -38,7 +38,7 @@ interface SessionState {
   ) => Promise<ConversationWithSoM[] | null>;
   deleteMessages: (sessionId: string) => Promise<boolean>;
 
-  // Sessions
+  // 会话
   fetchSessions: () => Promise<void>;
   createSession: (
     name: string,

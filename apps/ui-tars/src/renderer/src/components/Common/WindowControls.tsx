@@ -22,7 +22,7 @@ export function WindowControls() {
       className="flex h-full items-stretch"
       style={{ '-webkit-app-region': 'no-drag' }}
     >
-      {/* Minimize */}
+      {/* 最小化 */}
       <button
         className="group flex w-12 items-center justify-center transition-colors hover:bg-[#e5e5e5] dark:hover:bg-[#333333]"
         onClick={() => window.electron.windowControls.minimize()}
@@ -35,7 +35,7 @@ export function WindowControls() {
         />
       </button>
 
-      {/* Maximize / Restore */}
+      {/* 最大化 / 还原 */}
       <button
         className="group flex w-12 items-center justify-center transition-colors hover:bg-[#e5e5e5] dark:hover:bg-[#333333]"
         onClick={handleMaximize}
@@ -56,7 +56,7 @@ export function WindowControls() {
         )}
       </button>
 
-      {/* Close */}
+      {/* 关闭 */}
       <button
         className="group flex w-12 items-center justify-center transition-colors hover:bg-[#e81123]"
         onClick={() => window.electron.windowControls.close()}

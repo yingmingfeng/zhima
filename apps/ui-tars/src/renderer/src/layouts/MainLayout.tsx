@@ -8,22 +8,16 @@ import {
 } from '@renderer/components/ui/sidebar';
 import { WindowControls } from '@renderer/components/Common/WindowControls';
 import { isWindows } from '@renderer/utils/os';
-import { cn } from '@renderer/utils';
 
 function Toolbar() {
   const { toggleSidebar } = useSidebar();
 
   return (
     <div
-      className={cn(
-        'relative z-20 flex h-14 shrink-0 items-center pl-1.5',
-        isWindows
-          ? 'bg-[#F5F5F5] dark:bg-[#262626]'
-          : 'bg-white dark:bg-[#171717]',
-      )}
+      className="relative z-20 flex h-14 shrink-0 items-center pl-1.5"
       style={{ '-webkit-app-region': isWindows ? 'drag' : 'no-drag' }}
     >
-      {/* Left: sidebar toggle + search */}
+      {/* 左侧：侧边栏切换 + 搜索 */}
       <div
         className="px-2 flex items-center gap-2"
         style={{ '-webkit-app-region': 'no-drag' }}
@@ -43,16 +37,16 @@ function Toolbar() {
         </button>
       </div>
 
-      {/* Separator */}
+      {/* 分隔线 */}
       <div className="mx-1.5 h-5 w-px shrink-0 bg-border" />
 
-      {/* Middle: empty space (for future features) */}
+      {/* 中间：留空区域（预留给未来功能） */}
       <div
         className="flex flex-1 items-center"
         style={{ '-webkit-app-region': isWindows ? 'drag' : 'no-drag' }}
       />
 
-      {/* Right: window controls */}
+      {/* 右侧：窗口控制按钮 */}
       {isWindows && <WindowControls />}
     </div>
   );
@@ -62,7 +56,7 @@ export function MainLayout() {
   return (
     <SidebarProvider
       style={{ '--sidebar-width-icon': '72px' }}
-      className="flex h-screen w-full flex-col"
+      className="flex h-screen w-full flex-col bg-sidebar"
     >
       <Toolbar />
       <div className="flex flex-1 overflow-hidden">
