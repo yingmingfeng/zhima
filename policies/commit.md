@@ -27,4 +27,4 @@
 - subject 使用祈使语气，中文或英文均可
 - 一个 commit 只做一件事
 
-> 详细规则和示例见 `COMMIT-GUIDE.md`
+> 详细规则和示例见 [`COMMIT-GUIDE.md`](../COMMIT-GUIDE.md)

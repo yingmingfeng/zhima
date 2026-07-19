@@ -8,6 +8,23 @@ import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
 import type { UTIOPayload } from '@ui-tars/utio';
 
 import type { AppState, LocalStore } from '@main/store/types';
+import {
+  IPC_SETTING_GET,
+  IPC_SETTING_CLEAR,
+  IPC_SETTING_UPDATE,
+  IPC_SETTING_IMPORT_PRESET_FROM_TEXT,
+  IPC_SETTING_IMPORT_PRESET_FROM_URL,
+  IPC_SETTING_UPDATE_PRESET_FROM_REMOTE,
+  IPC_SETTING_RESET_PRESET,
+  IPC_SETTING_UPDATED,
+  IPC_WINDOW_MINIMIZE,
+  IPC_WINDOW_MAXIMIZE,
+  IPC_WINDOW_CLOSE,
+  IPC_WINDOW_IS_MAXIMIZED,
+  IPC_GET_STATE,
+  IPC_SUBSCRIBE,
+  IPC_UTIO_SHARE_REPORT,
+} from '../shared/ipc-channels';
 
 export type Channels = '';
 
@@ -33,40 +50,40 @@ const electronHandler = {
   },
   utio: {
     shareReport: (params: UTIOPayload<'shareReport'>) =>
-      ipcRenderer.invoke('utio:shareReport', params),
+      ipcRenderer.invoke(IPC_UTIO_SHARE_REPORT, params),
   },
   setting: {
-    getSetting: () => ipcRenderer.invoke('setting:get'),
-    clearSetting: () => ipcRenderer.invoke('setting:clear'),
+    getSetting: () => ipcRenderer.invoke(IPC_SETTING_GET),
+    clearSetting: () => ipcRenderer.invoke(IPC_SETTING_CLEAR),
     updateSetting: (setting: Partial<LocalStore>) =>
-      ipcRenderer.invoke('setting:update', setting),
+      ipcRenderer.invoke(IPC_SETTING_UPDATE, setting),
     importPresetFromText: (yamlContent: string) =>
-      ipcRenderer.invoke('setting:importPresetFromText', yamlContent),
+      ipcRenderer.invoke(IPC_SETTING_IMPORT_PRESET_FROM_TEXT, yamlContent),
     importPresetFromUrl: (url: string, autoUpdate: boolean) =>
-      ipcRenderer.invoke('setting:importPresetFromUrl', url, autoUpdate),
+      ipcRenderer.invoke(IPC_SETTING_IMPORT_PRESET_FROM_URL, url, autoUpdate),
     updatePresetFromRemote: () =>
-      ipcRenderer.invoke('setting:updatePresetFromRemote'),
-    resetPreset: () => ipcRenderer.invoke('setting:resetPreset'),
+      ipcRenderer.invoke(IPC_SETTING_UPDATE_PRESET_FROM_REMOTE),
+    resetPreset: () => ipcRenderer.invoke(IPC_SETTING_RESET_PRESET),
     onUpdate: (callback: (setting: LocalStore) => void) => {
-      ipcRenderer.on('setting-updated', (_, state) => callback(state));
+      ipcRenderer.on(IPC_SETTING_UPDATED, (_, state) => callback(state));
     },
   },
   windowControls: {
-    minimize: () => ipcRenderer.invoke('window:minimize'),
-    maximize: () => ipcRenderer.invoke('window:maximize'),
-    close: () => ipcRenderer.invoke('window:close'),
-    isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+    minimize: () => ipcRenderer.invoke(IPC_WINDOW_MINIMIZE),
+    maximize: () => ipcRenderer.invoke(IPC_WINDOW_MAXIMIZE),
+    close: () => ipcRenderer.invoke(IPC_WINDOW_CLOSE),
+    isMaximized: () => ipcRenderer.invoke(IPC_WINDOW_IS_MAXIMIZED),
   },
 };
 
 // Initialize zustand bridge
 const zustandBridge = {
-  getState: () => ipcRenderer.invoke('getState'),
+  getState: () => ipcRenderer.invoke(IPC_GET_STATE),
   subscribe: (callback) => {
     const subscription = (_: unknown, state: AppState) => callback(state);
-    ipcRenderer.on('subscribe', subscription);
+    ipcRenderer.on(IPC_SUBSCRIBE, subscription);
 
-    return () => ipcRenderer.off('subscribe', subscription);
+    return () => ipcRenderer.off(IPC_SUBSCRIBE, subscription);
   },
 };
 

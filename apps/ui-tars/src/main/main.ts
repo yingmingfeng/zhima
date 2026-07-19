@@ -30,6 +30,15 @@ import { registerSettingsHandlers } from './services/settings';
 import { sanitizeState } from './utils/sanitizeState';
 import { windowManager } from './services/windowManager';
 import { checkBrowserAvailability } from './services/browserCheck';
+import {
+  IPC_GET_STATE,
+  IPC_WINDOW_MINIMIZE,
+  IPC_WINDOW_MAXIMIZE,
+  IPC_WINDOW_CLOSE,
+  IPC_WINDOW_IS_MAXIMIZED,
+  IPC_SUBSCRIBE,
+  IPC_UTIO_SHARE_REPORT,
+} from '../shared/ipc-channels';
 
 const { isProd } = env;
 
@@ -168,18 +177,18 @@ const initializeApp = async () => {
 const registerIPCHandlers = (
   wrappers: (BrowserWindow | WebContentsView | BrowserView)[],
 ) => {
-  ipcMain.handle('getState', () => {
+  ipcMain.handle(IPC_GET_STATE, () => {
     const state = store.getState();
     return sanitizeState(state);
   });
 
-  // Window controls
-  ipcMain.handle('window:minimize', () => {
+  // 窗口控制
+  ipcMain.handle(IPC_WINDOW_MINIMIZE, () => {
     const win = BrowserWindow.getFocusedWindow();
     win?.minimize();
   });
 
-  ipcMain.handle('window:maximize', () => {
+  ipcMain.handle(IPC_WINDOW_MAXIMIZE, () => {
     const win = BrowserWindow.getFocusedWindow();
     if (win?.isMaximized()) {
       win.unmaximize();
@@ -188,12 +197,12 @@ const registerIPCHandlers = (
     }
   });
 
-  ipcMain.handle('window:close', () => {
+  ipcMain.handle(IPC_WINDOW_CLOSE, () => {
     const win = BrowserWindow.getFocusedWindow();
     win?.close();
   });
 
-  ipcMain.handle('window:isMaximized', () => {
+  ipcMain.handle(IPC_WINDOW_IS_MAXIMIZED, () => {
     const win = BrowserWindow.getFocusedWindow();
     return win?.isMaximized() ?? false;
   });
@@ -205,8 +214,8 @@ const registerIPCHandlers = (
     }
   });
 
-  // only send state to the wrappers that are not destroyed
-  ipcMain.on('subscribe', (state: unknown) => {
+  // 仅向未销毁的窗口发送状态
+  ipcMain.on(IPC_SUBSCRIBE, (state: unknown) => {
     const sanitizedState = sanitizeState(state as Record<string, unknown>);
     windowManager.broadcast('subscribe', sanitizedState);
   });
@@ -216,7 +225,7 @@ const registerIPCHandlers = (
   );
 
   // TODO: move to ipc routes
-  ipcMain.handle('utio:shareReport', async (_, params) => {
+  ipcMain.handle(IPC_UTIO_SHARE_REPORT, async (_, params) => {
     await UTIOService.getInstance().shareReport(params);
   });
 
