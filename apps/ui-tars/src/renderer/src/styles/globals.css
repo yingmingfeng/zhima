@@ -21,7 +21,7 @@
   --secondary-foreground: #171717;
   --muted: #f5f5f5;
   --muted-foreground: #404040;
-  --accent: #f5f5f5;
+  --accent: #f4f4f4;
   --accent-foreground: #171717;
   --destructive: #e8463a;
   --destructive-foreground: #ffffff;
@@ -42,6 +42,13 @@
   --sidebar-accent-foreground: #171717;
   --sidebar-border: rgba(115, 115, 115, 0.12);
   --sidebar-ring: #737373;
+  /* 窗口控制按钮（TRAE Work 对齐） */
+  --window-control-icon: #24262b;
+  --window-control-hover: #dcdcdc;
+  --window-control-close-hover: #050404;
+  /* 辅助文本颜色（TRAE Work 对齐） */
+  --text-tertiary: #737373;
+  --text-quaternary: #a1a1a1;
 }
 
 .dark {
@@ -78,6 +85,13 @@
   --sidebar-accent-foreground: #f5f5f5;
   --sidebar-border: rgba(115, 115, 115, 0.18);
   --sidebar-ring: #525252;
+  /* 窗口控制按钮（TRAE Work 对齐） */
+  --window-control-icon: #ffffff;
+  --window-control-hover: #222222;
+  --window-control-close-hover: #e81123;
+  /* 辅助文本颜色（TRAE Work 对齐） */
+  --text-tertiary: #737373;
+  --text-quaternary: #a1a1a1;
 }
 
 @theme inline {
@@ -117,6 +131,11 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-window-control-icon: var(--window-control-icon);
+  --color-window-control-hover: var(--window-control-hover);
+  --color-window-control-close-hover: var(--window-control-close-hover);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-quaternary: var(--text-quaternary);
 }
 
 @layer base {
@@ -141,4 +160,22 @@ button {
 
 body {
   background-color: transparent !important;
+}
+
+/* cmdk 列表滚动条美化 */
+[cmdk-list]::-webkit-scrollbar {
+  width: 6px;
+}
+
+[cmdk-list]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[cmdk-list]::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 9999px;
+}
+
+[cmdk-list]::-webkit-scrollbar-thumb:hover {
+  background: #c0c0c0;
 }

@@ -24,20 +24,20 @@ export function WindowControls() {
     >
       {/* 最小化 */}
       <button
-        className="group flex w-12 items-center justify-center transition-colors hover:bg-[#e5e5e5] dark:hover:bg-[#333333]"
+        className="group flex w-12 items-center justify-center transition-colors hover:bg-window-control-hover"
         onClick={() => window.electron.windowControls.minimize()}
         title="Minimize"
       >
         <SvgIcon
           name="window-minimize"
           size={11}
-          className="text-[#24262b] dark:text-[#cccccc]"
+          className="text-window-control-icon"
         />
       </button>
 
       {/* 最大化 / 还原 */}
       <button
-        className="group flex w-12 items-center justify-center transition-colors hover:bg-[#e5e5e5] dark:hover:bg-[#333333]"
+        className="group flex w-12 items-center justify-center transition-colors hover:bg-window-control-hover"
         onClick={handleMaximize}
         title={isMaximized ? 'Restore' : 'Maximize'}
       >
@@ -45,27 +45,27 @@ export function WindowControls() {
           <SvgIcon
             name="window-restore"
             size={14}
-            className="text-[#24262b] dark:text-[#cccccc]"
+            className="text-window-control-icon"
           />
         ) : (
           <SvgIcon
             name="window-maximize"
             size={11}
-            className="text-[#24262b] dark:text-[#cccccc]"
+            className="text-window-control-icon"
           />
         )}
       </button>
 
       {/* 关闭 */}
       <button
-        className="group flex w-12 items-center justify-center transition-colors hover:bg-[#e81123]"
+        className="group flex w-12 items-center justify-center transition-colors hover:bg-window-control-close-hover"
         onClick={() => window.electron.windowControls.close()}
         title="Close"
       >
         <SvgIcon
           name="window-close"
           size={22}
-          className="text-[#24262b] group-hover:text-white dark:text-[#cccccc]"
+          className="text-window-control-icon group-hover:text-white"
         />
       </button>
     </div>

@@ -139,17 +139,28 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   deleteSession: async (id) => {
     try {
-      const deleted = await sessionManager.deleteSession(id);
-      await get().deleteMessages(id);
+      const isCurrent = id === get().currentSessionId;
 
-      if (deleted) {
+      // 先清理主进程状态（仅当前会话需要）
+      if (isCurrent) {
+        await api.clearHistory();
+      }
+
+      // 删除本地存储
+      const [deletedSession] = await Promise.all([
+        sessionManager.deleteSession(id),
+        chatManager.deleteSessionMessages(id),
+      ]);
+
+      if (deletedSession) {
         set((state) => ({
           sessions: state.sessions.filter((session) => session.id !== id),
           currentSessionId:
             state.currentSessionId === id ? '' : state.currentSessionId,
+          chatMessages: state.currentSessionId === id ? [] : state.chatMessages,
         }));
       }
-      return deleted;
+      return deletedSession;
     } catch (err) {
       console.error('deleteSession', err);
 

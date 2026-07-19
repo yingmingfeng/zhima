@@ -128,18 +128,21 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 
   const onSessionDelete = useCallback(
     async (sessionId: string) => {
+      const wasCurrent = currentSessionId === sessionId;
       await deleteSession(sessionId);
-      if (currentSessionId === sessionId) {
-        goHome();
+      if (wasCurrent) {
+        // deleteSession 已经清理了状态，只需导航到首页
+        await navigate('/');
       }
     },
-    [currentSessionId, deleteSession, goHome],
+    [currentSessionId, deleteSession, navigate],
   );
 
   return (
     <>
       <Sidebar
-        collapsible="icon"
+        variant="inset"
+        collapsible="offcanvas"
         className="select-none border-r-0 pt-14"
         {...props}
       >

@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "@computer-use/node-mac-permissions": "2.2.2",
+    "cmdk": "^1.1.1",
     "jose": "^6.0.11",
     "sharp": "0.33.3"
   },

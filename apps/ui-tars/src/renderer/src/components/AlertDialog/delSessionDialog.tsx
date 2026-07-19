@@ -2,6 +2,7 @@
  * Copyright (c) 2025 Bytedance, Inc. and its affiliates.
  * SPDX-License-Identifier: Apache-2.0
  */
+import { useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +17,7 @@ import {
 interface DeleteSessionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
 }
 
 export function DeleteSessionDialog({
@@ -24,23 +25,37 @@ export function DeleteSessionDialog({
   onOpenChange,
   onConfirm,
 }: DeleteSessionDialogProps) {
+  const [deleting, setDeleting] = useState(false);
+
+  const handleConfirm = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (deleting) return;
+    setDeleting(true);
+    try {
+      await onConfirm();
+    } finally {
+      setDeleting(false);
+      onOpenChange(false);
+    }
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Session</AlertDialogTitle>
+          <AlertDialogTitle>删除会话</AlertDialogTitle>
           <AlertDialogDescription>
-            The current session is running. Navigating away will forcibly stop
-            the session. Do you still want to proceed?
+            确定要删除此会话吗？此操作无法撤销。
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>取消</AlertDialogCancel>
           <AlertDialogAction
             className="bg-red-500 hover:bg-red-600"
-            onClick={onConfirm}
+            onClick={handleConfirm}
+            disabled={deleting}
           >
-            Delete
+            {deleting ? '删除中...' : '删除'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

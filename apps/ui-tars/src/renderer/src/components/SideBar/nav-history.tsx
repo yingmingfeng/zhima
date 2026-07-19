@@ -74,11 +74,16 @@ export function NavHistory({
   const [isShareConfirmOpen, setIsShareConfirmOpen] = useState(false);
   const [id, setId] = useState('');
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
+  const [dropdownOpenId, setDropdownOpenId] = useState<string | null>(null);
   const { setOpen, state } = useSidebar();
 
-  const handleDelete = (id: string) => {
-    setIsShareConfirmOpen(true);
-    setId(id);
+  const handleDelete = (sessionId: string) => {
+    // 先关闭 DropdownMenu，等其完全关闭后再打开删除确认对话框
+    setDropdownOpenId(null);
+    setTimeout(() => {
+      setId(sessionId);
+      setIsShareConfirmOpen(true);
+    }, 50);
   };
 
   const handleHistory = () => {
@@ -126,7 +131,12 @@ export function NavHistory({
                         )}
                         <span className="max-w-38">{item.name}</span>
                       </SidebarMenuSubButton>
-                      <DropdownMenu>
+                      <DropdownMenu
+                        open={dropdownOpenId === item.id}
+                        onOpenChange={(isOpen) =>
+                          setDropdownOpenId(isOpen ? item.id : null)
+                        }
+                      >
                         <DropdownMenuTrigger asChild>
                           <SidebarMenuAction className="invisible group-hover/item:visible [&[data-state=open]]:visible mt-1">
                             <MoreHorizontal />
