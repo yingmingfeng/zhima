@@ -3,16 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { useCallback, useState, type ComponentProps } from 'react';
-import { useNavigate } from 'react-router';
-import { Home } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router';
+import { Pencil, Folder, Clock, Puzzle } from 'lucide-react';
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarHeader,
+  SidebarGroup,
   SidebarMenu,
   SidebarMenuButton,
+  SidebarMenuItem,
 } from '@renderer/components/ui/sidebar';
 import { DragArea } from '@renderer/components/Common/drag';
 import { useSession } from '@renderer//hooks/useSession';
@@ -28,30 +29,33 @@ import { NavDialog } from '../AlertDialog/navDialog';
 import { api } from '../../api';
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
-  const {
-    currentSessionId,
-    sessions,
-    getSession,
-    deleteSession,
-    setActiveSession,
-  } = useSession();
+  const { currentSessionId, sessions, getSession, deleteSession } =
+    useSession();
   const navigate = useNavigate();
+  const location = useLocation();
   const { openSettings } = useGlobalSettings();
   const { status } = useStore();
   const [isNavDialogOpen, setNavDialogOpen] = useState(false);
-  const [pendingAction, setPendingAction] = useState<
-    'home' | { type: 'session'; id: string } | null
-  >(null);
+  const [pendingAction, setPendingAction] = useState<{
+    type: 'session';
+    id: string;
+  } | null>(null);
 
   const needsConfirm =
     status === StatusEnum.RUNNING ||
     status === StatusEnum.CALL_USER ||
     status === StatusEnum.PAUSE;
 
-  const goHome = useCallback(async () => {
-    await navigate('/');
-    await setActiveSession('');
-  }, [navigate, setActiveSession]);
+  // 导航项：新建任务 / 项目 / 自动化 / 插件
+  const navItems = [
+    { title: '新建任务', icon: Pencil, path: '/' },
+    // { title: '项目', icon: Folder, path: '/projects' },
+    { title: '自动化', icon: Clock, path: '/automation' },
+    { title: '插件', icon: Puzzle, path: '/plugins' },
+  ];
+
+  /** 判断导航项是否处于 active 状态 */
+  const isActive = (path: string) => location.pathname === path;
 
   const onSessionClick = useCallback(
     async (sessionId: string) => {
@@ -87,14 +91,12 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     [getSession, navigate],
   );
 
-  const handleHomeClick = useCallback(() => {
-    if (needsConfirm) {
-      setPendingAction('home');
-      setNavDialogOpen(true);
-    } else {
-      goHome();
-    }
-  }, [needsConfirm]);
+  const handleNavClick = useCallback(
+    (path: string) => {
+      navigate(path);
+    },
+    [navigate],
+  );
 
   const handleSessionClick = useCallback(
     (sessionId: string) => {
@@ -112,14 +114,12 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     await api.stopRun();
     await api.clearHistory();
 
-    if (pendingAction === 'home') {
-      await goHome();
-    } else if (pendingAction?.type === 'session') {
+    if (pendingAction?.type === 'session') {
       await onSessionClick(pendingAction.id);
     }
     setPendingAction(null);
     setNavDialogOpen(false);
-  }, [pendingAction, goHome, onSessionClick]);
+  }, [pendingAction, onSessionClick]);
 
   const onCancel = useCallback(() => {
     setPendingAction(null);
@@ -147,18 +147,25 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
         {...props}
       >
         <DragArea></DragArea>
-        <SidebarHeader>
-          <SidebarMenu className="items-center">
-            <SidebarMenuButton
-              className="font-medium"
-              onClick={handleHomeClick}
-            >
-              <Home />
-              Home
-            </SidebarMenuButton>
-          </SidebarMenu>
-        </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="gap-1 overflow-visible">
+          {/* 导航项：新建任务 / 项目 / 自动化 / 插件 */}
+          <SidebarGroup className="px-2 py-0">
+            <SidebarMenu className="gap-1">
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    className="font-medium"
+                    isActive={isActive(item.path)}
+                    onClick={() => handleNavClick(item.path)}
+                  >
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+          {/* 任务列表 */}
           <NavHistory
             currentSessionId={currentSessionId}
             history={sessions}

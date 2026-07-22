@@ -7,7 +7,7 @@ import {
 } from 'electron-updater';
 import { CustomGitHubProvider } from '@main/electron-updater/GitHubProvider';
 import { env } from 'node:process';
-import { REPO_OWNER, REPO_NAME } from '@main/shared/constants';
+import { REPO_OWNER, REPO_NAME } from '@shared/agent/constants';
 
 export class AppUpdater {
   autoUpdater: ElectronAppUpdater = autoUpdater;

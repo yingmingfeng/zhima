@@ -1,32 +1,33 @@
+# 依赖与构建产物
 node_modules
 dist
 out
-.tmp
-.DS_Store
-*.log*
-.eslintcache
+*.tsbuildinfo
+
+# 环境与缓存
 .env
+.turbo/
+.eslintcache
+.tmp
+
+# 测试与覆盖率
 test-results/
 coverage/
-.turbo/
-scripts/merge-yml/*.yml
+
+# 日志与系统文件
+*.log*
+.DS_Store
+
+# AI 工具与插件产物
 .claude/
-.tarko
+.qoder/
+.agents/
+.tarko/
 .mcp*_token
-.understand-anything
 CLAUDE.md
-AGENTS.md
+
+# 个人文档（不入库）
 personal_docs/
-.planning/
-knowledge/
-*.tsbuildinfo
-# 已注释的 workflow（保留文件供参考，不提交到 Git）
-.github/workflows/agent_tars_test.yml
-.github/workflows/benchmark.yml
-.github/workflows/e2e-ui-tars.yml
-.github/workflows/scorecard.yml
-.github/workflows/secret-scan.yml
-.github/workflows/test.yml
-.qoder
-.agent
-.claude
+
+# 项目配置与脚本产物
+scripts/merge-yml/*.yml

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { useEffect, useRef, useState } from 'react';
-import { setOfMarksOverlays } from '@main/shared/setOfMarks';
+import { setOfMarksOverlays } from '@shared/agent/setOfMarks';
 import { getState } from './useStore';
 import { Conversation } from '@ui-tars/shared/types';
 import { api } from '@renderer/api';

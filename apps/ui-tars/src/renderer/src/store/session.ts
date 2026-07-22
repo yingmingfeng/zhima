@@ -10,7 +10,7 @@ import {
 } from '@renderer/db/session';
 import { chatManager } from '@renderer/db/chat';
 import { api } from '@renderer/api';
-import { ConversationWithSoM } from '@/main/shared/types';
+import { ConversationWithSoM } from '@shared/agent/types';
 import { Operator } from '@main/store/types';
 
 interface SessionState {

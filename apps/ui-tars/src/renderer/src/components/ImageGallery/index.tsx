@@ -6,7 +6,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { MousePointerClick, SkipBack, SkipForward } from 'lucide-react';
 import { Button } from '@renderer/components/ui/button';
 import { Slider } from '@renderer/components/ui/slider';
-import { type ConversationWithSoM } from '@main/shared/types';
+import { type ConversationWithSoM } from '@shared/agent/types';
 import { ActionIconMap } from '@renderer/const/actions';
 import ms from 'ms';
 

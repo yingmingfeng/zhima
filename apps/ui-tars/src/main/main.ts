@@ -18,6 +18,7 @@ import ElectronStore from 'electron-store';
 
 import * as env from '@main/env';
 import { logger } from '@main/logger';
+import { registerShortcuts } from '@main/shortcuts';
 import { createMainWindow } from '@main/window/index';
 import { registerIpcMain } from '@ui-tars/electron-ipc/main';
 import { ipcRoutes } from './ipcRoutes';
@@ -261,6 +262,9 @@ app
     });
 
     await initializeApp();
+
+    // 注册主进程快捷键
+    registerShortcuts();
 
     logger.info('app.whenReady end');
   })

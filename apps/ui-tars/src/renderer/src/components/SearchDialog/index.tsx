@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { MessageCircle, Folder } from 'lucide-react';
 
@@ -66,18 +66,6 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
 
     onOpenChange(false);
   };
-
-  // Ctrl+G 快捷键打开搜索
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'g') {
-        e.preventDefault();
-        onOpenChange(!open);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, onOpenChange]);
 
   return (
     <CommandDialog

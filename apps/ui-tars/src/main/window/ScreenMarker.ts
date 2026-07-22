@@ -15,7 +15,7 @@ import * as env from '@main/env';
 import { logger } from '@main/logger';
 
 import { AppUpdater } from '@main/utils/updateApp';
-import { setOfMarksOverlays } from '@main/shared/setOfMarks';
+import { setOfMarksOverlays } from '@shared/agent/setOfMarks';
 import path from 'path';
 import MenuBuilder from '../menu';
 import { windowManager } from '../services/windowManager';

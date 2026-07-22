@@ -9,6 +9,8 @@ import { Operator } from '@main/store/types';
 // Session 相关的类型定义
 export interface SessionMetaInfo {
   operator: Operator;
+  /** Agent 操作的工作目录，AI 产出的文件默认存放于此 */
+  workspacePath?: string;
   [key: string]: any;
 }
 

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Outlet } from 'react-router';
-import { PanelLeft, Search, Menu } from 'lucide-react';
+import { PanelLeft, Search } from 'lucide-react';
 import { AppSidebar } from '@/renderer/src/components/SideBar/app-sidebar';
 import {
   SidebarInset,
@@ -15,6 +15,8 @@ import {
 import { WindowControls } from '@renderer/components/Common/WindowControls';
 import { SearchDialog } from '@renderer/components/SearchDialog';
 import { isWindows } from '@renderer/utils/os';
+import { useShortcuts } from '@renderer/hooks/useShortcuts';
+import { DEFAULT_SHORTCUTS, formatShortcutLabel } from '@shared/shortcuts';
 
 function Toolbar({
   onSearchClick,
@@ -25,17 +27,16 @@ function Toolbar({
 }) {
   const { toggleSidebar, open } = useSidebar();
 
-  // 监听 Ctrl+B 快捷键切换侧边栏
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'b') {
-        e.preventDefault();
-        toggleSidebar();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleSidebar]);
+  // 从共享映射表动态读取快捷键标签
+  const platform = isWindows ? 'win' : 'mac';
+  const sidebarLabel = formatShortcutLabel(
+    DEFAULT_SHORTCUTS.find((s) => s.id === 'sidebar.toggle')!,
+    platform,
+  );
+  const searchLabel = formatShortcutLabel(
+    DEFAULT_SHORTCUTS.find((s) => s.id === 'search.open')!,
+    platform,
+  );
 
   return (
     <div
@@ -51,16 +52,6 @@ function Toolbar({
       >
         <Tooltip>
           <TooltipTrigger asChild>
-            <button className="flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-black/8 dark:hover:bg-white/10">
-              <Menu size={16} className="text-sidebar-foreground" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" sideOffset={4}>
-            <span>更多</span>
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
             <button
               className="flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-black/8 dark:hover:bg-white/10"
               onClick={toggleSidebar}
@@ -68,9 +59,11 @@ function Toolbar({
               <PanelLeft size={16} className="text-sidebar-foreground" />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" sideOffset={4}>
+          <TooltipContent side="bottom" sideOffset={0}>
             <span>{open ? '隐藏任务栏' : '显示任务栏'}</span>
-            <kbd className="ml-2 text-xs text-text-tertiary">Ctrl B</kbd>
+            <kbd className="ml-2 text-xs text-text-tertiary">
+              {sidebarLabel}
+            </kbd>
           </TooltipContent>
         </Tooltip>
         <Tooltip>
@@ -82,9 +75,9 @@ function Toolbar({
               <Search size={16} className="text-sidebar-foreground" />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" sideOffset={4}>
+          <TooltipContent side="bottom" sideOffset={0}>
             <span>搜索</span>
-            <kbd className="ml-2 text-xs text-text-tertiary">Ctrl G</kbd>
+            <kbd className="ml-2 text-xs text-text-tertiary">{searchLabel}</kbd>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -101,14 +94,32 @@ function Toolbar({
   );
 }
 
+/** 快捷键注册器（放在 SidebarProvider 内部，可访问 useSidebar） */
+function ShortcutRegistrar({ onToggleSearch }: { onToggleSearch: () => void }) {
+  const { toggleSidebar } = useSidebar();
+
+  const handlers = useMemo(
+    () => ({
+      'sidebar.toggle': toggleSidebar,
+      'search.open': onToggleSearch,
+    }),
+    [toggleSidebar, onToggleSearch],
+  );
+  useShortcuts(handlers);
+
+  return null;
+}
+
 export function MainLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
+  const toggleSearch = useCallback(() => setSearchOpen((prev) => !prev), []);
 
   return (
     <SidebarProvider
       style={{ '--sidebar-width-icon': '72px' }}
       className="flex h-screen w-full flex-col bg-sidebar"
     >
+      <ShortcutRegistrar onToggleSearch={toggleSearch} />
       <Toolbar
         onSearchClick={() => setSearchOpen(true)}
         disableDrag={searchOpen}

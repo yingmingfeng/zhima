@@ -74,56 +74,6 @@ const testMakeScreenMarker = () => {
       yPos,
     });
     console.log('overlays', overlays);
-    // for (let i = 0; i < overlays.length; i++) {
-    //       const overlay = overlays[i];
-    //       const currentOverlay = new BrowserWindow({
-    //         width: overlay.boxWidth || 200,
-    //         height: overlay.boxHeight || 200,
-    //         transparent: true,
-    //         frame: false,
-    //         alwaysOnTop: true,
-    //         skipTaskbar: true,
-    //         focusable: false,
-    //         hasShadow: false,
-    //         thickFrame: false,
-    //         paintWhenInitiallyHidden: true,
-    //         type: 'panel',
-    //         webPreferences: {
-    //           nodeIntegration: true,
-    //           contextIsolation: false,
-    //         },
-    //       });
-    //       currentOverlay.webContents.openDevTools();
-    //       if (overlay.xPos && overlay.yPos && overlay.svg) {
-    //         currentOverlay.setPosition(
-    //           overlay.xPos + overlay.offsetX,
-    //           overlay.yPos + overlay.offsetY,
-    //         );
-    //         xPos = overlay.xPos;
-    //         yPos = overlay.yPos;
-    //         currentOverlay.loadURL(`data:text/html;charset=UTF-8,
-    // <html>
-    // <head>
-    //   <style>
-    //     html, body {
-    //       background: transparent;
-    //       margin: 0;
-    //       padding: 0;
-    //       overflow: hidden;
-    //       width: 100%;
-    //       height: 100%;
-    //     }
-    //   </style>
-    // </head>
-    // <body>
-    //   ${overlay.svg}
-    // </body>
-    // </html>
-    // `);
-    //       }
-    //       await sleep(1000);
-    //       currentOverlay.close();
-    // }
   }
 };
 

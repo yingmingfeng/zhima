@@ -1,0 +1,58 @@
+name: "🐞 Agent Zhima Bug 报告"
+description: "提交 Agent Zhima 相关问题"
+title: "[Bug]: "
+type: Bug
+labels: ["Agent Zhima", "Bug"]
+body:
+- type: input
+  attributes:
+    label: 版本号
+    description: "请填写你使用的 Agent Zhima CLI 版本。"
+    placeholder: "例如 1.0.0"
+  validations:
+    required: true
+- type: checkboxes
+  attributes:
+    label: 问题类型
+    description: "选择你遇到问题所在的模块。"
+    options:
+      - label: 请选择问题类型 👇
+        required: false
+      - label: Agent Zhima Web UI (`@agent-zhima/web-ui`)
+      - label: Agent Zhima CLI (`@agent-zhima/cli`)
+      - label: Agent Zhima Server (`@agent-zhima/server`)
+      - label: Agent Zhima Core (`@agent-zhima/core`)
+      - label: MCP Agent (`@tarko/mcp-agent`)
+      - label: Agent Kernel (`@tarko/agent`)
+      - label: 其他（请在描述中说明）
+- type: checkboxes
+  attributes:
+    label: 模型提供商
+    description: "选择出现问题时使用的规划模型提供商。"
+    options:
+      - label: 请选择模型提供商 👇
+        required: false
+      - label: 火山引擎 (Volcengine)
+      - label: Anthropic
+      - label: OpenAI
+      - label: Azure OpenAI
+      - label: 其他（请在描述中说明）
+- type: textarea
+  attributes:
+    label: 问题描述
+    description: |
+      请详细描述问题，包括预期行为和实际行为。如有可能，请附上相关截图。
+    placeholder: |
+      示例：
+      - 预期行为：应用应显示搜索结果。
+      - 实际行为：应用显示空白页面，无任何报错。
+      [如有截图请附在此处]
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: 错误日志
+    description: "请提供相关的错误日志。"
+    placeholder: "在此粘贴相关日志。"
+  validations:
+    required: false

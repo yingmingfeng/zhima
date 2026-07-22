@@ -13,6 +13,9 @@ import './styles/globals.css';
 const Home = lazy(() => import('./pages/home'));
 const LocalOperator = lazy(() => import('./pages/local'));
 const FreeRemoteOperator = lazy(() => import('./pages/remote/free'));
+const Projects = lazy(() => import('./pages/projects'));
+const Automation = lazy(() => import('./pages/automation'));
+const Plugins = lazy(() => import('./pages/plugins'));
 // const PaidRemoteOperator = lazy(() => import('./pages/remote/paid'));
 
 const Widget = lazy(() => import('./pages/widget'));
@@ -32,6 +35,9 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/local" element={<LocalOperator />} />
             <Route path="/free-remote" element={<FreeRemoteOperator />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/automation" element={<Automation />} />
+            <Route path="/plugins" element={<Plugins />} />
             {/* <Route path="/paid-remote" element={<PaidRemoteOperator />} /> */}
           </Route>
 

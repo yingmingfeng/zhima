@@ -10,7 +10,7 @@ import { getState } from '@renderer/hooks/useStore';
 import { usePermissions } from './usePermissions';
 import { useSetting } from './useSetting';
 import { api } from '@renderer/api';
-import { ConversationWithSoM } from '@/main/shared/types';
+import { ConversationWithSoM } from '@shared/agent/types';
 import { Message } from '@ui-tars/shared/types';
 import { Operator } from '@/main/store/types';
 

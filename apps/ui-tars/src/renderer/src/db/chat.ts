@@ -4,7 +4,7 @@
  */
 // /apps/ui-tars/src/renderer/src/db/chat.ts
 import { get, set, del, createStore } from 'idb-keyval';
-import { ConversationWithSoM } from '@/main/shared/types';
+import { ConversationWithSoM } from '@shared/agent/types';
 
 export interface ChatMetaInfo {
   [key: string]: any;

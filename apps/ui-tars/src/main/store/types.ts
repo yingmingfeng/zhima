@@ -5,7 +5,7 @@
 import { GUIAgentData, Message } from '@ui-tars/shared/types';
 
 import { LocalStore, PresetSource } from './validate';
-import { ConversationWithSoM } from '@main/shared/types';
+import { ConversationWithSoM } from '@shared/agent/types';
 
 export type NextAction =
   | { type: 'key'; text: string }

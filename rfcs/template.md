@@ -4,81 +4,81 @@ rfc_pr:
 issue: 
 ---
 
-# RFC Template
+# RFC 模板
 
-## Summary
+## 摘要
 
-Brief explanation of the proposed change for UI-TARS-desktop.
+简要说明针对 UI-TARS-desktop 的拟议变更。
 
-## Basic example
+## 基本示例
 
-If the proposal involves API changes or new component interactions, provide a concise code/usage example. Omit if not applicable.
+如果提案涉及 API 变更或新的组件交互，请提供简洁的代码/用法示例。如不适用可省略。
 
-## Motivation
+## 动机
 
-Why is this change essential for UI-TARS-desktop? What specific problems does it address? What limitations or user pain points will it resolve? Focus on objective technical reasons rather than subjective preferences.
+为什么这个变更对 UI-TARS-desktop 至关重要？它解决了哪些具体问题？将消除哪些限制或用户痛点？请聚焦客观的技术原因，而非主观偏好。
 
-## Detailed design
+## 详细设计
 
-Technical specification of the proposal including:
+提案的技术规格说明，包括：
 
-- Architectural diagrams (if applicable)
-- Modified/new APIs
-- Data flow changes
-- Lifecycle impacts
-- Error handling strategies
-- Compatibility with existing TARS patterns
-- Platform considerations (Windows/macOS/Linux)
+- 架构图（如适用）
+- 修改/新增的 API
+- 数据流变更
+- 生命周期影响
+- 错误处理策略
+- 与现有 TARS 模式的兼容性
+- 平台考量（Windows/macOS/Linux）
 
-Provide sufficient detail for core maintainers to evaluate implementation feasibility.
+提供足够的细节，以便核心维护者评估实施可行性。
 
-## Drawbacks
+## 缺陷
 
-Critical considerations including:
+需要重点考虑的问题，包括：
 
-- Increased binary size/performance impact
-- Maintenance complexity
-- Security implications
-- Cross-platform consistency risks
-- Developer experience impacts
-- Migration challenges for existing integrations
+- 二进制体积增大/性能影响
+- 维护复杂度
+- 安全隐患
+- 跨平台一致性风险
+- 开发者体验影响
+- 现有集成的迁移挑战
 
-## Alternatives
+## 替代方案
 
-What other approaches were considered? Include:
+考虑过哪些其他方案？包括：
 
-- Third-party solutions
-- Partial implementations
-- Alternative architectural patterns
-- Status quo analysis
+- 第三方解决方案
+- 部分实现
+- 替代架构模式
+- 维持现状的分析
 
-## Adoption strategy
+## 采纳策略
 
-How will this change be rolled out? Address:
+这个变更将如何推出？需说明：
 
-- Phased implementation plan
-- Backward compatibility measures
-- Deprecation timelines (if any)
-- Documentation updates
-- Testing requirements (unit tests, E2E scenarios)
+- 分阶段实施计划
+- 向后兼容措施
+- 废弃时间表（如有）
+- 文档更新
+- 测试要求（单元测试、E2E 场景）
 
-## How we teach this
+## 如何推广教学
 
-Educational aspects covering:
+教育培训方面，涵盖：
 
-- Updated API documentation strategy
-- Sample project updates
-- Tutorial integration points
-- Workshop/onboarding implications
-- Error message guidance
-- Debugging patterns for new features
+- API 文档更新策略
+- 示例项目更新
+- 教程集成要点
+- 工作坊/新人引导的影响
+- 错误信息指引
+- 新功能的调试模式
 
-## Unresolved questions
+## 未解决的问题
 
-Open technical discussions needing resolution:
+需要解决的开放技术讨论：
 
-- Unvalidated performance assumptions
-- Undecided implementation details
-- Third-party dependency risks
-- Platform-specific edge cases
-- Long-term maintenance ownership
+- 未验证的性能假设
+- 未确定的实现细节
+- 第三方依赖风险
+- 平台特定的边界情况
+- 长期维护责任归属

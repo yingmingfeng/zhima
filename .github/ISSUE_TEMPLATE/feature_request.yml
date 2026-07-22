@@ -1,0 +1,39 @@
+name: '✨ 功能建议'
+description: 提交新功能建议
+title: '[Feature]: '
+type: Feature
+labels: ['Feature']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢提交功能建议！提交前请注意：
+
+         - 请确认已在 [Issues](https://github.com/yingmingfeng/zhima/issues) 中搜索过，没有重复的建议。
+         - 可以先在 [Discussions](https://github.com/yingmingfeng/zhima/discussions) 中讨论。
+
+  - type: checkboxes
+    id: project
+    attributes:
+      label: 该功能建议涉及哪个项目？
+      description: 选择相关项目。
+      options:
+        - label: 请选择项目 👇
+        - label: Agent Zhima（CLI、Server、Core 等）
+        - label: 芝麻桌面端 (Zhima Desktop)
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 该功能解决什么问题？
+      description: 请描述该功能的使用场景。
+    validations:
+      required: true
+
+  - type: textarea
+    id: api
+    attributes:
+      label: 你期望的功能是什么样的？
+      description: 描述期望的 Agent 行为、设置变更等，如有可能请提供具体的代码改动建议。
+    validations:
+      required: true

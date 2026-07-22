@@ -7,7 +7,7 @@ import sharp from 'sharp';
 import { Conversation, type PredictionParsed } from '@ui-tars/shared/types';
 
 import { logger } from '@main/logger';
-import { setOfMarksOverlays } from '@main/shared/setOfMarks';
+import { setOfMarksOverlays } from '@shared/agent/setOfMarks';
 
 // TODO: use jimp to mark click position
 export async function markClickPosition(data: {

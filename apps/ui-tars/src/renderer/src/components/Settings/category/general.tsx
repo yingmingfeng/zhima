@@ -4,7 +4,7 @@ import { RefreshCcw } from 'lucide-react';
 import { api } from '@/renderer/src/api';
 import { toast } from 'sonner';
 
-import { REPO_OWNER, REPO_NAME } from '@main/shared/constants';
+import { REPO_OWNER, REPO_NAME } from '@shared/agent/constants';
 
 export const GeneralSettings = () => {
   const [updateLoading, setUpdateLoading] = useState(false);

@@ -41,7 +41,7 @@ import { PresetBanner } from './PresetBanner';
 import googleIcon from '@resources/icons/google-color.svg?url';
 import bingIcon from '@resources/icons/bing-color.svg?url';
 import baiduIcon from '@resources/icons/baidu-color.svg?url';
-import { REPO_OWNER, REPO_NAME } from '@main/shared/constants';
+import { REPO_OWNER, REPO_NAME } from '@shared/agent/constants';
 
 // 定义表单验证 schema
 const formSchema = z.object({
