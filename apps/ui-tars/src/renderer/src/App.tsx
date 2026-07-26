@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Bytedance, Inc. and its affiliates.
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Route, HashRouter, Routes } from 'react-router';
+import { Route, HashRouter, Routes, Navigate } from 'react-router';
 import { lazy, Suspense } from 'react';
 import { Toaster } from 'sonner';
 
@@ -15,7 +15,7 @@ const LocalOperator = lazy(() => import('./pages/local'));
 const FreeRemoteOperator = lazy(() => import('./pages/remote/free'));
 const Projects = lazy(() => import('./pages/projects'));
 const Automation = lazy(() => import('./pages/automation'));
-const Plugins = lazy(() => import('./pages/plugins'));
+const PluginMarket = lazy(() => import('./pages/plugins'));
 // const PaidRemoteOperator = lazy(() => import('./pages/remote/paid'));
 
 const Widget = lazy(() => import('./pages/widget'));
@@ -32,12 +32,30 @@ export default function App() {
       >
         <Routes>
           <Route element={<MainLayout />}>
-            <Route path="/" element={<Home />} />
+            {/* 默认路径重定向到 Work tab */}
+            <Route path="/" element={<Navigate to="/work" replace />} />
+
+            {/* Tab 驱动路由：/work | /computer | /browser */}
+            <Route path="/work">
+              <Route index element={<Home />} />
+              <Route path="plugin-market" element={<PluginMarket />} />
+              <Route path="automation" element={<Automation />} />
+            </Route>
+            <Route path="/computer">
+              <Route index element={<Home />} />
+              <Route path="plugin-market" element={<PluginMarket />} />
+              <Route path="automation" element={<Automation />} />
+            </Route>
+            <Route path="/browser">
+              <Route index element={<Home />} />
+              <Route path="plugin-market" element={<PluginMarket />} />
+              <Route path="automation" element={<Automation />} />
+            </Route>
+
+            {/* 任务执行页（不归属特定 tab） */}
             <Route path="/local" element={<LocalOperator />} />
             <Route path="/free-remote" element={<FreeRemoteOperator />} />
             <Route path="/projects" element={<Projects />} />
-            <Route path="/automation" element={<Automation />} />
-            <Route path="/plugins" element={<Plugins />} />
             {/* <Route path="/paid-remote" element={<PaidRemoteOperator />} /> */}
           </Route>
 

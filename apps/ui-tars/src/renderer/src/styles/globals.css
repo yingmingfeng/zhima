@@ -1,104 +1,373 @@
 /**
- * Copyright (c) 2025 Bytedance, Inc. and its affiliates.
- * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2026 yingmingfeng
  */
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@fontsource-variable/inter";
 
 @custom-variant dark (&:is(.dark *));
 
+/* ================================================================
+ * Raw Palette — 静态色值字典
+ *
+ * 所有静态值（颜色、几何）的唯一来源。
+ * 按色系分组，包含 TRAE Work 标准色阶、项目扩展拾色及几何令牌。
+ * 语义层通过 var() 引用，禁止在此层使用语义命名（bg/text/icon）。
+ * ================================================================ */
+
 :root {
-  /* TRAE Work Light tokens */
-  --background: #ffffff;
-  --foreground: #171717;
-  --card: #f5f5f5;
-  --card-foreground: #171717;
-  --popover: #ffffff;
-  --popover-foreground: #171717;
-  --primary: #262626;
-  --primary-foreground: #ffffff;
-  --secondary: #f5f5f5;
-  --secondary-foreground: #171717;
-  --muted: #f5f5f5;
-  --muted-foreground: #404040;
-  --accent: #f4f4f4;
-  --accent-foreground: #171717;
-  --destructive: #e8463a;
-  --destructive-foreground: #ffffff;
-  --border: rgba(115, 115, 115, 0.12);
-  --input: rgba(115, 115, 115, 0.12);
-  --ring: #737373;
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.5rem;
-  --sidebar: #f5f5f5;
-  --sidebar-foreground: #171717;
-  --sidebar-primary: #262626;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e0e0e0;
-  --sidebar-active: #e5e5e5;
-  --sidebar-accent-foreground: #262626;
-  --sidebar-active-foreground: #171717;
-  --sidebar-border: rgba(115, 115, 115, 0.12);
-  --sidebar-ring: #737373;
-  /* 窗口控制按钮（TRAE Work 对齐） */
-  --window-control-icon: #24262b;
-  --window-control-hover: #dcdcdc;
-  --window-control-close-hover: #e81123;
-  /* 辅助文本颜色（TRAE Work 对齐） */
-  --text-tertiary: #737373;
-  --text-quaternary: #a1a1a1;
+  /* ----------------------------------------------------------
+   * greys — TRAE Work 标准 50–950（11 阶）+ alpha + 项目扩展
+   * ---------------------------------------------------------- */
+  --palette-white:      #ffffff;
+  --palette-grey-50:    #FAFAFA;
+  --palette-grey-100:   #F5F5F5;
+  --palette-grey-200:   #E5E5E5;
+  --palette-grey-300:   #D4D4D4;
+  --palette-grey-400:   #A1A1A1;
+  --palette-grey-500:   #737373;
+  --palette-grey-600:   #525252;
+  --palette-grey-700:   #404040;
+  --palette-grey-800:   #262626;
+  --palette-grey-900:   #171717;
+  --palette-grey-950:   #0A0A0A;
+
+ /* --- grey alpha（透明度色阶）--- */
+  --palette-grey-500-alpha-12:   rgba(115, 115, 115, 0.12);
+  --palette-grey-500-alpha-18:   rgba(115, 115, 115, 0.18);
+
+  /* --- 项目扩展（手动拾色）--- */
+  --palette-grey-ext-125:   #f4f4f4;
+  --palette-grey-ext-150:   #ebebeb;
+  --palette-grey-ext-175:   #e3e3e3;
+  --palette-grey-ext-190:   #e0e0e0;
+  --palette-grey-ext-225:   #dcdcdc;
+  --palette-grey-ext-250:   #d7d7d7;
+  --palette-grey-ext-350:   #cccccc;
+  --palette-grey-ext-375:   #c0c0c0;
+  --palette-grey-ext-550:   #686868;
+  --palette-grey-ext-575:   #636363;
+  --palette-grey-ext-625:   #4b4b4b;
+  --palette-grey-ext-675:   #414141;
+  --palette-grey-ext-725:   #393939;
+  --palette-grey-ext-735:   #363636;
+  --palette-grey-ext-750:   #343434;
+  --palette-grey-ext-775:   #303030;
+  --palette-grey-ext-785:   #2e2e2e;
+  --palette-grey-ext-790:   #2d2d2d;
+  --palette-grey-ext-795:   #2c2c2c;
+  --palette-grey-ext-810:   #252525;
+  --palette-grey-ext-825:   #24262b;
+  --palette-grey-ext-850:   #222222;
+  --palette-grey-ext-862:   #1e1e1e;
+  --palette-grey-ext-875:   #1a1a1a;
+
+  /* ----------------------------------------------------------
+   * brand-blue — TRAE Work 品牌蓝紫色阶（11 阶）
+   * ---------------------------------------------------------- */
+  --palette-brand-50:   #F2F7FF;
+  --palette-brand-100:  #E5EAFF;
+  --palette-brand-200:  #CFD8FF;
+  --palette-brand-300:  #AAB7FF;
+  --palette-brand-400:  #8894FF;
+  --palette-brand-500:  #6A6FFF;
+  --palette-brand-600:  #4B3FE3;
+  --palette-brand-700:  #3F31C6;
+  --palette-brand-800:  #2C2290;
+  --palette-brand-900:  #1A1759;
+  --palette-brand-950:  #010109;
+
+  /* ----------------------------------------------------------
+   * reds — TRAE Work brand-red（10 阶）+ 语义红
+   * ---------------------------------------------------------- */
+  --palette-red-100:    #FFE5E5;
+  --palette-red-200:    #FFCCCC;
+  --palette-red-300:    #FFB2B2;
+  --palette-red-400:    #FF9999;
+  --palette-red-500:    #FF8080;
+  --palette-red-600:    #FF6464;
+  --palette-red-700:    #E63737;
+  --palette-red-800:    #CB1010;
+  --palette-red-900:    #8F0505;
+  --palette-red-1000:   #4D0000;
+  --palette-red-error:  #e8463a;
+  --palette-red-close:  #e81123;  
+
+  /* ----------------------------------------------------------
+   * yellows — TRAE Work brand-yellow（10 阶）
+   * 用于警告态，按需取用
+   * ---------------------------------------------------------- */
+  --palette-yellow-100: #FFF6E5;
+  --palette-yellow-200: #FFECCC;
+  --palette-yellow-300: #FFE3B2;
+  --palette-yellow-400: #FFDA99;
+  --palette-yellow-500: #FFD080;
+  --palette-yellow-600: #FFC864;
+  --palette-yellow-700: #E6A637;
+  --palette-yellow-800: #CB8710;
+  --palette-yellow-900: #8F5C05;
+  --palette-yellow-1000:#4D3000;
+
+  /* ----------------------------------------------------------
+   * greens — TRAE Work status-success（3 阶）
+   * 用于成功态，按需取用
+   * ---------------------------------------------------------- */
+  --palette-green-100: #15A877;
+  --palette-green-200: #2FB287;
+  --palette-green-300: #1E8B56;
+
+  /* ----------------------------------------------------------
+   * charts — shadcn 默认图表配色（亮 / 暗各 5 色）
+   * ---------------------------------------------------------- */
+  --palette-chart-light-1: oklch(0.646 0.222 41.116);
+  --palette-chart-light-2: oklch(0.6 0.118 184.704);
+  --palette-chart-light-3: oklch(0.398 0.07 227.392);
+  --palette-chart-light-4: oklch(0.828 0.189 84.429);
+  --palette-chart-light-5: oklch(0.769 0.188 70.08);
+  --palette-chart-dark-1:  oklch(0.488 0.243 264.376);
+  --palette-chart-dark-2:  oklch(0.696 0.17 162.48);
+  --palette-chart-dark-3:  oklch(0.769 0.188 70.08);
+  --palette-chart-dark-4:  oklch(0.627 0.265 303.9);
+  --palette-chart-dark-5:  oklch(0.645 0.246 16.439);
+
+  /* ----------------------------------------------------------
+   * geometry — 几何设计令牌
+   * ---------------------------------------------------------- */
+  --palette-radius-default: 0.5rem;
+
+  /* ----------------------------------------------------------
+   * typography — 字体栈原始值（参考 TRAE Work 标准）
+   * ---------------------------------------------------------- */
+  --palette-font-default: "SF Pro Text", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --palette-font-heading: "SF Pro", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --palette-font-metric:  "Inter", "SF Pro Text", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --palette-font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
+
+/* ================================================================
+ * :root — 亮色模式语义变量
+ *
+ * 遵循 shadcn/ui 命名约定，值引用自上方 Raw Palette
+ * ================================================================ */
+
+:root {
+  /* ===== Layer 1 · shadcn 标准语义令牌 ===== */
+  /* --- 基础表面 --- */
+  --background:             var(--palette-white);
+  --foreground:             var(--palette-grey-900);
+  --card:                   var(--palette-grey-100);
+  --card-foreground:        var(--palette-grey-900);
+  --popover:                var(--palette-white);
+  --popover-foreground:     var(--palette-grey-900);
+
+  /* --- 品牌 / 强调 --- */
+  --primary:                var(--palette-grey-800);
+  --primary-foreground:     var(--palette-white);
+  --secondary:              var(--palette-grey-100);
+  --secondary-foreground:   var(--palette-grey-900);
+  --muted:                  var(--palette-grey-100);
+  --muted-foreground:       var(--palette-grey-700);
+  --accent:                 var(--palette-grey-100);   /* ≈ #f4f4f4，取最近色阶 */
+  --accent-foreground:      var(--palette-grey-900);
+
+  /* --- 语义 --- */
+  --destructive:            var(--palette-red-error);
+  --destructive-foreground: var(--palette-white);
+  --border:                 var(--palette-grey-500-alpha-12);
+  --input:                  var(--palette-grey-500-alpha-12);
+  --ring:                   var(--palette-grey-500);
+
+  /* --- 图表 --- */
+  --chart-1: var(--palette-chart-light-1);
+  --chart-2: var(--palette-chart-light-2);
+  --chart-3: var(--palette-chart-light-3);
+  --chart-4: var(--palette-chart-light-4);
+  --chart-5: var(--palette-chart-light-5);
+
+  /* --- 几何 --- */
+  --radius: var(--palette-radius-default);
+
+  /* --- 侧边栏 --- */
+  --sidebar:                    var(--palette-grey-100);
+  --sidebar-foreground:         var(--palette-grey-900);
+  --sidebar-primary:            var(--palette-grey-800);
+  --sidebar-primary-foreground: var(--palette-white);
+  --sidebar-accent:             var(--palette-grey-ext-190);
+  --sidebar-active:             var(--palette-grey-200);
+  --sidebar-accent-foreground:  var(--palette-grey-800);
+  --sidebar-active-foreground:  var(--palette-grey-900);
+  --sidebar-border:             var(--palette-grey-500-alpha-12);
+  --sidebar-ring:               var(--palette-grey-500);
+
+  /* ===== Layer 2 · 共享语义令牌（一个变量被多个组件引用） ===== */
+  /* --- 文本层级 --- */
+  --text-tertiary:    var(--palette-grey-500);
+  --text-quaternary:  var(--palette-grey-400);
+
+  /* --- 图标层级 --- */
+  --icon-default:       var(--palette-grey-800);
+  --icon-default-hover: var(--palette-grey-900);
+  --icon-tertiary:      var(--palette-grey-500);
+
+  /* --- 成功态 --- */
+  --success:        var(--palette-green-100);
+  --success-hover:  var(--palette-green-200);
+  --success-active: var(--palette-green-300);
+
+  /* --- 滚动条 --- */
+  --scrollbar-thumb:       var(--palette-grey-300);
+  --scrollbar-thumb-hover: var(--palette-grey-ext-375);
+
+  /* --- 特殊按钮 --- */
+  --update-btn-bg:   var(--palette-grey-ext-875);
+  --update-btn-text: var(--palette-white);
+
+  /* ===== Layer 3 · 组件专属令牌（变量只服务于一个组件） ===== */
+  /* --- 侧边栏会话项状态（nav-history 自定义，非 shadcn 标准） --- */
+  --sidebar-item-hover-bg:     var(--palette-grey-ext-150);
+  --sidebar-item-selected-bg:  var(--palette-grey-200);
+
+  /* --- 搜索对话框 --- */
+  --search-dialog-border:            var(--palette-grey-200);
+  --search-dialog-muted-fg:          var(--palette-grey-700);
+  --search-dialog-text-quaternary:   var(--palette-grey-400);
+  --search-dialog-icon:              var(--palette-grey-400);
+  --search-dialog-fg:                var(--palette-grey-900);
+  --search-dialog-placeholder:       var(--palette-grey-500);
+  --search-dialog-item-hover-bg:     var(--palette-grey-ext-125);
+
+  /* --- 文件管理按钮 --- */
+  --file-mgmt-btn-border:  var(--palette-grey-ext-350);
+
+  /* --- 更多操作按钮 --- */
+  --more-ops-btn-hover-bg: var(--palette-grey-ext-250);
+
+  /* --- 搜索框清除按钮 --- */
+  --clear-btn-hover-bg: var(--palette-grey-ext-175);
+
+  /* --- 新建会话按钮 --- */
+  --new-session-btn-hover-bg: var(--palette-grey-ext-225);
+  --new-session-btn-icon:     var(--palette-grey-800);
+
+  /* --- 窗口控制按钮 --- */
+  --window-control-icon:        var(--palette-grey-ext-825);
+  --window-control-hover:       var(--palette-grey-ext-225);
+  --window-control-close-hover: var(--palette-red-close);
+
+  /* --- Tab 切换栏（animated-tabs） --- */
+  --tab-bg:               var(--palette-grey-200);
+  --tab-active-bg:        var(--palette-white);
+  --tab-hover-bg:         var(--palette-grey-ext-225);
+  --tab-foreground:       var(--palette-grey-900);
+  --tab-muted-foreground: var(--palette-grey-500);
+  --tab-font:             var(--palette-font-default);
+}
+
+/* ================================================================
+ * .dark — 暗色模式语义变量
+ *
+ * 与 :root 成对定义，引用相同的 Raw Palette 但映射不同的色阶位置。
+ * 浏览器切换 .dark class 时自动切换取值。
+ * ================================================================ */
 
 .dark {
-  /* Dark theme aligned with TRAE Work palette */
-  --background: #171717;
-  --foreground: #f5f5f5;
-  --card: #262626;
-  --card-foreground: #f5f5f5;
-  --popover: #262626;
-  --popover-foreground: #f5f5f5;
-  --primary: #f5f5f5;
-  --primary-foreground: #171717;
-  --secondary: #262626;
-  --secondary-foreground: #f5f5f5;
-  --muted: #404040;
-  --muted-foreground: #a1a1a1;
-  --accent: #404040;
-  --accent-foreground: #f5f5f5;
-  --destructive: #e8463a;
-  --destructive-foreground: #ffffff;
-  --border: rgba(115, 115, 115, 0.18);
-  --input: rgba(115, 115, 115, 0.18);
-  --ring: #525252;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: #262626;
-  --sidebar-foreground: #f5f5f5;
-  --sidebar-primary: #f5f5f5;
-  --sidebar-primary-foreground: #171717;
-  --sidebar-accent: #343434;
-  --sidebar-active: #303030;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-active-foreground: #e5e5e5;
-  --sidebar-border: rgba(115, 115, 115, 0.18);
-  --sidebar-ring: #525252;
-  /* 窗口控制按钮（TRAE Work 对齐） */
-  --window-control-icon: #ffffff;
-  --window-control-hover: #222222;
-  --window-control-close-hover: #e81123;
-  /* 辅助文本颜色（TRAE Work 对齐） */
-  --text-tertiary: #737373;
-  --text-quaternary: #a1a1a1;
+  /* ===== Layer 1 · shadcn 标准语义令牌 ===== */
+  --background:             var(--palette-grey-900);
+  --foreground:             var(--palette-grey-100);
+  --card:                   var(--palette-grey-800);
+  --card-foreground:        var(--palette-grey-100);
+  --popover:                var(--palette-grey-800);
+  --popover-foreground:     var(--palette-grey-100);
+  --primary:                var(--palette-grey-100);
+  --primary-foreground:     var(--palette-grey-900);
+  --secondary:              var(--palette-grey-800);
+  --secondary-foreground:   var(--palette-grey-100);
+  --muted:                  var(--palette-grey-700);
+  --muted-foreground:       var(--palette-grey-400);
+  --accent:                 var(--palette-grey-700);
+  --accent-foreground:      var(--palette-grey-100);
+  --destructive:            var(--palette-red-error);
+  --destructive-foreground: var(--palette-white);
+  --border:                 var(--palette-grey-500-alpha-18);
+  --input:                  var(--palette-grey-500-alpha-18);
+  --ring:                   var(--palette-grey-600);
+
+  --chart-1: var(--palette-chart-dark-1);
+  --chart-2: var(--palette-chart-dark-2);
+  --chart-3: var(--palette-chart-dark-3);
+  --chart-4: var(--palette-chart-dark-4);
+  --chart-5: var(--palette-chart-dark-5);
+
+  --sidebar:                    var(--palette-grey-800);
+  --sidebar-foreground:         var(--palette-grey-100);
+  --sidebar-primary:            var(--palette-grey-100);
+  --sidebar-primary-foreground: var(--palette-grey-900);
+  --sidebar-accent:             var(--palette-grey-ext-750);
+  --sidebar-active:             var(--palette-grey-ext-775);
+  --sidebar-accent-foreground:  var(--palette-grey-50);
+  --sidebar-active-foreground:  var(--palette-grey-200);
+  --sidebar-border:             var(--palette-grey-500-alpha-18);
+  --sidebar-ring:               var(--palette-grey-600);
+
+  /* ===== Layer 2 · 共享语义令牌（一个变量被多个组件引用） ===== */
+  --text-tertiary:              var(--palette-grey-500);
+  --text-quaternary:            var(--palette-grey-ext-550);
+  --icon-default:               var(--palette-grey-200);
+  --icon-default-hover:         var(--palette-grey-50);
+  --icon-tertiary:              var(--palette-grey-500);
+  --success:                    var(--palette-green-100);
+  --success-hover:              var(--palette-green-200);
+  --success-active:             var(--palette-green-300);
+  --scrollbar-thumb:            var(--palette-grey-600);   /* TODO: 待匹配 Trae Work 颜色体系 */
+  --scrollbar-thumb-hover:      var(--palette-grey-ext-575);   /* TODO: 待匹配 Trae Work 颜色体系 */
+  --update-btn-bg:              var(--palette-grey-200);   /* TODO: 待用户提供 trae-work 暗色值 */
+  --update-btn-text:            var(--palette-grey-900);   /* TODO: 待用户提供 trae-work 暗色值 */
+
+  /* ===== Layer 3 · 组件专属令牌（变量只服务于一个组件） ===== */
+  /* --- 侧边栏会话项状态（nav-history 自定义，非 shadcn 标准） --- */
+  --sidebar-item-hover-bg:      var(--palette-grey-ext-790);
+  --sidebar-item-selected-bg:   var(--palette-grey-ext-775);
+
+  --search-dialog-border:            var(--palette-grey-ext-810);
+  --search-dialog-muted-fg:          var(--palette-grey-200);
+  --search-dialog-text-quaternary:   var(--palette-grey-600);
+  --search-dialog-icon:              var(--palette-grey-400);
+  --search-dialog-fg:                var(--palette-grey-200);
+  --search-dialog-placeholder:       var(--palette-grey-500);
+  --search-dialog-item-hover-bg:     var(--palette-grey-ext-862);
+  --file-mgmt-btn-border:            var(--palette-grey-700);
+  --more-ops-btn-hover-bg:           var(--palette-grey-ext-725);
+  --clear-btn-hover-bg:              var(--palette-grey-ext-785);
+  --new-session-btn-hover-bg:        var(--palette-grey-ext-675);
+  --new-session-btn-icon:            var(--palette-grey-200);
+
+  /* --- 窗口控制按钮 --- */
+  --window-control-icon:        var(--palette-white);
+  --window-control-hover:       var(--palette-grey-ext-850);
+  --window-control-close-hover: var(--palette-red-close);
+
+  /* --- Tab 切换栏（animated-tabs） --- */
+  --tab-bg:               var(--palette-grey-ext-775);
+  --tab-active-bg:        var(--palette-grey-900);
+  --tab-hover-bg:         var(--palette-grey-ext-735);
+  --tab-foreground:       var(--palette-grey-200);
+  --tab-muted-foreground: var(--palette-grey-200);
+  --tab-font:             var(--palette-font-default);
 }
 
+/* ================================================================
+ * Layer 4 · Tailwind 桥接（@theme inline）
+ *
+ * 仅桥接 Layer 1（shadcn 标准）和 Layer 2（语义扩展）
+ * + Layer 3 中的 window-control-*（组件通过 Tailwind class 引用）
+ *
+ * 规则：
+ * - 组件通过 Tailwind class（bg-xxx / text-xxx）使用的 → 桥接
+ * - 组件通过 style={{}} var() 引用的 → 不桥接
+ * ================================================================ */
+
 @theme inline {
+  /* Layer 1 · shadcn 标准 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -137,12 +406,37 @@
   --color-sidebar-active-foreground: var(--sidebar-active-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Layer 2 · 共享语义令牌 */
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-quaternary: var(--text-quaternary);
+  --color-icon-default: var(--icon-default);
+  --color-icon-default-hover: var(--icon-default-hover);
+  --color-icon-tertiary: var(--icon-tertiary);
+  --color-success: var(--success);
+  --color-success-hover: var(--success-hover);
+  --color-success-active: var(--success-active);
+  --color-scrollbar-thumb: var(--scrollbar-thumb);
+  --color-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+  --color-update-btn-bg: var(--update-btn-bg);
+  --color-update-btn-text: var(--update-btn-text);
+
+  /* Layer 3 · 窗口控制（通过 Tailwind class 使用，必须桥接） */
   --color-window-control-icon: var(--window-control-icon);
   --color-window-control-hover: var(--window-control-hover);
   --color-window-control-close-hover: var(--window-control-close-hover);
-  --color-text-tertiary: var(--text-tertiary);
-  --color-text-quaternary: var(--text-quaternary);
+
+  /* Layer 3 · Tab 切换栏（通过 Tailwind class 使用，必须桥接） */
+  --color-tab-bg: var(--tab-bg);
+  --color-tab-active-bg: var(--tab-active-bg);
+  --color-tab-hover-bg: var(--tab-hover-bg);
+  --color-tab-foreground: var(--tab-foreground);
+  --color-tab-muted-foreground: var(--tab-muted-foreground);
 }
+
+/* ================================================================
+ * Base 层样式
+ * ================================================================ */
 
 @layer base {
   * {
@@ -150,22 +444,19 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground antialiased;
+    background-color: transparent;
   }
-}
 
-.medium-zoom-overlay,
-.medium-zoom-image--opened {
-  z-index: 11;
-}
+  .medium-zoom-overlay,
+  .medium-zoom-image--opened {
+    z-index: 11;
+  }
 
-[role=button],
-button {
-  cursor: pointer
-}
-
-body {
-  background-color: transparent !important;
+  [role='button'],
+  button {
+    cursor: pointer;
+  }
 }
 
 /* cmdk 列表滚动条美化 */
@@ -178,10 +469,11 @@ body {
 }
 
 [cmdk-list]::-webkit-scrollbar-thumb {
-  background: #d4d4d4;
+  background: var(--scrollbar-thumb);
   border-radius: 9999px;
 }
 
 [cmdk-list]::-webkit-scrollbar-thumb:hover {
-  background: #c0c0c0;
+  background: var(--scrollbar-thumb-hover);
 }
+

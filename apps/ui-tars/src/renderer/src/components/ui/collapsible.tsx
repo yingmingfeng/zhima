@@ -24,12 +24,16 @@ function CollapsibleTrigger({
 }
 
 function CollapsibleContent({
+  ref,
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>) {
+}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent> & {
+  ref?: React.Ref<HTMLDivElement>;
+}) {
   return (
     <CollapsiblePrimitive.CollapsibleContent
       data-slot="collapsible-content"
       {...props}
+      ref={ref}
     />
   );
 }

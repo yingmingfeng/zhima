@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Outlet } from 'react-router';
-import { PanelLeft, Search } from 'lucide-react';
+import { PanelLeft, Search, Sun, Moon } from 'lucide-react';
 import { AppSidebar } from '@/renderer/src/components/SideBar/app-sidebar';
 import {
   SidebarInset,
@@ -18,14 +18,17 @@ import { isWindows } from '@renderer/utils/os';
 import { useShortcuts } from '@renderer/hooks/useShortcuts';
 import { DEFAULT_SHORTCUTS, formatShortcutLabel } from '@shared/shortcuts';
 
-function Toolbar({
-  onSearchClick,
-  disableDrag,
-}: {
-  onSearchClick: () => void;
-  disableDrag?: boolean;
-}) {
+function Toolbar({ onSearchClick }: { onSearchClick: () => void }) {
   const { toggleSidebar, open } = useSidebar();
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.classList.contains('dark'),
+  );
+
+  const toggleTheme = useCallback(() => {
+    const next = !isDark;
+    document.documentElement.classList.toggle('dark', next);
+    setIsDark(next);
+  }, [isDark]);
 
   // 从共享映射表动态读取快捷键标签
   const platform = isWindows ? 'win' : 'mac';
@@ -42,7 +45,7 @@ function Toolbar({
     <div
       className="relative z-20 flex h-14 shrink-0 items-center pl-2"
       style={{
-        '-webkit-app-region': isWindows && !disableDrag ? 'drag' : 'no-drag',
+        '-webkit-app-region': isWindows ? 'drag' : 'no-drag',
       }}
     >
       {/* 左侧：侧边栏切换 + 搜索 */}
@@ -78,6 +81,23 @@ function Toolbar({
           <TooltipContent side="bottom" sideOffset={0}>
             <span>搜索</span>
             <kbd className="ml-2 text-xs text-text-tertiary">{searchLabel}</kbd>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-black/8 dark:hover:bg-white/10"
+              onClick={toggleTheme}
+            >
+              {isDark ? (
+                <Sun size={16} className="text-sidebar-foreground" />
+              ) : (
+                <Moon size={16} className="text-sidebar-foreground" />
+              )}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" sideOffset={0}>
+            <span>{isDark ? '切换到亮色模式' : '切换到暗色模式'}</span>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -120,10 +140,7 @@ export function MainLayout() {
       className="flex h-screen w-full flex-col bg-sidebar"
     >
       <ShortcutRegistrar onToggleSearch={toggleSearch} />
-      <Toolbar
-        onSearchClick={() => setSearchOpen(true)}
-        disableDrag={searchOpen}
-      />
+      <Toolbar onSearchClick={() => setSearchOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
         <AppSidebar />
         <SidebarInset className="flex-1 bg-background">

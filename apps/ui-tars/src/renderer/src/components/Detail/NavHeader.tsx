@@ -10,14 +10,8 @@ interface HeaderProps {
 
 export function NavHeader({ title, onBack, docUrl, children }: HeaderProps) {
   return (
-    <div className="pl-4 pr-5 py-3 flex items-center gap-2 draggable-area">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="!pl-0"
-        style={{ '-webkit-app-region': 'no-drag' }}
-        onClick={onBack}
-      >
+    <div className="pl-4 pr-5 py-3 flex items-center gap-2">
+      <Button variant="ghost" size="sm" className="!pl-0" onClick={onBack}>
         <ChevronLeft strokeWidth={2} className="!h-5 !w-5" />
         <span className="font-semibold">{title}</span>
       </Button>
@@ -29,7 +23,6 @@ export function NavHeader({ title, onBack, docUrl, children }: HeaderProps) {
           variant="outline"
           className="size-8"
           size="sm"
-          style={{ '-webkit-app-region': 'no-drag' }}
           onClick={() => window.open(docUrl, '_blank')}
         >
           <FileText strokeWidth={2} />

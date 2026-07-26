@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { MessageCircle, Folder } from 'lucide-react';
+import { MessageCircle, Folder, Search } from 'lucide-react';
 
 import {
   CommandDialog,
@@ -75,7 +75,33 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     >
       <CommandInput placeholder="搜索任务名称及内容" />
       <CommandList>
-        <CommandEmpty>未找到相关任务</CommandEmpty>
+        <CommandEmpty>
+          <div className="flex flex-col items-center gap-2.5">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-lg border"
+              style={{ borderColor: 'var(--search-dialog-border)' }}
+            >
+              <Search
+                className="h-2.5 w-2.5"
+                style={{ color: 'var(--search-dialog-text-quaternary)' }}
+              />
+            </div>
+            <div className="flex flex-col items-center gap-0.5">
+              <p
+                className="text-[13px] font-medium"
+                style={{ color: 'var(--search-dialog-muted-fg)' }}
+              >
+                无匹配结果
+              </p>
+              <p
+                className="text-[13px]"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
+                试试其他关键词，或清除搜索内容
+              </p>
+            </div>
+          </div>
+        </CommandEmpty>
         <CommandGroup>
           {sessions.map((session) => (
             <CommandItem
@@ -86,11 +112,24 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
             >
               <div className="flex items-center gap-2 min-w-0">
                 <MessageCircle className="h-4 w-4 shrink-0 text-text-tertiary" />
-                <span className="truncate">{session.name}</span>
+                <span
+                  className="truncate"
+                  style={{ color: 'var(--search-dialog-fg)' }}
+                >
+                  {session.name}
+                </span>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                <Folder className="h-4 w-4 text-text-quaternary" />
-                <span className="text-[11px] text-text-tertiary">Default</span>
+                <Folder
+                  className="h-4 w-4"
+                  style={{ color: 'var(--search-dialog-text-quaternary)' }}
+                />
+                <span
+                  className="text-[11px]"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  Default
+                </span>
               </div>
             </CommandItem>
           ))}

@@ -34,6 +34,7 @@ function DialogClose({
 
 function DialogOverlay({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
   return (
@@ -44,6 +45,7 @@ function DialogOverlay({
         className,
       )}
       {...props}
+      style={{ ...style, '-webkit-app-region': 'no-drag' }}
     />
   );
 }
@@ -53,6 +55,7 @@ function DialogContent({
   children,
   position = 'center',
   showCloseButton = true,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   position?: 'center' | 'top';
@@ -60,7 +63,7 @@ function DialogContent({
 }) {
   const positionClass =
     position === 'top'
-      ? 'top-[15%] translate-y-0'
+      ? 'top-[10%] translate-y-0'
       : 'top-[50%] translate-y-[-50%]';
 
   return (
@@ -74,6 +77,7 @@ function DialogContent({
           className,
         )}
         {...props}
+        style={{ ...style, '-webkit-app-region': 'no-drag' }}
       >
         {children}
         {showCloseButton && (

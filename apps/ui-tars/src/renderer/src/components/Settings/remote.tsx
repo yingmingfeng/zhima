@@ -152,7 +152,7 @@ export const RemoteSettingsDialog = ({
           <Steps step={1} classname="mt-[-40px]">
             Read Remote Document
           </Steps>
-          <div className="ml-4 mb-6 bg-[#f6f9ffff] p-5 rounded-md">
+          <div className="ml-4 mb-6 bg-card p-5 rounded-md">
             <Button className="w-full" variant={'outline'}>
               View document guide
               <SquareArrowOutUpRight />
@@ -162,13 +162,13 @@ export const RemoteSettingsDialog = ({
           {operator === Operator.RemoteComputer && (
             <RemoteComputerSettings
               ref={remoteComputerRef}
-              className="ml-4 mb-6 bg-[#f6f9ffff] p-5 rounded-md"
+              className="ml-4 mb-6 bg-card p-5 rounded-md"
             />
           )}
           <Steps step={3}>VLM Settings</Steps>
           <VLMSettings
             ref={vlmSettingsRef}
-            className="ml-4 bg-[#f6f9ffff] p-5 rounded-md"
+            className="ml-4 bg-card p-5 rounded-md"
           />
           <div
             className={`sticky bottom-[-1px] left-0 right-0 h-10 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none transition-opacity duration-200 ${

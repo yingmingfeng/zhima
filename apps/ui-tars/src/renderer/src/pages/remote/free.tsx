@@ -143,7 +143,6 @@ const RemoteOperator = () => {
       }
     };
     update();
-    setOpen(false);
 
     return () => {
       releaseResource(false);

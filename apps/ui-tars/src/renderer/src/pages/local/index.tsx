@@ -88,7 +88,7 @@ const LocalOperator = () => {
   // 本地设置弹窗开关（VLM 未配置时弹出）
   const [localOpen, setLocalOpen] = useState(false);
 
-  // 初始化：根据路由传入的 sessionId 激活对应会话，并关闭侧边栏
+  // 初始化：根据路由传入的 sessionId 激活对应会话（不自动收起侧边栏）
   useEffect(() => {
     const update = async () => {
       if (state.sessionId) {
@@ -97,7 +97,6 @@ const LocalOperator = () => {
       }
     };
     update();
-    setOpen(false);
   }, [state.sessionId]);
 
   // 消息同步：将全局 store 中的新消息合并到当前会话的聊天消息中

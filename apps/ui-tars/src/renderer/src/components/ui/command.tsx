@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { type DialogProps } from '@radix-ui/react-dialog';
-import { Command as CommandPrimitive } from 'cmdk';
-import { Search } from 'lucide-react';
+import { Command as CommandPrimitive, useCommandState } from 'cmdk';
+import { Search, X } from 'lucide-react';
 
 import { cn } from '@renderer/utils';
 import { Dialog, DialogContent } from '@renderer/components/ui/dialog';
@@ -13,7 +13,7 @@ const Command = React.forwardRef<
   <CommandPrimitive
     ref={ref}
     className={cn(
-      'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
+      'flex h-full w-full flex-col overflow-hidden rounded-md bg-background text-popover-foreground',
       className,
     )}
     {...props}
@@ -36,7 +36,8 @@ const CommandDialog = ({
       <DialogContent
         position="top"
         showCloseButton={false}
-        className="w-[640px] max-w-[640px] sm:max-w-[640px] overflow-hidden rounded-xl border-none p-0 pl-3 shadow-2xl"
+        className="w-[640px] max-w-[640px] sm:max-w-[640px] overflow-hidden rounded-xl border-0 bg-background p-0 pl-3 shadow-2xl"
+        style={{ border: '1px solid var(--search-dialog-border)' }}
       >
         <Command
           className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group-wrapper]]:border-b [&_[cmdk-input-wrapper]_svg]:h-3.5 [&_[cmdk-input-wrapper]_svg]:w-3.5 [&_[cmdk-item]]:px-3 [&_[cmdk-item]:last-child]:mb-3"
@@ -49,22 +50,70 @@ const CommandDialog = ({
   );
 };
 
+interface CommandInputProps
+  extends React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> {
+  onClear?: () => void;
+}
+
 const CommandInput = React.forwardRef<
   React.ComponentRef<typeof CommandPrimitive.Input>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
->(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b px-3 " cmdk-input-wrapper="">
-    <Search className="mr-2 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-    <CommandPrimitive.Input
-      ref={ref}
-      className={cn(
-        'flex h-[56px] w-full rounded-md bg-transparent text-sm outline-hidden placeholder:text-text-tertiary disabled:cursor-not-allowed disabled:opacity-50',
-        className,
+  CommandInputProps
+>(({ className, onClear, ...props }, ref) => {
+  const search = useCommandState((state) => state.search);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleClear = React.useCallback(() => {
+    if (inputRef.current) {
+      // 直接清空 input 值并触发 input 事件，让 cmdk 内部状态同步更新
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value',
+      )?.set;
+      nativeInputValueSetter?.call(inputRef.current, '');
+      inputRef.current.dispatchEvent(new Event('input', { bubbles: true }));
+      inputRef.current.focus();
+    }
+    onClear?.();
+  }, [onClear]);
+
+  return (
+    <div
+      className="flex items-center ml-2 mr-3"
+      cmdk-input-wrapper=""
+      style={{ borderBottom: '1px solid var(--search-dialog-border)' }}
+    >
+      <Search
+        className="mr-2 h-3.5 w-3.5 shrink-0"
+        style={{ color: 'var(--search-dialog-icon)' }}
+      />
+      <CommandPrimitive.Input
+        ref={(node) => {
+          (
+            inputRef as React.MutableRefObject<HTMLInputElement | null>
+          ).current = node;
+          if (typeof ref === 'function') ref(node);
+          else if (ref)
+            (ref as React.MutableRefObject<HTMLInputElement | null>).current =
+              node;
+        }}
+        className={cn(
+          'flex h-[56px] w-full rounded-md bg-transparent text-sm outline-hidden placeholder:text-text-tertiary disabled:cursor-not-allowed disabled:opacity-50',
+          className,
+        )}
+        {...props}
+      />
+      {search && (
+        <button
+          type="button"
+          className="shrink-0 rounded-md p-1 transition-colors hover:bg-[var(--clear-btn-hover-bg)] text-[var(--text-tertiary)] hover:text-[var(--icon-default)]"
+          onClick={handleClear}
+        >
+          <X className="h-4 w-4" />
+        </button>
       )}
-      {...props}
-    />
-  </div>
-));
+    </div>
+  );
+});
 
 CommandInput.displayName = CommandPrimitive.Input.displayName;
 
@@ -74,7 +123,7 @@ const CommandList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden', className)}
+    className={cn('max-h-[70vh] overflow-y-auto overflow-x-hidden', className)}
     {...props}
   />
 ));
@@ -87,7 +136,7 @@ const CommandEmpty = React.forwardRef<
 >((props, ref) => (
   <CommandPrimitive.Empty
     ref={ref}
-    className="py-6 text-center text-sm"
+    className="flex flex-col items-center justify-center py-12 text-sm"
     {...props}
   />
 ));
@@ -129,7 +178,7 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer gap-2 select-none items-center rounded-lg px-2.5 py-2.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'relative flex cursor-pointer gap-2 select-none items-center rounded-lg px-2.5 py-2.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-[var(--search-dialog-item-hover-bg)] data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
       className,
     )}
     {...props}
