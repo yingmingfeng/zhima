@@ -65,7 +65,11 @@ const electronHandler = {
       ipcRenderer.invoke(IPC_SETTING_UPDATE_PRESET_FROM_REMOTE),
     resetPreset: () => ipcRenderer.invoke(IPC_SETTING_RESET_PRESET),
     onUpdate: (callback: (setting: LocalStore) => void) => {
-      ipcRenderer.on(IPC_SETTING_UPDATED, (_, state) => callback(state));
+      const handler = (_, state) => callback(state);
+      ipcRenderer.on(IPC_SETTING_UPDATED, handler);
+      return () => {
+        ipcRenderer.off(IPC_SETTING_UPDATED, handler);
+      };
     },
   },
   windowControls: {

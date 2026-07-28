@@ -110,7 +110,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   if (imageEntries.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
+      <div className="flex items-center justify-center flex-1 text-muted-foreground">
         No images to display
       </div>
     );
@@ -204,7 +204,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col py-4">
+    <div className="flex-1 min-h-0 flex flex-col py-4">
       <div className="flex overflow-x-scroll gap-2">{renderActions()}</div>
 
       <SnapshotImage
@@ -212,7 +212,11 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
         alt={`screenshot from message ${currentEntry.originalIndex + 1}`}
       />
 
-      <div className="flex items-center mt-4">{renderSlider()}</div>
+      {imageEntries.length >= 2 && (
+        <div className="flex items-center gap-2 flex-shrink-0 pt-2">
+          {renderSlider()}
+        </div>
+      )}
     </div>
   );
 };

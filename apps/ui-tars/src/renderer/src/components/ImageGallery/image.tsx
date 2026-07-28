@@ -3,9 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import mediumZoom, { type Zoom } from 'medium-zoom';
-import React, { useEffect, useRef } from 'react';
-// import { Copy, CheckCircle2 } from 'lucide-react';
-// import { toast } from 'sonner';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface ImageProps {
   src: string;
@@ -14,42 +12,28 @@ interface ImageProps {
 
 export const SnapshotImage: React.FC<ImageProps> = (props) => {
   const { src, alt } = props;
-  // const [copied, setCopied] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+  const [containerHeight, setContainerHeight] = useState(0);
 
-  // const handleCopyImage = async () => {
-  //   if (!imgRef.current) return;
+  // 监听容器高度变化，用像素值显式设置图片高度
+  // 这样图片高度只跟随容器高度（flex 分配，不随宽度变化）
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-  //   try {
-  //     const img = new Image();
-  //     img.src = imgRef.current.src;
+    const updateHeight = () => {
+      if (containerRef.current) {
+        setContainerHeight(containerRef.current.clientHeight);
+      }
+    };
 
-  //     img.onload = async () => {
-  //       const canvas = document.createElement('canvas');
-  //       const ctx = canvas.getContext('2d');
+    updateHeight();
 
-  //       if (!ctx) return;
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(containerRef.current);
 
-  //       canvas.width = img.width;
-  //       canvas.height = img.height;
-  //       ctx.drawImage(img, 0, 0);
-
-  //       canvas.toBlob(async (blob) => {
-  //         if (blob) {
-  //           await navigator.clipboard.write([
-  //             new ClipboardItem({ 'image/png': blob }),
-  //           ]);
-  //           setCopied(true);
-  //           setTimeout(() => setCopied(false), 500);
-  //         }
-  //       });
-  //     };
-  //   } catch (error) {
-  //     toast.error('Failed to copy image', {
-  //       description: error instanceof Error ? error.message : String(error),
-  //     });
-  //   }
-  // };
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     let zoom: Zoom | undefined;
@@ -69,23 +53,20 @@ export const SnapshotImage: React.FC<ImageProps> = (props) => {
   }, []);
 
   return (
-    <div className="max-w-full h-[calc(100vh-280px)] flex items-center justify-center relative">
+    <div
+      ref={containerRef}
+      className="flex-1 min-h-0 flex items-center justify-center overflow-hidden"
+    >
       <img
         ref={imgRef}
         src={src}
-        className="block object-contain max-h-full select-none"
+        style={{
+          height: containerHeight ? `${containerHeight}px` : 'auto',
+          width: 'auto',
+        }}
+        className="block select-none"
         alt={alt}
       />
-      {/* <button
-        onClick={handleCopyImage}
-        className="absolute bottom-2 right-2 p-1.5 rounded-md bg-background/80 opacity-0 relative-hover:opacity-100 transition-opacity"
-      >
-        {copied ? (
-          <CheckCircle2 className="h-4 w-4" />
-        ) : (
-          <Copy className="h-4 w-4" />
-        )}
-      </button> */}
     </div>
   );
 };

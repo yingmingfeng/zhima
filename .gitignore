@@ -19,6 +19,7 @@ coverage/
 .DS_Store
 
 # AI 工具与插件产物
+.codex/
 .claude/
 .qoder/
 .agents/

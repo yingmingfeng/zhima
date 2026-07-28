@@ -10,7 +10,7 @@ export interface ChatMetaInfo {
   [key: string]: any;
 }
 
-const DBName = 'ui_tars_db_chat';
+const DBName = 'ui_zhima_db_chat';
 const chatStore = createStore(DBName, 'chats');
 
 export class ChatManager {

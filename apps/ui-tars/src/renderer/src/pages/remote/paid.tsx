@@ -225,7 +225,7 @@ const RemoteOperator = () => {
 
   const renderChatList = () => {
     return (
-      <ScrollArea className="h-full px-4">
+      <ScrollArea className="flex-1 px-4 min-h-0">
         <div ref={containerRef}>
           {!chatMessages?.length && suggestions?.length > 0 && (
             <Prompts suggestions={suggestions} onSelect={handleSelect} />
@@ -297,8 +297,8 @@ const RemoteOperator = () => {
           Terminate
         </Button>
       </NavHeader>
-      <div className="px-5 pb-5 flex flex-1 gap-5">
-        <Card className="flex-1 basis-2/5 px-0 py-4 gap-4 h-[calc(100vh-76px)]">
+      <div className="px-5 pb-5 flex flex-1 gap-5 min-h-0">
+        <Card className="flex-1 basis-2/5 px-0 py-4 gap-4 h-full min-h-0 flex flex-col">
           <div className="flex items-center justify-between w-full px-4">
             <SidebarTrigger
               variant="secondary"
@@ -321,7 +321,7 @@ const RemoteOperator = () => {
             sessionId={state.sessionId}
           />
         </Card>
-        <Card className="flex-1 basis-3/5 p-3 h-[calc(100vh-76px)]">
+        <Card className="flex-1 basis-3/5 p-3 h-full min-h-0 flex flex-col">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}

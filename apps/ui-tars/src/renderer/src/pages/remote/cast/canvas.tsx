@@ -443,7 +443,7 @@ export const CDPBrowser: React.FC<CDPBrowserProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-[80vh] overflow-hidden`}
+      className={`relative w-full h-full overflow-hidden`}
     >
       <canvas
         ref={canvasRef}

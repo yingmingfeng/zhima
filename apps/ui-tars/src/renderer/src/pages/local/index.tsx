@@ -66,7 +66,7 @@ const LocalOperator = () => {
   // 用于自动滚动到底部
   const containerRef = useRef<HTMLDivElement>(null);
   // 建议提示词列表（当前为空，预留扩展）
-  const suggestions: string[] = [];
+  const suggestions: string[] = ['打开网易云音乐APP', '打开chrome浏览器'];
   // 当前选中的截图索引（用于右侧图片画廊高亮）
   const [selectImg, setSelectImg] = useState<number | undefined>(undefined);
   // 初始化的 sessionId，用于防止重复初始化
@@ -249,7 +249,7 @@ const LocalOperator = () => {
   // 渲染左侧聊天消息列表
   const renderChatList = () => {
     return (
-      <ScrollArea className="h-full px-4">
+      <ScrollArea className="flex-1 px-4 min-h-0">
         <div ref={containerRef}>
           {/* 空会话时展示建议提示词 */}
           {!chatMessages?.length && suggestions?.length > 0 && (
@@ -319,9 +319,9 @@ const LocalOperator = () => {
         onBack={handleBack}
         docUrl="https://github.com/bytedance/UI-TARS-desktop/"
       ></NavHeader>
-      <div className="px-5 pb-5 flex flex-1 gap-5">
+      <div className="px-5 pb-5 flex flex-1 gap-5 min-h-0">
         {/* 左侧面板：聊天区域（2/5 宽度） */}
-        <Card className="flex-1 basis-2/5 px-0 py-4 gap-4 h-[calc(100vh-76px)]">
+        <Card className="flex-1 basis-2/5 px-0 py-4 gap-4 h-full min-h-0 flex flex-col">
           {/* 工具栏：侧边栏开关 + 新建聊天按钮 */}
           <div className="flex items-center justify-between w-full px-4">
             <SidebarTrigger
@@ -344,7 +344,7 @@ const LocalOperator = () => {
           />
         </Card>
         {/* 右侧面板：截图预览（3/5 宽度） */}
-        <Card className="flex-1 basis-3/5 p-3 h-[calc(100vh-76px)]">
+        <Card className="flex-1 basis-3/5 p-3 h-full min-h-0 flex flex-col">
           <Tabs defaultValue="screenshot" className="flex-1">
             <TabsList>
               <TabsTrigger value="screenshot">ScreenShot</TabsTrigger>
