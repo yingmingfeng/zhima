@@ -32,3 +32,6 @@ personal_docs/
 
 # 项目配置与脚本产物
 scripts/merge-yml/*.yml
+
+# 打包临时文件（electron-forge 生成）
+*.tmp.*

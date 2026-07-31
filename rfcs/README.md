@@ -22,7 +22,7 @@
 
 ### 2. 草稿提交
 
-1. Fork https://github.com/bytedance/UI-TARS-desktop
+1. Fork https://github.com/yingmingfeng/zhima
 2. 将 `rfcs/template.md` 复制为 `rfcs/drafts/000-feature-name.md`
 3. 提交带有 [WIP] 前缀的草稿 PR
 
