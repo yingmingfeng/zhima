@@ -31,6 +31,7 @@ import { registerSettingsHandlers } from './services/settings';
 import { sanitizeState } from './utils/sanitizeState';
 import { windowManager } from './services/windowManager';
 import { checkBrowserAvailability } from './services/browserCheck';
+import registerAppPlugin from './plugin/effix-compat/RegisterAppPlugin';
 import {
   IPC_GET_STATE,
   IPC_WINDOW_MINIMIZE,
@@ -262,6 +263,22 @@ app
     });
 
     await initializeApp();
+
+    // --- 应用插件系统测试（effix 迁移）---
+    try {
+      const mainWindow = BrowserWindow.getAllWindows()[0];
+      const hostApi = {
+        db: null,
+        sessionPreloadPath: '',
+        mainWindow: mainWindow,
+        remoteMain: null,
+        nativeAddon: null,
+        localPlugins: null,
+      };
+      await registerAppPlugin.testVmTtime(hostApi as any);
+    } catch (e) {
+      logger.error('[plugin-test] ttime 加载失败:', e);
+    }
 
     // 注册主进程快捷键
     registerShortcuts();
