@@ -4,7 +4,7 @@
   "version": "0.2.4",
   "private": true,
   "main": "./dist/main/main.js",
-  "packageManager": "pnpm@9.10.0",
+  "packageManager": "pnpm@11.7.0",
   "description": "芝麻 (Zhima) — 通过视觉-语言模型驱动桌面自动化的 GUI Agent。",
   "author": "yingmingfeng",
   "scripts": {

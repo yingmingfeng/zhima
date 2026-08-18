@@ -67,7 +67,8 @@ export class NutJSOperator extends Operator {
     const screenWithScaleImage = await Jimp.fromBitmap({
       width: screenWithScale.width,
       height: screenWithScale.height,
-      data: Buffer.from(screenWithScale.data),
+      // refit Buffer into a plain Uint8Array to satisfy TS 5.7 generic covariance
+      data: new Uint8Array(screenWithScale.data),
     });
 
     const width = screenWithScale.width / screenWithScale.pixelDensity.scaleX;

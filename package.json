@@ -2,7 +2,7 @@
   "name": "monorepo",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@9.10.0",
+  "packageManager": "pnpm@11.7.0",
   "description": "芝麻 (Zhima) — 通过视觉-语言模型驱动桌面自动化的 GUI Agent。",
   "main": "./dist/main/main.js",
   "author": "yingmingfeng",
@@ -18,9 +18,6 @@
     "publish:packages": "bash scripts/release-pkgs.sh",
     "publish-beta:packages": "bash scripts/release-beta-pkgs.sh",
     "prepare": "husky"
-  },
-  "pnpm": {
-    "patchedDependencies": {}
   },
   "devDependencies": {
     "@common/configs": "workspace:*",

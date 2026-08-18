@@ -49,7 +49,14 @@ export const postMake: ForgeHookMap['postMake'] = async (
           const fileData = fs.readFileSync(newArtifact);
           const hash = crypto
             .createHash('sha512')
-            .update(fileData)
+            // refit Buffer into a plain Uint8Array to satisfy TS 5.7 generic covariance
+            .update(
+              new Uint8Array(
+                fileData.buffer,
+                fileData.byteOffset,
+                fileData.byteLength,
+              ),
+            )
             .digest('base64');
           const { size } = fs.statSync(newArtifact);
 

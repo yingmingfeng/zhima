@@ -68,7 +68,7 @@ Advances in AI model capabilities are not a threat to Zhima — they are leverag
 ### Prerequisites
 
 - Node.js >= 20.x
-- pnpm >= 9.10.0
+- pnpm >= 11.7.0
 
 ### Development
 

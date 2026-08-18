@@ -7,3 +7,24 @@ packages:
   - '!packages/agent-infra/create-new-mcp/template-*'
   - 'packages/common/*'
   - '!packages/ui-tars/visualizer'
+
+# pnpm 11：专属配置全部迁移到这里（.npmrc 只认认证和 registry）
+shamefullyHoist: true
+nodeLinker: hoisted
+minimumReleaseAge: 0
+blockExoticSubdeps: false
+publicHoistPattern:
+  - '@deepseek-ai/*'
+allowBuilds:
+  '@computer-use/mac-screen-capture-permissions': true
+  '@parcel/watcher': true
+  bufferutil: true
+  core-js: false
+  electron: true
+  electron-winstaller: true
+  esbuild: true
+  msw: false
+  puppeteer: true
+  secp256k1: true
+  sharp: true
+  utf-8-validate: true
