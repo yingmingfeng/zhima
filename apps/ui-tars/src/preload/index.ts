@@ -24,6 +24,9 @@ import {
   IPC_GET_STATE,
   IPC_SUBSCRIBE,
   IPC_UTIO_SHARE_REPORT,
+  IPC_DSH_OPEN,
+  IPC_DSH_GET_STATE,
+  IPC_DSH_STATE_CHANGED,
 } from '../shared/ipc-channels';
 
 export type Channels = '';
@@ -80,6 +83,24 @@ const electronHandler = {
   },
 };
 
+/** DSH 门面：渲染进程通过 window.dsh 访问。 */
+const dshApi = {
+  /** 打开 DSH 窗口（首次触发懒加载 boot）。 */
+  open: () => ipcRenderer.invoke(IPC_DSH_OPEN),
+  /** 查询当前 DSH 状态：idle | booting | ready | error。 */
+  getState: () => ipcRenderer.invoke(IPC_DSH_GET_STATE),
+  /** 订阅 DSH 状态变更；返回退订函数。 */
+  onStateChanged: (callback: (state: string) => void) => {
+    const handler = (_event: unknown, state: string) => callback(state);
+    ipcRenderer.on(IPC_DSH_STATE_CHANGED, handler);
+    return () => {
+      ipcRenderer.off(IPC_DSH_STATE_CHANGED, handler);
+    };
+  },
+};
+
+export type DshApi = typeof dshApi;
+
 // Initialize zustand bridge
 const zustandBridge = {
   getState: () => ipcRenderer.invoke(IPC_GET_STATE),
@@ -95,5 +116,6 @@ const zustandBridge = {
 contextBridge.exposeInMainWorld('electron', electronHandler);
 contextBridge.exposeInMainWorld('zustandBridge', zustandBridge);
 contextBridge.exposeInMainWorld('platform', process.platform);
+contextBridge.exposeInMainWorld('dsh', dshApi);
 
 export type ElectronHandler = typeof electronHandler;

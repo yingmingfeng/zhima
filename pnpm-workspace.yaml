@@ -34,3 +34,8 @@ allowBuilds:
   secp256k1: true
   sharp: true
   utf-8-validate: true
+
+# 统一 sharp 版本，避免 dsh（0.35.3）与应用（0.33.3）两版都带 libvips-42.dll，
+# 在 Windows 上 DLL 同名冲突导致 dsh-attachment-local 加载失败。
+overrides:
+  sharp: 0.33.3

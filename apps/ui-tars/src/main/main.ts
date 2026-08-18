@@ -39,7 +39,17 @@ import {
   IPC_WINDOW_IS_MAXIMIZED,
   IPC_SUBSCRIBE,
   IPC_UTIO_SHARE_REPORT,
+  IPC_DSH_OPEN,
+  IPC_DSH_GET_STATE,
+  IPC_DSH_STATE_CHANGED,
 } from '../shared/ipc-channels';
+import {
+  disposeDsh,
+  getDshState,
+  initDshFacade,
+  openDshWindow,
+  subscribeDshState,
+} from './dsh';
 
 const { isProd } = env;
 
@@ -133,10 +143,17 @@ const initializeApp = async () => {
     }
   });
 
-  app.on('before-quit', () => {
+  // DSH 清理守卫：dsh 曾启动过则先异步 dispose Cordis 树，再真正退出，避免残留子进程
+  let dshCleanupDone = false;
+  app.on('before-quit', (event) => {
     logger.info('before-quit');
     const windows = BrowserWindow.getAllWindows();
     windows.forEach((window) => window.destroy());
+
+    if (dshCleanupDone || getDshState() === 'idle') return;
+    event.preventDefault();
+    dshCleanupDone = true;
+    void disposeDsh().finally(() => app.quit());
   });
 
   app.on('quit', () => {
@@ -206,6 +223,25 @@ const registerIPCHandlers = (
   ipcMain.handle(IPC_WINDOW_IS_MAXIMIZED, () => {
     const win = BrowserWindow.getFocusedWindow();
     return win?.isMaximized() ?? false;
+  });
+
+  // DSH 集成
+  initDshFacade();
+  ipcMain.handle(IPC_DSH_OPEN, async () => {
+    try {
+      await openDshWindow();
+      return { ok: true as const };
+    } catch (cause) {
+      logger.error('[dsh] open-window failed:', cause);
+      return {
+        ok: false as const,
+        error: cause instanceof Error ? cause.message : String(cause),
+      };
+    }
+  });
+  ipcMain.handle(IPC_DSH_GET_STATE, () => getDshState());
+  subscribeDshState((next) => {
+    windowManager.broadcast(IPC_DSH_STATE_CHANGED, next);
   });
 
   // 初始化时注册已有窗口

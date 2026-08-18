@@ -10,3 +10,4 @@ export * from './setting';
 export * from './window';
 export * from './state';
 export * from './utio';
+export * from './dsh';

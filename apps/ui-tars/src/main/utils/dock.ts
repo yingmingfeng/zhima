@@ -6,27 +6,31 @@ import { app } from 'electron';
 import { Promisable } from 'type-fest';
 
 export const ensureDockIsShowing = async (action: () => Promisable<void>) => {
-  const wasDockShowing = app.dock.isVisible();
+  const dock = app.dock;
+  if (!dock) return action();
+  const wasDockShowing = dock.isVisible();
   if (!wasDockShowing) {
-    await app.dock.show();
+    await dock.show();
   }
 
   await action();
 
   if (!wasDockShowing) {
-    app.dock.hide();
+    dock.hide();
   }
 };
 
 export const ensureDockIsShowingSync = (action: () => void) => {
-  const wasDockShowing = app.dock.isVisible();
+  const dock = app.dock;
+  if (!dock) return action();
+  const wasDockShowing = dock.isVisible();
   if (!wasDockShowing) {
-    app.dock.show();
+    dock.show();
   }
 
   action();
 
   if (!wasDockShowing) {
-    app.dock.hide();
+    dock.hide();
   }
 };

@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Outlet } from 'react-router';
-import { PanelLeft, Search, Sun, Moon } from 'lucide-react';
+import { Bot, Loader2, PanelLeft, Search, Sun, Moon } from 'lucide-react';
 import { AppSidebar } from '@/renderer/src/components/SideBar/app-sidebar';
 import {
   SidebarInset,
@@ -29,6 +29,27 @@ function Toolbar({ onSearchClick }: { onSearchClick: () => void }) {
     document.documentElement.classList.toggle('dark', next);
     setIsDark(next);
   }, [isDark]);
+
+  // DSH 启动状态：booting 时按钮转圈，避免点击后无反馈
+  type DshUiState = 'idle' | 'booting' | 'ready' | 'error';
+  const [dshState, setDshState] = useState<DshUiState>('idle');
+  const [opening, setOpening] = useState(false);
+
+  useEffect(() => {
+    window.dsh.getState().then((s) => setDshState(s as DshUiState));
+    return window.dsh.onStateChanged((s) => setDshState(s as DshUiState));
+  }, []);
+
+  const dshLoading = dshState === 'booting' || opening;
+  const handleOpenDsh = useCallback(async () => {
+    if (dshState === 'booting') return;
+    setOpening(true);
+    try {
+      await window.dsh.open();
+    } finally {
+      setOpening(false);
+    }
+  }, [dshState]);
 
   // 从共享映射表动态读取快捷键标签
   const platform = isWindows ? 'win' : 'mac';
@@ -98,6 +119,28 @@ function Toolbar({ onSearchClick }: { onSearchClick: () => void }) {
           </TooltipTrigger>
           <TooltipContent side="bottom" sideOffset={0}>
             <span>{isDark ? '切换到亮色模式' : '切换到暗色模式'}</span>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-black/8 dark:hover:bg-white/10 disabled:opacity-60"
+              onClick={handleOpenDsh}
+              disabled={dshLoading}
+              aria-label={dshLoading ? '正在启动 DSH' : '打开 DSH'}
+            >
+              {dshLoading ? (
+                <Loader2
+                  size={16}
+                  className="animate-spin text-sidebar-foreground"
+                />
+              ) : (
+                <Bot size={16} className="text-sidebar-foreground" />
+              )}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" sideOffset={0}>
+            <span>{dshLoading ? '正在启动 DSH...' : '打开 DSH'}</span>
           </TooltipContent>
         </Tooltip>
       </div>
