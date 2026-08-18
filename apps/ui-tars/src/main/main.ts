@@ -61,6 +61,12 @@ if (squirrelStartup) {
   app.quit();
 }
 
+// M1 单实例锁：重复启动直接退出，避免两实例并发读写 ~/.dsh 等共享数据。
+const hasSingleInstanceLock = app.requestSingleInstanceLock();
+if (!hasSingleInstanceLock) {
+  app.quit();
+}
+
 logger.debug('[env]', env);
 
 ElectronStore.initRenderer();
@@ -169,6 +175,16 @@ const initializeApp = async () => {
       if (!mainWindow.isVisible()) {
         mainWindow.show();
       }
+      mainWindow.focus();
+    }
+  });
+
+  // M1：二次启动时聚焦已有主窗口。
+  app.on('second-instance', () => {
+    logger.info('second-instance, focus main window');
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
       mainWindow.focus();
     }
   });
@@ -288,6 +304,9 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(async () => {
+    // M1：未持有单实例锁时已在模块顶层 app.quit()，不再初始化。
+    if (!hasSingleInstanceLock) return;
+
     electronApp.setAppUserModelId('com.electron');
 
     // Default open or close DevTools by F12 in development

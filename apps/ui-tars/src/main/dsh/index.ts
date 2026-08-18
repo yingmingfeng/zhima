@@ -4,7 +4,7 @@
  * 三者分离：
  * - packages/dsh        —— 依赖容器（90+ @deepseek-ai 包）
  * - src/main/dsh/        —— 本目录：主进程使用代码
- * - ~/.zhima/.dsh        —— dsh 用户数据（profile/session/凭据，见 boot.ts DSH_HOME）
+ * - ~/.dsh              —— dsh 用户数据（profile/session/凭据，见 boot.ts DSH_HOME）
  *
  * 状态仅在主进程维护，通过订阅（当前转发到所有 zhima 窗口）通知渲染进程。
  */
@@ -15,6 +15,11 @@ import {
   disposeDsh as disposeDshBoot,
   setDshExitHandler,
 } from './boot';
+import {
+  injectRendererBootProbe,
+  registerRendererBootRoute,
+  type RendererBootReport,
+} from './renderer-boot';
 import { closeDshWindow, createDshWindow, showDshWindow } from './runtime';
 
 /** DSH 生命周期状态，渲染进程按钮据此显示加载态。 */
@@ -43,6 +48,30 @@ export function getDshState(): DshState {
   return state;
 }
 
+/** 上报路由只注册一次（webServer.register 重复注册会抛错）。 */
+let rendererBootRouteRegistered = false;
+
+/** M3：处理 renderer boot 上报。healthy 仅记录；failed 打日志 + 记诊断信息。 */
+let lastRendererError: string | undefined;
+export function getLastRendererError(): string | undefined {
+  return lastRendererError;
+}
+
+function handleRendererBootReport(report: RendererBootReport): void {
+  if (report.status === 'healthy') {
+    lastRendererError = undefined;
+    logger.info('[dsh] renderer boot healthy');
+  } else {
+    lastRendererError = report.error ?? report.plugins.join(', ');
+    logger.error(
+      '[dsh] renderer boot failed:',
+      lastRendererError,
+      '(failed plugins:',
+      report.plugins.join(', ') + ')',
+    );
+  }
+}
+
 /**
  * 打开 DSH 窗口：首次触发懒加载 boot，之后复用单例。
  * boot 期间状态为 booting（按钮显示加载）；boot 失败切 error 并抛出。
@@ -53,8 +82,14 @@ export async function openDshWindow(): Promise<void> {
 
   setState('booting');
   try {
-    const { port } = await bootDsh();
-    createDshWindow(`http://127.0.0.1:${port}/`);
+    const { ctx, port } = await bootDsh();
+    if (!rendererBootRouteRegistered) {
+      registerRendererBootRoute(ctx, handleRendererBootReport);
+      rendererBootRouteRegistered = true;
+    }
+    const win = createDshWindow(`http://127.0.0.1:${port}/`);
+    // M3：注入 boot 探针，UI 未就绪也能被主进程感知。
+    injectRendererBootProbe(win.webContents);
     setState('ready');
   } catch (cause) {
     logger.error('[dsh] open failed:', cause);

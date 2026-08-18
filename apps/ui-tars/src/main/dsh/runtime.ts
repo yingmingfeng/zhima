@@ -60,13 +60,24 @@ export function createDshWindow(url: string): BrowserWindow {
 
   const urlRoot = new URL(url).origin;
 
-  // 导航守卫：阻止离开 loopback origin；新窗口一律走系统浏览器。
-  win.webContents.on('will-navigate', (event, targetUrl) => {
-    if (!targetUrl.startsWith(urlRoot)) {
+  // 导航守卫（M2）：仅放行同 origin；离开 loopback 一律拦截并转系统浏览器。
+  // 用 origin 严格比较而非前缀匹配（避免 http://127.0.0.1:54321.evil.com 逃逸）。
+  const isSameOrigin = (targetUrl: string): boolean => {
+    try {
+      return new URL(targetUrl).origin === urlRoot;
+    } catch {
+      return false;
+    }
+  };
+  const guard = (event: Electron.Event, targetUrl: string): void => {
+    if (!isSameOrigin(targetUrl)) {
       event.preventDefault();
       shell.openExternal(targetUrl);
     }
-  });
+  };
+  // will-redirect 覆盖页面内 302/307 跳转（will-navigate 不触发该场景）。
+  win.webContents.on('will-navigate', guard);
+  win.webContents.on('will-redirect', guard);
   win.webContents.setWindowOpenHandler(({ url: targetUrl }) => {
     shell.openExternal(targetUrl);
     return { action: 'deny' };

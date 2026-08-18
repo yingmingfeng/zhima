@@ -51,6 +51,8 @@ export function registerShortcuts(): void {
  * 在 app will-quit 时调用
  */
 export function unregisterShortcuts(): void {
+  // globalShortcut 在 app ready 前不可用；未 ready 时 registerShortcuts 也没执行过，无需清理。
+  if (!app.isReady()) return;
   globalShortcut.unregisterAll();
   logger.info('[Shortcuts] 已注销所有主进程快捷键');
 }
