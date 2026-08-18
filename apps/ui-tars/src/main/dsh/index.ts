@@ -8,6 +8,9 @@
  *
  * 状态仅在主进程维护，通过订阅（当前转发到所有 zhima 窗口）通知渲染进程。
  */
+import { app } from 'electron';
+import { installFailLoud } from '@deepseek-ai/dsh-app-boot';
+
 import { logger } from '@main/logger';
 
 import {
@@ -15,6 +18,11 @@ import {
   disposeDsh as disposeDshBoot,
   setDshExitHandler,
 } from './boot';
+import {
+  getLastKnownGoodProfile,
+  markDshProfileHealthy,
+} from './profile-state';
+import { DSH_PROFILE_NAME } from './profile';
 import {
   injectRendererBootProbe,
   registerRendererBootRoute,
@@ -60,14 +68,20 @@ export function getLastRendererError(): string | undefined {
 function handleRendererBootReport(report: RendererBootReport): void {
   if (report.status === 'healthy') {
     lastRendererError = undefined;
+    // H3：UI 确证健康后才提升 lastKnownGood。
+    markDshProfileHealthy(DSH_PROFILE_NAME);
     logger.info('[dsh] renderer boot healthy');
   } else {
     lastRendererError = report.error ?? report.plugins.join(', ');
+    const lastKnownGood = getLastKnownGoodProfile();
     logger.error(
       '[dsh] renderer boot failed:',
       lastRendererError,
       '(failed plugins:',
       report.plugins.join(', ') + ')',
+      lastKnownGood === undefined
+        ? '(无 lastKnownGood 记录)'
+        : `(lastKnownGood=${lastKnownGood}，若 DSH 窗口异常可手动清理 ~/.dsh/profiles 恢复)`,
     );
   }
 }
@@ -110,7 +124,22 @@ export async function disposeDsh(): Promise<void> {
   setState('idle');
 }
 
-/** 初始化门面：挂接 DSH 窗口「请求退出」回调（关窗口而非退出 zhima）。 */
+const BIN_NAME = 'zhima-dsh';
+
+/** 初始化门面：挂接 DSH 窗口「请求退出」回调 + 安装 fail-loud 兜底。 */
 export function initDshFacade(): void {
   setDshExitHandler(() => closeDsh());
+
+  // H2 fail-loud：未处理异常/unhandledRejection 显式打 stderr + 带标签退出，
+  // 而不是主进程静默挂掉。release 钩子尽力 dispose dsh 树。
+  installFailLoud(
+    BIN_NAME,
+    {
+      on: (event, handler) => process.on(event, handler),
+      off: (event, handler) => process.off(event, handler),
+      stderr: process.stderr,
+      exit: (code) => app.exit(code),
+    },
+    () => disposeDshBoot(),
+  );
 }

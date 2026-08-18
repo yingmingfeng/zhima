@@ -150,6 +150,8 @@ const initializeApp = async () => {
   });
 
   // DSH 清理守卫：dsh 曾启动过则先异步 dispose Cordis 树，再真正退出，避免残留子进程
+  // H1：dispose 若挂起（如活动子进程），5s 超时强制退出，避免应用卡死在退出。
+  const DSH_DISPOSE_TIMEOUT_MS = 5000;
   let dshCleanupDone = false;
   app.on('before-quit', (event) => {
     logger.info('before-quit');
@@ -159,8 +161,23 @@ const initializeApp = async () => {
     if (dshCleanupDone || getDshState() === 'idle') return;
     event.preventDefault();
     dshCleanupDone = true;
-    void disposeDsh().finally(() => app.quit());
+    const forceExitTimer = setTimeout(() => {
+      logger.warn('[dsh] dispose 超时，强制退出');
+      app.exit(1);
+    }, DSH_DISPOSE_TIMEOUT_MS);
+    void disposeDsh().finally(() => {
+      clearTimeout(forceExitTimer);
+      app.quit();
+    });
   });
+
+  // H1：Ctrl+C / SIGTERM → 走正常 quit 流程（触发上面守卫 dispose）。
+  const handleTermSignal = (signal: NodeJS.Signals): void => {
+    logger.info('received', signal, ', quitting');
+    app.quit();
+  };
+  process.on('SIGINT', handleTermSignal);
+  process.on('SIGTERM', handleTermSignal);
 
   app.on('quit', () => {
     logger.info('app quit');
@@ -243,6 +260,7 @@ const registerIPCHandlers = (
 
   // DSH 集成
   initDshFacade();
+
   ipcMain.handle(IPC_DSH_OPEN, async () => {
     try {
       await openDshWindow();
