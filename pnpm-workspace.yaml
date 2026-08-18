@@ -2,6 +2,7 @@ packages:
   - 'apps/*'
   - 'apps/agent-tars/src/*'
   - 'apps/ui-tars/src/*'
+  - 'packages/dsh'
   - 'packages/ui-tars/**'
   - 'packages/agent-infra/**'
   - '!packages/agent-infra/create-new-mcp/template-*'
@@ -17,13 +18,18 @@ publicHoistPattern:
   - '@deepseek-ai/*'
 allowBuilds:
   '@computer-use/mac-screen-capture-permissions': true
+  '@deepseek-ai/dsh-subprocess-local': true
+  '@google/genai': true
   '@parcel/watcher': true
   bufferutil: true
   core-js: false
   electron: true
   electron-winstaller: true
   esbuild: true
+  koffi: true
   msw: false
+  node-pty: true
+  protobufjs: true
   puppeteer: true
   secp256k1: true
   sharp: true
