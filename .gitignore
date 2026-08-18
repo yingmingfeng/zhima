@@ -4,6 +4,9 @@ dist
 out
 *.tsbuildinfo
 
+# 参考源码（junction 指向本地 dsh 源码，不入库）
+deepseek-harness
+
 # 环境与缓存
 .env
 .turbo/
