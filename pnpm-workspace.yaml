@@ -39,3 +39,4 @@ allowBuilds:
 # 在 Windows 上 DLL 同名冲突导致 dsh-attachment-local 加载失败。
 overrides:
   sharp: 0.33.3
+  tsx: ^4.23.0

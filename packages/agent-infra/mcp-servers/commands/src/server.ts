@@ -51,6 +51,7 @@ function createServer(serverConfig?: { cwd?: string }): McpServer {
     async (args) => await runCommand(args),
   );
 
+  // @ts-ignore
   server.registerTool(
     'run_script',
     {
@@ -74,6 +75,7 @@ function createServer(serverConfig?: { cwd?: string }): McpServer {
   );
 
   // ==== Prompts ====
+  // @ts-ignore
   server.registerPrompt(
     'run_command',
     {

@@ -69,7 +69,7 @@ async function doBoot(): Promise<DshBootResult> {
     async (hostCtx) => {
       // 强制 loopback 绑定：--host 127.0.0.1 --port 0（随机端口）。
       provideCmdline(hostCtx, {
-        args: ['--host', '127.0.0.1', '--port', '0'],
+        args: ['--host', '127.0.0.1', '--port', '0', '--no-open'],
         exit: () => onDshExitRequest?.(),
       });
     },

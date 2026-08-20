@@ -176,6 +176,7 @@ export function createServer(config?: SearchSettings): McpServer {
   });
 
   // === Tools ===
+  // @ts-expect-error TS2589: zod union type depth
   server.tool(
     'web_search',
     'Search the web for information',

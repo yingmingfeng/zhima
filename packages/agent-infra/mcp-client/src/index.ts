@@ -641,6 +641,7 @@ export class MCPClient<
     client: ServerNames;
     name: string;
     args: any;
+    // @ts-expect-error TS2589: zod union type depth
   }): Promise<z.infer<typeof CompatibilityCallToolResultSchema>> {
     await this.ensureInitialized();
     try {

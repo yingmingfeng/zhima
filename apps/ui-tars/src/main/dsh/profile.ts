@@ -33,11 +33,6 @@ const BROWSE_PICKER_BACKEND = '@deepseek-ai/dsh-host-directory-picker-browse';
 const BROWSE_PICKER_SURFACE =
   '@deepseek-ai/dsh-client-ui-directory-picker-browse';
 
-// H5：Windows pwsh 沙箱 upstream → zhima 专用（ACL runner trampoline + 固定 pwsh 路径）。
-const PWSH_SANDBOX_ROW_ID = 'pwsh-sandbox';
-const UPSTREAM_PWSH_SANDBOX_PACKAGE = '@deepseek-ai/dsh-pwsh-sandbox';
-const WINDOWS_PWSH_SANDBOX_FILENAME = 'windows-pwsh-sandbox.mjs';
-
 /** dsh 主包自带的 agent presets 目录（standard/code/minimal/cordis）。 */
 function shippedPresetRoot(): string {
   const require = createRequire(__filename);
@@ -158,37 +153,6 @@ export function prepareDshProfile(
           defaultPreset: 'danger-full-access',
         },
       });
-    }
-
-    // H5：pwsh 沙箱换成 zhima 专用实现（ACL runner trampoline + 固定 pwsh 路径）。
-    // 仅当用户切到 read-only/workspace-write 沙箱模式时才会被调用。
-    const pwshSandbox = rows.get(PWSH_SANDBOX_ROW_ID);
-    if (pwshSandbox?.name === UPSTREAM_PWSH_SANDBOX_PACKAGE) {
-      const windowsPwshSandboxUrl = pathToFileURL(
-        join(
-          dirname(require.resolve('@zhima/dsh/package.json')),
-          WINDOWS_PWSH_SANDBOX_FILENAME,
-        ),
-      ).href;
-      patches.push(
-        {
-          id: PWSH_SANDBOX_ROW_ID,
-          name: UPSTREAM_PWSH_SANDBOX_PACKAGE,
-          disabled: true,
-        },
-        {
-          insert: [
-            {
-              id: 'desktop-windows-pwsh-sandbox',
-              name: windowsPwshSandboxUrl,
-              ...(pwshSandbox.disabled === undefined
-                ? {}
-                : { disabled: pwshSandbox.disabled }),
-              config: rowConfig(pwshSandbox),
-            },
-          ],
-        },
-      );
     }
   }
 
