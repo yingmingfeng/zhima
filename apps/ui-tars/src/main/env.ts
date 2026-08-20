@@ -3,10 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import os from 'node:os';
+import { resolve } from 'node:path';
 
 import dotenv from 'dotenv';
 
-dotenv.config();
+// 从项目根目录加载 .env（electron-vite dev 模式下 cwd 是 apps/ui-tars，不是项目根）
+dotenv.config({ path: resolve(__dirname, '../../../../.env') });
 
 export const mode = process.env.NODE_ENV;
 export const isProd = mode === 'production';

@@ -25,8 +25,8 @@ export const DSH_HOME = resolveDshHome();
 
 /** 一次成功 boot 后的句柄。 */
 export interface DshBootResult {
-  /** 已启动的 Cordis 根上下文。 */
-  ctx: Context;
+  /** 已启动的 Cordis 根上下文（dev 模式下为 undefined）。 */
+  ctx?: Context;
   /** webServer 实际监听的 loopback 端口。 */
   port: number;
 }
@@ -57,6 +57,17 @@ export function bootDsh(): Promise<DshBootResult> {
 }
 
 async function doBoot(): Promise<DshBootResult> {
+  // DSH_WEB_DEV=true：连接外部 harness dev 实例，跳过内部 boot
+  if (process.env.DSH_WEB_DEV === 'true') {
+    const port = Number(process.env.DSH_WEB_PORT) || 3080;
+    logger.info(
+      '[dsh] dev mode: 连接外部 dev 实例 http://127.0.0.1:' +
+        String(port) +
+        '/',
+    );
+    return { port };
+  }
+
   mkdirSync(DSH_HOME, { recursive: true });
   const prepared = prepareDshProfile(DSH_HOME);
 
@@ -93,7 +104,7 @@ export async function disposeDsh(): Promise<void> {
   if (task === undefined) return;
   try {
     const { ctx } = await task;
-    await ctx.fiber.dispose();
+    if (ctx) await ctx.fiber.dispose();
   } catch (cause) {
     logger.error('[dsh] dispose failed:', cause);
   }

@@ -8,7 +8,7 @@
  *
  * 状态仅在主进程维护，通过订阅（当前转发到所有 zhima 窗口）通知渲染进程。
  */
-import { app } from 'electron';
+import { app, dialog } from 'electron';
 import { installFailLoud } from '@deepseek-ai/dsh-app-boot';
 
 import { logger } from '@main/logger';
@@ -97,7 +97,25 @@ export async function openDshWindow(): Promise<void> {
   setState('booting');
   try {
     const { ctx, port } = await bootDsh();
-    if (!rendererBootRouteRegistered) {
+
+    // dev 模式下检查外部 dev 实例是否可达
+    if (!ctx) {
+      const reachable = await checkDshDevReachable(port);
+      if (!reachable) {
+        setState('idle');
+        dialog.showErrorBox(
+          'DSH Dev 实例未启动',
+          `无法连接到 http://127.0.0.1:${port}/\n\n` +
+            '请先在 deepseek-harness 目录中执行：\n' +
+            '  pnpm run dev:web\n' +
+            '  pnpm dsh web\n\n' +
+            '然后重试。',
+        );
+        return;
+      }
+    }
+
+    if (ctx && !rendererBootRouteRegistered) {
       registerRendererBootRoute(ctx, handleRendererBootReport);
       rendererBootRouteRegistered = true;
     }
@@ -110,6 +128,20 @@ export async function openDshWindow(): Promise<void> {
     setState('error');
     throw cause;
   }
+}
+
+/** 探测 DSH dev 实例是否可达，2 秒超时。 */
+function checkDshDevReachable(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const req = fetch(`http://127.0.0.1:${port}/`, {
+      method: 'HEAD',
+      signal: AbortSignal.timeout(2000),
+    });
+    req.then(
+      () => resolve(true),
+      () => resolve(false),
+    );
+  });
 }
 
 /** 关闭 DSH 窗口（harness 保持 boot，下次打开即复用）。 */
