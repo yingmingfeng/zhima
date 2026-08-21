@@ -1,0 +1,2 @@
+# 占位文件：git 不跟踪空目录，此文件保证 hybrid/ 目录被纳入版本控制。
+# hybrid/ 放 host 与 client 两边都有实质逻辑的插件（详见根 README.md 的目录约定）。

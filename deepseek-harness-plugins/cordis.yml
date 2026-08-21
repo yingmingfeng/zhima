@@ -1,0 +1,12 @@
+# deepseek-harness-plugins 总加载清单
+# 列出所有插件，一次 `--patch` 全部加载；新增插件在此追加一条即可
+# 目录约定：host 插件在 host/，纯浏览器端（client 插件）在 client/，
+#           host 与 client 都有实质逻辑的插件归 hybrid/（按其主导面放根目录，不在此加前缀）
+- insert:
+    - id: hello
+      name: 'file:///E:/VibeCoding/workspace/zhima/deepseek-harness-plugins/host/hello-plugin/src/index.ts'
+      config:
+        greeting: 'Hi there'
+        maxRetries: 5
+    - id: greet
+      name: 'file:///E:/VibeCoding/workspace/zhima/deepseek-harness-plugins/host/greet-tool/src/index.ts'

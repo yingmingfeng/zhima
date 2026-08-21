@@ -1,0 +1,5 @@
+{
+  "name": "deepseek-harness-plugins",
+  "private": true,
+  "type": "module"
+}
