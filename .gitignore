@@ -40,7 +40,6 @@ scripts/merge-yml/*.yml
 
 #deepseek-harness
 deepseek-harness
-packages/dsh/vendor
 
 # 第三方复刻皮肤 bundle（工作区本地测试用，不入库）
 deepseek-harness-plugins/client/maid-atelier/
