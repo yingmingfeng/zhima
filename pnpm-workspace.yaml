@@ -8,6 +8,8 @@ packages:
   - '!packages/agent-infra/create-new-mcp/template-*'
   - 'packages/common/*'
   - '!packages/ui-tars/visualizer'
+  # zhima 内置插件（advanced shell 窗口增强），dev 走 workspace link、prod 随 app 分发
+  - 'packages/dsh-plugins/*'
 
 # pnpm 11：专属配置全部迁移到这里（.npmrc 只认认证和 registry）
 shamefullyHoist: true

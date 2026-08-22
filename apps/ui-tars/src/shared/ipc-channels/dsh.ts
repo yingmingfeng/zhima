@@ -31,3 +31,17 @@ export const IPC_DSH_PROFILE_CREATE_REQUEST = 'dsh:profile-create-request';
 
 /** 确认/取消新建配置文件（渲染进程 → 主进程，invoke，payload: { name, confirmed }） */
 export const IPC_DSH_PROFILE_CREATE_CONFIRM = 'dsh:profile-create-confirm';
+
+/** 请求切换窗口呈现模式（主进程 → 渲染进程，event，payload: 'compatibility' | 'advanced'） */
+export const IPC_DSH_SHELL_MODE_SWITCH_REQUEST =
+  'dsh:shell-mode-switch-request';
+
+/** 确认/取消切换窗口呈现模式（渲染进程 → 主进程，invoke，payload: { mode, confirmed }） */
+export const IPC_DSH_SHELL_MODE_SWITCH_CONFIRM =
+  'dsh:shell-mode-switch-confirm';
+
+/** 当前 profile 检测到插件安装/卸载变化（主进程 → 渲染进程，event，payload: { profileName, added, removed }） */
+export const IPC_DSH_PROFILE_CHANGED = 'dsh:profile-changed';
+
+/** 是否立即重启 DSH 会话以应用插件变化（渲染进程 → 主进程，invoke，payload: { restart }） */
+export const IPC_DSH_PROFILE_CHANGED_RESTART = 'dsh:profile-changed-restart';

@@ -7,10 +7,19 @@
  * picker/pwsh 替换、模式切换等桌面专属逻辑。zhima 本身就是壳，
  * 不需要 dsh 的 desktop-shell 插件，窗口由 main/dsh/runtime.ts 自建。
  */
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+
+import { parseDocument } from 'yaml';
 
 import { resolveDshHome } from '@deepseek-ai/dsh-home-paths';
 import {
@@ -24,9 +33,74 @@ import {
 import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader';
 import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include';
 
-import { DEFAULT_DSH_PROFILE, getSelectedDshProfile } from './state';
+import {
+  DEFAULT_DSH_PROFILE,
+  getDshShellMode,
+  getSelectedDshProfile,
+} from './state';
 
 const BIN_NAME = 'zhima-dsh';
+
+/** zhima 内置 advanced-shell client 插件（无边框材质 + AdvancedFrame 三栏布局）。 */
+const ADVANCED_SHELL_PACKAGE = '@zhima/dsh-client-advanced-shell';
+
+/** advanced 无边框材质仅支持 win32/darwin（与 main/dsh/runtime.ts 一致）。 */
+function advancedShellSupported(platform: NodeJS.Platform): boolean {
+  return (
+    getDshShellMode() === 'advanced' &&
+    (platform === 'win32' || platform === 'darwin')
+  );
+}
+
+/**
+ * 把内置 advanced-shell 插件 link 进 $DSH_HOME/profiles/node_modules/@zhima/，
+ * 使 ClientModuleRegistry（以 profile 目录为 createRequire 基准）与 ESM overlay
+ * 都能按裸包名解析到它。healProfilesModuleFallback 只覆盖 @deepseek-ai/dsh 依赖
+ * 闭包，不含 @zhima/* 包，须由 zhima 自管这一步。
+ */
+function linkAdvancedShellPackage(homeDir: string): void {
+  const require = createRequire(__filename);
+  const packageDir = dirname(
+    require.resolve(`${ADVANCED_SHELL_PACKAGE}/package.json`),
+  );
+  const linkRoot = join(join(homeDir, 'profiles'), 'node_modules', '@zhima');
+  const linkPath = join(linkRoot, 'dsh-client-advanced-shell');
+  if (existsSync(linkPath)) return;
+  mkdirSync(linkRoot, { recursive: true });
+  symlinkSync(
+    packageDir,
+    linkPath,
+    process.platform === 'win32' ? 'junction' : 'dir',
+  );
+}
+
+/**
+ * 加载内置插件统一注入清单 packages/dsh-plugins/cordis.patch.yml 的 insert 行。
+ * 清单在插件容器根（插件包目录的上一级），所有内置插件都在此暴露；新增插件无需改代码。
+ */
+function loadBuiltinPluginPatches(): PatchOptions[] {
+  const require = createRequire(__filename);
+  const pluginDir = dirname(
+    require.resolve(`${ADVANCED_SHELL_PACKAGE}/package.json`),
+  );
+  const manifestPath = join(dirname(pluginDir), 'cordis.patch.yml');
+  const document = parseDocument(readFileSync(manifestPath, 'utf8'), {
+    prettyErrors: true,
+  });
+  if (document.errors.length > 0) {
+    throw new Error(
+      `${BIN_NAME}: invalid builtin plugin manifest ${manifestPath}: ` +
+        document.errors.map((error) => error.message).join('; '),
+    );
+  }
+  const patches = document.toJS() as PatchOptions[];
+  if (!Array.isArray(patches)) {
+    throw new Error(
+      `${BIN_NAME}: builtin plugin manifest ${manifestPath} 格式错误：顶层必须是列表`,
+    );
+  }
+  return patches;
+}
 
 /**
  * profile 是否可加载：官方模板（web）首次使用会自动初始化；自定义 profile 必须
@@ -198,6 +272,8 @@ export function prepareDshProfile(
   }
   // 维护 $home/profiles/node_modules 扁平回退，让 in-box 插件从任意 profile 可解析。
   healProfilesModuleFallback(installAnchor, homeDir);
+  // advanced 模式下把内置 advanced-shell 插件 link 进同一回退，供 client 加载。
+  if (advancedShellSupported(platform)) linkAdvancedShellPackage(homeDir);
 
   const profile = loadProfile(BIN_NAME, profileName, installAnchor, homeDir);
   const rootConfig = join(profileDir, 'cordis.yml');
@@ -264,6 +340,18 @@ export function prepareDshProfile(
         },
       });
     }
+  }
+
+  // advanced 模式：禁用官方 ui-layout（它注册 root 槽，AdvancedFrame 会接管），
+  // 保持 ui-sidebar/ui-conversation 启用，并注入内置插件（统一清单
+  // packages/dsh-plugins/cordis.patch.yml）。参考 dsh-plugin-desktop/src/profile.ts。
+  if (advancedShellSupported(platform)) {
+    patches.push(
+      { id: 'ui-layout', disabled: true },
+      { id: 'ui-sidebar', disabled: false },
+      { id: 'ui-conversation', disabled: false },
+      ...loadBuiltinPluginPatches(),
+    );
   }
 
   // 强制 loopback 绑定是宿主安全不变量，不是用户配置。

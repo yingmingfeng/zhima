@@ -65,7 +65,8 @@
     "electron": "43.4.0",
     "jose": "^6.0.11",
     "motion": "^12.42.2",
-    "sharp": "0.33.3"
+    "sharp": "0.33.3",
+    "@zhima/dsh-client-advanced-shell": "workspace:*"
   },
   "devDependencies": {
     "@common/electron-build": "workspace:*",

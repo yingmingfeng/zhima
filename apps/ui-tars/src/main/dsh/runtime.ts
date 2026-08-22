@@ -9,6 +9,8 @@ import { BrowserWindow, shell } from 'electron';
 
 import { logger } from '@main/logger';
 
+import { getDshRunMode, getDshShellMode, type DshShellMode } from './state';
+
 /** DSH 窗口尺寸，参照 dsh-desktop 的默认窗口规格。 */
 const DEFAULT_WINDOW_CONFIG = {
   width: 1280,
@@ -16,6 +18,82 @@ const DEFAULT_WINDOW_CONFIG = {
   minWidth: 900,
   minHeight: 640,
 };
+
+/** advanced 无边框材质仅支持 win32/darwin（参考 dsh-plugin-desktop/src/window-options.ts）。 */
+const SUPPORTS_ADVANCED =
+  process.platform === 'win32' || process.platform === 'darwin';
+
+/** Windows 标题栏 overlay 高度，与 advanced-shell 插件的 window-chrome.ts 常量一致。 */
+const WINDOWS_TITLEBAR_HEIGHT = 32;
+
+/**
+ * 是否应用 advanced 窗口材质。
+ * 仅内置模式（advanced-shell 客户端插件由 zhima 在 builtin boot 时注入，
+ * external 连接的外部实例不会加载它）且平台支持时启用。
+ */
+function isAdvancedWindow(mode: DshShellMode): boolean {
+  return (
+    mode === 'advanced' && SUPPORTS_ADVANCED && getDshRunMode() === 'builtin'
+  );
+}
+
+/**
+ * 按呈现模式构建 BrowserWindow 选项。
+ * - advanced（win32）：隐藏标题栏 + 原生 overlay 控件 + mica 材质
+ * - advanced（darwin）：hiddenInset 红绿灯 + vibrancy + 透明
+ * - compatibility：原生框 + 白底
+ */
+function shellWindowOptions(
+  mode: DshShellMode,
+): Electron.BrowserWindowConstructorOptions {
+  const base: Electron.BrowserWindowConstructorOptions = {
+    ...DEFAULT_WINDOW_CONFIG,
+    autoHideMenuBar: true,
+    title: 'DeepSeek Harness',
+    backgroundColor: '#ffffff',
+    // 远程内容页面：保持隔离，不注入 preload/Node 能力。
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  };
+  if (!isAdvancedWindow(mode)) return base;
+  if (process.platform === 'win32') {
+    return {
+      ...base,
+      backgroundColor: '#00000000',
+      titleBarStyle: 'hidden',
+      titleBarOverlay: {
+        color: '#00000000',
+        symbolColor: '#7f858f',
+        height: WINDOWS_TITLEBAR_HEIGHT,
+      },
+      backgroundMaterial: 'mica',
+      hasShadow: true,
+      roundedCorners: true,
+      thickFrame: true,
+    };
+  }
+  return {
+    ...base,
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 16, y: 16 },
+    transparent: true,
+    backgroundColor: '#00000000',
+    vibrancy: 'sidebar',
+    visualEffectState: 'followWindow',
+  };
+}
+
+/** 渲染器 URL：advanced 模式追加模式/平台标记，供页面内 advanced-shell client 解析。 */
+function rendererUrl(baseUrl: string, mode: DshShellMode): string {
+  if (!isAdvancedWindow(mode)) return baseUrl;
+  const url = new URL(baseUrl);
+  url.searchParams.set('dsh-desktop-mode', 'advanced');
+  url.searchParams.set('dsh-desktop-platform', process.platform);
+  return url.href;
+}
 
 /** 维护中的 DSH 窗口（单例），关闭后清空以便下次重建。 */
 let dshWindow: BrowserWindow | null = null;
@@ -48,20 +126,11 @@ export function createDshWindow(url: string): BrowserWindow {
     return dshWindow!;
   }
 
-  const win = new BrowserWindow({
-    ...DEFAULT_WINDOW_CONFIG,
-    autoHideMenuBar: true,
-    title: 'DeepSeek Harness',
-    backgroundColor: '#ffffff',
-    webPreferences: {
-      // 远程内容页面：保持隔离，不注入 preload/Node 能力。
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: true,
-    },
-  });
+  const mode = getDshShellMode();
+  const win = new BrowserWindow(shellWindowOptions(mode));
+  const targetUrl = rendererUrl(url, mode);
 
-  currentUrlRoot = new URL(url).origin;
+  currentUrlRoot = new URL(targetUrl).origin;
 
   // 导航守卫（M2）：仅放行同 origin；离开 loopback 一律拦截并转系统浏览器。
   // 用 origin 严格比较而非前缀匹配（避免 http://127.0.0.1:54321.evil.com 逃逸）。
@@ -91,9 +160,9 @@ export function createDshWindow(url: string): BrowserWindow {
     dshWindow = null;
   });
 
-  void win.loadURL(url);
+  void win.loadURL(targetUrl);
   dshWindow = win;
-  logger.info('[dsh] window created, url:', url);
+  logger.info('[dsh] window created, url:', targetUrl);
   return win;
 }
 
@@ -117,10 +186,11 @@ export function hideDshWindow(): void {
 export function reloadDshWindow(url: string): BrowserWindow {
   if (!hasDshWindow()) return createDshWindow(url);
   const win = dshWindow!;
-  currentUrlRoot = new URL(url).origin;
-  void win.loadURL(url);
+  const targetUrl = rendererUrl(url, getDshShellMode());
+  currentUrlRoot = new URL(targetUrl).origin;
+  void win.loadURL(targetUrl);
   win.show();
   win.focus();
-  logger.info('[dsh] window reloaded, url:', url);
+  logger.info('[dsh] window reloaded, url:', targetUrl);
   return win;
 }

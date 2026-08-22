@@ -19,6 +19,8 @@ import { Input } from '@/renderer/src/components/ui/input';
 
 type DshRunMode = 'builtin' | 'external';
 
+type DshShellMode = 'compatibility' | 'advanced';
+
 interface PendingModeSwitch {
   mode: DshRunMode;
   needsStop: boolean;
@@ -27,6 +29,12 @@ interface PendingModeSwitch {
 interface ModeDialogState {
   mode: DshRunMode;
   needsStop: boolean;
+}
+
+interface ProfileChangeDialog {
+  profileName: string;
+  added: string[];
+  removed: string[];
 }
 
 const DEFAULT_PORT = 3080;
@@ -41,6 +49,13 @@ export function DshTrayController() {
   const [newProfileName, setNewProfileName] = useState('');
   const [portValue, setPortValue] = useState(String(DEFAULT_PORT));
   const [processing, setProcessing] = useState(false);
+  const [shellModeDialog, setShellModeDialog] = useState<DshShellMode | null>(
+    null,
+  );
+  const [shellModeProcessing, setShellModeProcessing] = useState(false);
+  const [profileChange, setProfileChange] =
+    useState<ProfileChangeDialog | null>(null);
+  const [profileChangeProcessing, setProfileChangeProcessing] = useState(false);
   const pendingModeRef = useRef<PendingModeSwitch | null>(null);
 
   useEffect(() => {
@@ -86,11 +101,28 @@ export function DshTrayController() {
       setCreateDialogOpen(true);
     });
 
+    const offShellMode = window.dsh.onShellModeSwitchRequest(({ mode }) => {
+      setShellModeProcessing(false);
+      setShellModeDialog(mode);
+    });
+
+    // 检测到当前选中 profile 插件变化 → 弹 diff dialog 引导重启。
+    const offProfileChanged = window.dsh.onProfileChangedRequest((payload) => {
+      setProfileChangeProcessing(false);
+      setProfileChange({
+        profileName: payload.profileName,
+        added: payload.added ?? [],
+        removed: payload.removed ?? [],
+      });
+    });
+
     return () => {
       offProfile();
       offMode();
       offToast();
       offCreate();
+      offShellMode();
+      offProfileChanged();
     };
   }, []);
 
@@ -176,6 +208,39 @@ export function DshTrayController() {
   const cancelProfileCreate = (): void => {
     setCreateDialogOpen(false);
     void window.dsh.confirmProfileCreate('', false);
+  };
+
+  const confirmShellModeSwitch = async (): Promise<void> => {
+    const mode = shellModeDialog;
+    if (!mode) return;
+    setShellModeProcessing(true);
+    const result = await window.dsh.confirmShellModeSwitch(mode, true);
+    setShellModeProcessing(false);
+    setShellModeDialog(null);
+    if (result && !result.ok) {
+      toast.error(typeof result.error === 'string' ? result.error : '切换失败');
+    }
+  };
+
+  const cancelShellModeSwitch = (): void => {
+    const mode = shellModeDialog;
+    setShellModeDialog(null);
+    if (mode) void window.dsh.confirmShellModeSwitch(mode, false);
+  };
+
+  const confirmProfileChangeRestart = async (): Promise<void> => {
+    setProfileChangeProcessing(true);
+    const result = await window.dsh.confirmProfileChangedRestart(true);
+    setProfileChangeProcessing(false);
+    setProfileChange(null);
+    if (result && !result.ok) {
+      toast.error(typeof result.error === 'string' ? result.error : '重启失败');
+    }
+  };
+
+  const dismissProfileChange = (): void => {
+    setProfileChange(null);
+    void window.dsh.confirmProfileChangedRestart(false);
   };
 
   return (
@@ -264,6 +329,44 @@ export function DshTrayController() {
         </DialogContent>
       </Dialog>
 
+      {/* 窗口模式切换确认 dialog（兼容/增强，会重启 DSH 会话并重建窗口） */}
+      <Dialog
+        open={shellModeDialog !== null}
+        onOpenChange={(open) => {
+          if (!shellModeProcessing && !open) cancelShellModeSwitch();
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>切换窗口模式</DialogTitle>
+          </DialogHeader>
+          {shellModeProcessing ? (
+            <p className="text-sm text-muted-foreground">
+              正在切换窗口模式，请稍候…
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              确定要切换到
+              {shellModeDialog === 'advanced' ? '增强模式' : '兼容模式'}吗？
+              切换会重启 DSH 会话并重建窗口（增强模式使用无边框原生材质 +
+              三栏布局）。
+            </p>
+          )}
+          <DialogFooter>
+            {!shellModeProcessing && (
+              <>
+                <Button variant="ghost" onClick={cancelShellModeSwitch}>
+                  取消
+                </Button>
+                <Button onClick={() => void confirmShellModeSwitch()}>
+                  确定
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* 新建配置文件 dialog */}
       <Dialog
         open={createDialogOpen}
@@ -295,6 +398,63 @@ export function DshTrayController() {
               取消
             </Button>
             <Button onClick={confirmProfileCreate}>+ 创建并启动</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 插件变化检测 dialog（需重启生效，git diff 风格 +/-） */}
+      <Dialog
+        open={profileChange !== null}
+        onOpenChange={(open) => {
+          if (!open && !profileChangeProcessing) dismissProfileChange();
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>检测到插件变化</DialogTitle>
+          </DialogHeader>
+          {profileChangeProcessing ? (
+            <p className="text-sm text-muted-foreground">
+              正在重启 DSH 会话并重新加载插件，请稍候…
+            </p>
+          ) : profileChange ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                profile &ldquo;{profileChange.profileName}&rdquo;
+                的插件发生了变化，需要重启 DSH 会话才能生效。
+              </p>
+              <pre className="max-h-48 overflow-auto rounded border bg-muted p-3 text-xs leading-relaxed">
+                {profileChange.added.map((item) => (
+                  <div key={`+${item}`} className="text-green-600">
+                    + {item}
+                  </div>
+                ))}
+                {profileChange.removed.map((item) => (
+                  <div key={`-${item}`} className="text-red-600">
+                    - {item}
+                  </div>
+                ))}
+                {profileChange.added.length === 0 &&
+                  profileChange.removed.length === 0 && (
+                    <div className="text-muted-foreground">（无差异）</div>
+                  )}
+              </pre>
+              <p className="text-xs text-muted-foreground">
+                如果现在不重启，也可以在托盘菜单里点击「重新加载插件」稍后生效。
+              </p>
+            </>
+          ) : null}
+          <DialogFooter>
+            {!profileChangeProcessing && (
+              <>
+                <Button variant="ghost" onClick={dismissProfileChange}>
+                  稍后（托盘重启）
+                </Button>
+                <Button onClick={() => void confirmProfileChangeRestart()}>
+                  立即重启
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

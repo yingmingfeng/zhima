@@ -34,6 +34,10 @@ import {
   IPC_DSH_TOAST,
   IPC_DSH_PROFILE_CREATE_REQUEST,
   IPC_DSH_PROFILE_CREATE_CONFIRM,
+  IPC_DSH_SHELL_MODE_SWITCH_REQUEST,
+  IPC_DSH_SHELL_MODE_SWITCH_CONFIRM,
+  IPC_DSH_PROFILE_CHANGED,
+  IPC_DSH_PROFILE_CHANGED_RESTART,
 } from '../shared/ipc-channels';
 
 export type Channels = '';
@@ -92,6 +96,9 @@ const electronHandler = {
 
 /** DSH 运行模式（与主进程 state.ts 保持一致）。 */
 export type DshRunMode = 'builtin' | 'external';
+
+/** DSH 窗口呈现模式（与主进程 state.ts 保持一致）。 */
+export type DshShellMode = 'compatibility' | 'advanced';
 
 /** DSH 门面：渲染进程通过 window.dsh 访问。 */
 const dshApi = {
@@ -169,6 +176,44 @@ const dshApi = {
   /** 确认/取消新建配置文件。 */
   confirmProfileCreate: (name: string, confirmed: boolean) =>
     ipcRenderer.invoke(IPC_DSH_PROFILE_CREATE_CONFIRM, { name, confirmed }),
+  /** 订阅切换窗口呈现模式请求（托盘点选后触发）；返回退订函数。 */
+  onShellModeSwitchRequest: (
+    callback: (payload: { mode: DshShellMode }) => void,
+  ) => {
+    const handler = (_event: unknown, payload: { mode: DshShellMode }) =>
+      callback(payload);
+    ipcRenderer.on(IPC_DSH_SHELL_MODE_SWITCH_REQUEST, handler);
+    return () => {
+      ipcRenderer.off(IPC_DSH_SHELL_MODE_SWITCH_REQUEST, handler);
+    };
+  },
+  /** 确认/取消切换窗口呈现模式。 */
+  confirmShellModeSwitch: (mode: DshShellMode, confirmed: boolean) =>
+    ipcRenderer.invoke(IPC_DSH_SHELL_MODE_SWITCH_CONFIRM, { mode, confirmed }),
+  /** 订阅当前 profile 插件变化检测（需重启生效）；返回退订函数。 */
+  onProfileChangedRequest: (
+    callback: (payload: {
+      profileName: string;
+      added: string[];
+      removed: string[];
+    }) => void,
+  ) => {
+    const handler = (
+      _event: unknown,
+      payload: {
+        profileName: string;
+        added: string[];
+        removed: string[];
+      },
+    ) => callback(payload);
+    ipcRenderer.on(IPC_DSH_PROFILE_CHANGED, handler);
+    return () => {
+      ipcRenderer.off(IPC_DSH_PROFILE_CHANGED, handler);
+    };
+  },
+  /** 确认插件变化后是否立即重启（restart=true 触发重启 DSH 会话）。 */
+  confirmProfileChangedRestart: (restart: boolean) =>
+    ipcRenderer.invoke(IPC_DSH_PROFILE_CHANGED_RESTART, { restart }),
 };
 
 export type DshApi = typeof dshApi;

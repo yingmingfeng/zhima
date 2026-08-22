@@ -41,8 +41,11 @@ export interface DshBootResult {
 
 let bootTask: Promise<DshBootResult> | undefined;
 
-/** 当前 boot/已 boot 状态；undefined 表示尚未发起过 boot。 */
-export function isDshBooted(): boolean {
+/**
+ * DSH 会话树是否已在跑（发起过 boot）。窗口开关不影响；dispose 后才为 false。
+ * 注意与 hasDshWindow()（窗口是否打开）语义不同——判断"是否需重建会话树"应用它。
+ */
+export function isDshSessionRunning(): boolean {
   return bootTask !== undefined;
 }
 

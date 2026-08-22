@@ -21,6 +21,9 @@ import { join } from 'node:path';
 /** DSH 运行模式：builtin=主进程内置 boot；external=连接外部手动启动的实例。 */
 export type DshRunMode = 'builtin' | 'external';
 
+/** DSH 窗口呈现模式：compatibility=上游默认布局+原生框；advanced=桌面增强（AdvancedFrame + 无边框材质）。 */
+export type DshShellMode = 'compatibility' | 'advanced';
+
 /** zhima DSH 私有状态目录（Electron userData/dsh/profile-selection，与 DSH Desktop 对齐）。 */
 export const DSH_STATE_DIR = join(
   app.getPath('userData'),
@@ -44,6 +47,8 @@ interface ZhimaDshStateV1 {
   selectedProfile: string;
   /** 外部模式连接端口。 */
   externalPort: number;
+  /** 窗口呈现模式（兼容/增强）。 */
+  shellMode: DshShellMode;
 }
 
 function defaultState(): ZhimaDshStateV1 {
@@ -52,6 +57,7 @@ function defaultState(): ZhimaDshStateV1 {
     mode: 'builtin',
     selectedProfile: DEFAULT_DSH_PROFILE,
     externalPort: DEFAULT_EXTERNAL_PORT,
+    shellMode: 'advanced',
   };
 }
 
@@ -80,6 +86,8 @@ function readState(): ZhimaDshStateV1 {
             value.externalPort <= 65535
               ? value.externalPort
               : DEFAULT_EXTERNAL_PORT,
+          shellMode:
+            value.shellMode === 'compatibility' ? 'compatibility' : 'advanced',
         };
       }
     }
@@ -118,6 +126,17 @@ export function getSelectedDshProfile(): string {
 /** 外部模式连接端口（默认 3080）。 */
 export function getExternalDshPort(): number {
   return readState().externalPort;
+}
+
+/** 窗口呈现模式（默认 advanced）。 */
+export function getDshShellMode(): DshShellMode {
+  return readState().shellMode;
+}
+
+/** 持久化窗口呈现模式。 */
+export function setDshShellMode(mode: DshShellMode): void {
+  const state = readState();
+  writeState({ ...state, shellMode: mode });
 }
 
 /** 持久化运行模式。 */

@@ -14,15 +14,16 @@ import { app } from 'electron';
 import { installFailLoud, resolveProfileDir } from '@deepseek-ai/dsh-app-boot';
 
 import { logger } from '@main/logger';
+import { showWindow } from '@main/window';
 import { windowManager } from '@main/services/windowManager';
-import { IPC_DSH_TOAST } from '@shared/ipc-channels';
+import { IPC_DSH_TOAST, IPC_DSH_PROFILE_CHANGED } from '@shared/ipc-channels';
 
 import {
   DSH_HOME,
   bootDsh,
   disposeDsh as disposeDshBoot,
   getActiveDshCtx,
-  isDshBooted,
+  isDshSessionRunning,
   setDshExitHandler,
 } from './boot';
 import {
@@ -40,6 +41,10 @@ import {
   type RendererBootReport,
 } from './renderer-boot';
 import {
+  createPluginChangeDetector,
+  type PluginChangeDetector,
+} from './plugin-watch';
+import {
   closeDshWindow,
   createDshWindow,
   hasDshWindow,
@@ -50,12 +55,15 @@ import {
 import {
   DEFAULT_DSH_PROFILE,
   getDshRunMode,
+  getDshShellMode,
   getExternalDshPort,
   getSelectedDshProfile,
   setDshRunMode,
+  setDshShellMode,
   setExternalDshPort,
   setSelectedDshProfile,
   type DshRunMode,
+  type DshShellMode,
 } from './state';
 
 /** DSH 生命周期状态，渲染进程按钮据此显示加载态。 */
@@ -66,6 +74,63 @@ const stateListeners = new Set<(next: DshState) => void>();
 
 /** 当前 boot 的 profile（builtin 模式；renderer healthy 上报时提升为 lastKnownGood）。 */
 let activeDshProfileName: string | undefined;
+
+/** 插件变化基线（内置模式）：boot 时记录当前 profile 签名，供「检查插件变更」手动对比。 */
+let pluginChangeDetector: PluginChangeDetector | undefined;
+let pluginChangeProfile: string | undefined;
+
+function clearPluginDetector(): void {
+  pluginChangeDetector = undefined;
+  pluginChangeProfile = undefined;
+}
+
+/** 记录当前 profile 的检测器基线。每次 boot 都重建（基线=本次实际加载的插件）。 */
+function ensurePluginDetector(profileName: string): void {
+  if (getDshRunMode() !== 'builtin') {
+    clearPluginDetector();
+    return;
+  }
+  // boot 意味着 zhima 重新加载了当前磁盘插件，基线应重置为本次实际加载的集合。
+  clearPluginDetector();
+  pluginChangeProfile = profileName;
+  pluginChangeDetector = createPluginChangeDetector(
+    resolveProfileDir(profileName, DSH_HOME),
+  );
+}
+
+/**
+ * 手动触发一次插件变化检查（托盘「检查插件变更」）：对比 boot 时基线。
+ * 显示主窗口 + loading toast；有变化弹 diff dialog，无变化 toast 提示。
+ * 无后台轮询/窗口事件，仅用户点击时检查。
+ */
+export async function checkPluginChangesNow(): Promise<void> {
+  if (getDshRunMode() !== 'builtin') return;
+  if (getActiveDshCtx() === undefined) return;
+  if (!pluginChangeDetector) return;
+  void showWindow(); // 让 zhima 主窗口可见，toast/dialog 才有处展示
+  broadcastDshToast('正在检查插件变更…', 'loading');
+  try {
+    // 检查本身轻量，留一点时间让 loading 可见。
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const diff = pluginChangeDetector.check();
+    if (diff && (diff.added.length > 0 || diff.removed.length > 0)) {
+      windowManager.broadcast(IPC_DSH_PROFILE_CHANGED, {
+        profileName: pluginChangeProfile,
+        added: diff.added,
+        removed: diff.removed,
+      });
+      broadcastDshToast('检测到插件变化，需要重启才能生效', 'success');
+    } else {
+      broadcastDshToast('插件没有变化', 'success');
+    }
+  } catch (cause) {
+    logger.error('[dsh] check plugins failed:', cause);
+    broadcastDshToast(
+      `检查插件变更失败：${cause instanceof Error ? cause.message : String(cause)}`,
+      'error',
+    );
+  }
+}
 
 function setState(next: DshState): void {
   if (state === next) return;
@@ -176,6 +241,7 @@ export async function openDshWindow(): Promise<void> {
     const win = createDshWindow(`http://127.0.0.1:${port}/`);
     // M3：注入 boot 探针，UI 未就绪也能被主进程感知。
     injectRendererBootProbe(win.webContents);
+    ensurePluginDetector(profileName ?? DEFAULT_DSH_PROFILE);
     setState('ready');
   } catch (cause) {
     logger.error('[dsh] open failed:', cause);
@@ -213,7 +279,7 @@ export async function selectDshProfile(name: string): Promise<void> {
 
   setSelectedDshProfile(name);
   // 无窗口时只改选择，下次打开生效（主进程统一广播结果，避免重复 toast）。
-  if (!isDshBooted()) {
+  if (!isDshSessionRunning()) {
     broadcastDshToast(`已切换到配置文件 ${name}（下次打开生效）`, 'success');
     return;
   }
@@ -235,6 +301,7 @@ export async function selectDshProfile(name: string): Promise<void> {
       const win = reloadDshWindow(`http://127.0.0.1:${port}/`);
       injectRendererBootProbe(win.webContents);
     }
+    ensurePluginDetector(profileName ?? DEFAULT_DSH_PROFILE);
     setState('ready');
     broadcastDshToast(`已切换到配置文件 ${name}`, 'success');
   } catch (cause) {
@@ -242,6 +309,105 @@ export async function selectDshProfile(name: string): Promise<void> {
     setState('error');
     broadcastDshToast(
       `切换失败：${cause instanceof Error ? cause.message : String(cause)}`,
+      'error',
+    );
+    throw cause;
+  }
+}
+
+/** 窗口模式标签（toast 文案）。 */
+function shellModeLabel(mode: DshShellMode): string {
+  return mode === 'advanced' ? '增强模式' : '兼容模式';
+}
+
+/**
+ * 切换窗口呈现模式（兼容/增强）：持久化 → 重启 DSH 会话。
+ * 窗口材质在 BrowserWindow 构造时固定，故切换须销毁旧窗口并重建
+ * （不同于 profile 切换的复用窗口）。若 DSH 窗口未开，只持久化。
+ */
+export async function selectDshShellMode(mode: DshShellMode): Promise<void> {
+  if (getDshRunMode() !== 'builtin') {
+    throw new Error('外部模式不支持切换窗口模式');
+  }
+  if (mode === getDshShellMode()) return;
+  setDshShellMode(mode);
+  // 未发起过 boot：只改选择，下次打开生效。用 isDshSessionRunning() 而非 hasDshWindow()——
+  // 窗口关闭后树仍在跑；切换模式必须重建树（patches 因 mode 不同），否则下次
+  // openDshWindow 复用旧树，出现「兼容窗口 + enhanced 树」→ ui-layout disabled
+  // 而 layout 服务无人提供，导致 ui-sidebar/ui-conversation pending。
+  if (!isDshSessionRunning()) {
+    broadcastDshToast(
+      `窗口模式已切换为 ${shellModeLabel(mode)}（下次打开生效）`,
+      'success',
+    );
+    return;
+  }
+
+  const hadWindow = hasDshWindow();
+  // 切换前后窗口选项不同，必须销毁重建（reload 只能复用同一 BrowserWindow）。
+  if (hadWindow) closeDshWindow();
+  rendererBootRouteRegistered = false;
+  await disposeDshBoot();
+  setState('booting'); // 切换中：托盘「窗口模式」菜单置灰
+  broadcastDshToast(`正在切换窗口模式 → ${shellModeLabel(mode)}…`, 'loading');
+  try {
+    const { ctx, port, profileName } = await bootDsh();
+    if (profileName) activeDshProfileName = profileName;
+    if (ctx && !rendererBootRouteRegistered) {
+      registerRendererBootRoute(ctx, handleRendererBootReport);
+      rendererBootRouteRegistered = true;
+    }
+    if (hadWindow) {
+      const win = createDshWindow(`http://127.0.0.1:${port}/`);
+      injectRendererBootProbe(win.webContents);
+    }
+    ensurePluginDetector(profileName ?? DEFAULT_DSH_PROFILE);
+    setState('ready');
+    broadcastDshToast(`窗口模式已切换为 ${shellModeLabel(mode)}`, 'success');
+  } catch (cause) {
+    logger.error('[dsh] shell mode switch failed:', cause);
+    setState('error');
+    broadcastDshToast(
+      `切换失败：${cause instanceof Error ? cause.message : String(cause)}`,
+      'error',
+    );
+    throw cause;
+  }
+}
+
+/**
+ * 重新加载插件：重启当前 profile 的 DSH 会话（dispose + 重新 boot）。
+ * 用于用户在外部安装/移除了插件后手动生效。仅内置模式；有窗口时复用窗口 reload。
+ */
+export async function restartDshSession(): Promise<void> {
+  if (getDshRunMode() !== 'builtin') {
+    throw new Error('外部模式不支持重新加载插件');
+  }
+  const hadWindow = hasDshWindow();
+  if (hadWindow) hideDshWindow();
+  rendererBootRouteRegistered = false;
+  await disposeDshBoot();
+  setState('booting'); // 切换中：托盘「重新加载插件」置灰
+  broadcastDshToast('正在重新加载插件…', 'loading');
+  try {
+    const { ctx, port, profileName } = await bootDsh();
+    if (profileName) activeDshProfileName = profileName;
+    if (ctx && !rendererBootRouteRegistered) {
+      registerRendererBootRoute(ctx, handleRendererBootReport);
+      rendererBootRouteRegistered = true;
+    }
+    if (hadWindow) {
+      const win = reloadDshWindow(`http://127.0.0.1:${port}/`);
+      injectRendererBootProbe(win.webContents);
+    }
+    ensurePluginDetector(profileName ?? DEFAULT_DSH_PROFILE);
+    setState('ready');
+    broadcastDshToast('插件已重新加载', 'success');
+  } catch (cause) {
+    logger.error('[dsh] reload plugins failed:', cause);
+    setState('error');
+    broadcastDshToast(
+      `重新加载失败：${cause instanceof Error ? cause.message : String(cause)}`,
       'error',
     );
     throw cause;
@@ -269,6 +435,7 @@ export async function selectDshMode(
         await disposeDshBoot();
       } finally {
         closeDshWindow();
+        clearPluginDetector();
         setState('idle');
       }
       broadcastDshToast('内置 DSH 已停止', 'success');
@@ -307,6 +474,7 @@ export function closeDsh(): void {
 export async function disposeDsh(): Promise<void> {
   closeDshWindow();
   await disposeDshBoot();
+  clearPluginDetector();
   setState('idle');
 }
 
