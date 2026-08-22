@@ -27,6 +27,11 @@ import {
   IPC_DSH_OPEN,
   IPC_DSH_GET_STATE,
   IPC_DSH_STATE_CHANGED,
+  IPC_DSH_PROFILE_SWITCH_REQUEST,
+  IPC_DSH_PROFILE_SWITCH_CONFIRM,
+  IPC_DSH_MODE_SWITCH_REQUEST,
+  IPC_DSH_MODE_SWITCH_CONFIRM,
+  IPC_DSH_TOAST,
 } from '../shared/ipc-channels';
 
 export type Channels = '';
@@ -83,6 +88,9 @@ const electronHandler = {
   },
 };
 
+/** DSH 运行模式（与主进程 state.ts 保持一致）。 */
+export type DshRunMode = 'builtin' | 'external';
+
 /** DSH 门面：渲染进程通过 window.dsh 访问。 */
 const dshApi = {
   /** 打开 DSH 窗口（首次触发懒加载 boot）。 */
@@ -95,6 +103,57 @@ const dshApi = {
     ipcRenderer.on(IPC_DSH_STATE_CHANGED, handler);
     return () => {
       ipcRenderer.off(IPC_DSH_STATE_CHANGED, handler);
+    };
+  },
+  /** 订阅切换 profile 请求（托盘点选后触发）；payload 含 profile 名与是否已 boot。 */
+  onProfileSwitchRequest: (
+    callback: (payload: { name: string; isBooted: boolean }) => void,
+  ) => {
+    const handler = (
+      _event: unknown,
+      payload: { name: string; isBooted: boolean },
+    ) => callback(payload);
+    ipcRenderer.on(IPC_DSH_PROFILE_SWITCH_REQUEST, handler);
+    return () => {
+      ipcRenderer.off(IPC_DSH_PROFILE_SWITCH_REQUEST, handler);
+    };
+  },
+  /** 确认/取消切换 profile。 */
+  confirmProfileSwitch: (name: string, confirmed: boolean) =>
+    ipcRenderer.invoke(IPC_DSH_PROFILE_SWITCH_CONFIRM, { name, confirmed }),
+  /** 订阅切换运行模式请求（托盘点选后触发）；返回退订函数。 */
+  onModeSwitchRequest: (
+    callback: (payload: {
+      mode: DshRunMode;
+      port?: number;
+      needsStop?: boolean;
+    }) => void,
+  ) => {
+    const handler = (
+      _event: unknown,
+      payload: { mode: DshRunMode; port?: number; needsStop?: boolean },
+    ) => callback(payload);
+    ipcRenderer.on(IPC_DSH_MODE_SWITCH_REQUEST, handler);
+    return () => {
+      ipcRenderer.off(IPC_DSH_MODE_SWITCH_REQUEST, handler);
+    };
+  },
+  /** 确认/取消切换运行模式（external 时携带端口）。 */
+  confirmModeSwitch: (
+    mode: DshRunMode,
+    port: number | undefined,
+    confirmed: boolean,
+  ) =>
+    ipcRenderer.invoke(IPC_DSH_MODE_SWITCH_CONFIRM, { mode, port, confirmed }),
+  /** 订阅 DSH 进度/结果 toast；返回退订函数。 */
+  onToast: (callback: (payload: { message: string; type: string }) => void) => {
+    const handler = (
+      _event: unknown,
+      payload: { message: string; type: string },
+    ) => callback(payload);
+    ipcRenderer.on(IPC_DSH_TOAST, handler);
+    return () => {
+      ipcRenderer.off(IPC_DSH_TOAST, handler);
     };
   },
 };

@@ -7,7 +7,7 @@
  * picker/pwsh 替换、模式切换等桌面专属逻辑。zhima 本身就是壳，
  * 不需要 dsh 的 desktop-shell 插件，窗口由 main/dsh/runtime.ts 自建。
  */
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -24,12 +24,9 @@ import {
 import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader';
 import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include';
 
+import { DEFAULT_DSH_PROFILE, getSelectedDshProfile } from './state';
+
 const BIN_NAME = 'zhima-dsh';
-/** 默认 profile：dsh 官方模板，首次使用自动初始化。 */
-const DEFAULT_DSH_PROFILE = 'web';
-/** 实际使用的 profile：DSH_WEB_DEV=false 时可由 DSH_WEB_PROFILE 指定，默认 web。 */
-export const DSH_PROFILE_NAME =
-  process.env.DSH_WEB_PROFILE || DEFAULT_DSH_PROFILE;
 
 /**
  * profile 是否可加载：官方模板（web）首次使用会自动初始化；自定义 profile 必须
@@ -40,6 +37,81 @@ export function dshProfileExists(name: string): boolean {
   return existsSync(
     join(resolveProfileDir(name, resolveDshHome()), 'package.json'),
   );
+}
+
+/**
+ * 确保默认 profile（zhima-desktop）存在：不存在时用 web 模板创建，存在则跳过。
+ * 启动时调用一次即可，让托盘「配置文件」菜单显示的 zhima-desktop 与磁盘一致。
+ * cordis.yml 由 prepareDshProfile() 在 boot 时自动创建，此处不需要额外处理。
+ */
+export function ensureDefaultProfileExists(homeDir: string): void {
+  const profileDir = resolveProfileDir(DEFAULT_DSH_PROFILE, homeDir);
+  mkdirSync(profileDir, { recursive: true });
+  if (!existsSync(join(profileDir, 'package.json'))) {
+    initProfile(profileDir, [...PROFILE_TEMPLATES.web]);
+  }
+}
+
+/** 一个已发现或可自动创建的 DSH profile（托盘切换用）。 */
+export interface DshProfileSummary {
+  name: string;
+  dir: string;
+  exists: boolean;
+  selectable: boolean;
+}
+
+/** 列出可选 profile：扫描 $DSH_HOME/profiles + 虚拟默认项（zhima-desktop / 官方模板）。 */
+export function listDshProfiles(): DshProfileSummary[] {
+  const home = resolveDshHome();
+  const profilesDir = join(home, 'profiles');
+  const seen = new Map<string, DshProfileSummary>();
+  try {
+    for (const entry of readdirSync(profilesDir, { withFileTypes: true })) {
+      if (
+        entry.name === 'node_modules' ||
+        (!entry.isDirectory() && !entry.isSymbolicLink())
+      ) {
+        continue;
+      }
+      const dir = join(profilesDir, entry.name);
+      if (!existsSync(join(dir, 'package.json'))) continue;
+      seen.set(entry.name, {
+        name: entry.name,
+        dir,
+        exists: true,
+        selectable: true,
+      });
+    }
+  } catch (cause) {
+    if ((cause as NodeJS.ErrnoException).code !== 'ENOENT') throw cause;
+  }
+  // 虚拟默认项：zhima-desktop（不存在自动创建）+ 官方模板中 web-capable 的
+  // （含 dsh-web-app，如 web）。headless 等无 Web UI 的官方模板不列出，
+  // zhima 需要 webServer 提供 DSH 界面。
+  const WEB_BUNDLE = '@deepseek-ai/dsh-web-app';
+  const webTemplateNames = Object.entries(PROFILE_TEMPLATES)
+    .filter(([, bundles]) => bundles.includes(WEB_BUNDLE))
+    .map(([name]) => name);
+  for (const name of [DEFAULT_DSH_PROFILE, ...webTemplateNames]) {
+    if (seen.has(name)) continue;
+    seen.set(name, {
+      name,
+      dir: resolveProfileDir(name, home),
+      exists: false,
+      selectable: true,
+    });
+  }
+  const priority = (name: string): number =>
+    name === DEFAULT_DSH_PROFILE
+      ? 0
+      : PROFILE_TEMPLATES[name] !== undefined
+        ? 1
+        : 2;
+  return [...seen.values()].sort((left, right) => {
+    const diff = priority(left.name) - priority(right.name);
+    if (diff !== 0) return diff;
+    return left.name < right.name ? -1 : left.name > right.name ? 1 : 0;
+  });
 }
 
 // H4：Windows 目录选择器 auto 后端 → browse 后端 + surface。
@@ -88,10 +160,11 @@ export interface PreparedDshProfile {
 export function prepareDshProfile(
   homeDir: string,
   platform: NodeJS.Platform = process.platform,
+  profileName: string = getSelectedDshProfile(),
 ): PreparedDshProfile {
   const require = createRequire(__filename);
   const installAnchor = require.resolve('@deepseek-ai/dsh/package.json');
-  const profileDir = resolveProfileDir(DSH_PROFILE_NAME, homeDir);
+  const profileDir = resolveProfileDir(profileName, homeDir);
   mkdirSync(profileDir, { recursive: true });
 
   if (!existsSync(join(profileDir, 'package.json'))) {
@@ -100,12 +173,7 @@ export function prepareDshProfile(
   // 维护 $home/profiles/node_modules 扁平回退，让 in-box 插件从任意 profile 可解析。
   healProfilesModuleFallback(installAnchor, homeDir);
 
-  const profile = loadProfile(
-    BIN_NAME,
-    DSH_PROFILE_NAME,
-    installAnchor,
-    homeDir,
-  );
+  const profile = loadProfile(BIN_NAME, profileName, installAnchor, homeDir);
   const rootConfig = join(profileDir, 'cordis.yml');
   if (!existsSync(rootConfig)) writeFileSync(rootConfig, '[]\n');
 

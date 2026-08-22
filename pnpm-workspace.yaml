@@ -14,6 +14,11 @@ shamefullyHoist: true
 nodeLinker: hoisted
 minimumReleaseAge: 0
 blockExoticSubdeps: false
+# pnpm 11 默认 verifyDepsBeforeRun=install：每次 pnpm run 前自动检查依赖，判定需
+# 更新就自动跑 install，连带执行 workspace 包的 prepare（重新 build @agent-infra/*，
+# browser 的 rslib build 在 Windows 上还会 OOM 崩溃）。关闭后 run 不再自动 install，
+# 依赖有更新时手动执行 pnpm install。
+verifyDepsBeforeRun: false
 publicHoistPattern:
   - '@deepseek-ai/*'
 allowBuilds:

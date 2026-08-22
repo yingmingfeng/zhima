@@ -42,12 +42,16 @@ import {
   IPC_DSH_OPEN,
   IPC_DSH_GET_STATE,
   IPC_DSH_STATE_CHANGED,
+  IPC_DSH_PROFILE_SWITCH_CONFIRM,
+  IPC_DSH_MODE_SWITCH_CONFIRM,
 } from '../shared/ipc-channels';
 import {
   disposeDsh,
   getDshState,
   initDshFacade,
   openDshWindow,
+  selectDshMode,
+  selectDshProfile,
   subscribeDshState,
 } from './dsh';
 
@@ -277,6 +281,48 @@ const registerIPCHandlers = (
   subscribeDshState((next) => {
     windowManager.broadcast(IPC_DSH_STATE_CHANGED, next);
   });
+
+  ipcMain.handle(
+    IPC_DSH_PROFILE_SWITCH_CONFIRM,
+    async (_event, payload: { name?: string; confirmed?: boolean }) => {
+      try {
+        if (payload?.confirmed && payload.name) {
+          await selectDshProfile(payload.name);
+        }
+        return { ok: true as const };
+      } catch (cause) {
+        logger.error('[dsh] profile switch failed:', cause);
+        return {
+          ok: false as const,
+          error: cause instanceof Error ? cause.message : String(cause),
+        };
+      }
+    },
+  );
+  ipcMain.handle(
+    IPC_DSH_MODE_SWITCH_CONFIRM,
+    async (
+      _event,
+      payload: {
+        mode?: 'builtin' | 'external';
+        port?: number;
+        confirmed?: boolean;
+      },
+    ) => {
+      try {
+        if (payload?.confirmed && payload.mode) {
+          await selectDshMode(payload.mode, payload.port);
+        }
+        return { ok: true as const };
+      } catch (cause) {
+        logger.error('[dsh] mode switch failed:', cause);
+        return {
+          ok: false as const,
+          error: cause instanceof Error ? cause.message : String(cause),
+        };
+      }
+    },
+  );
 
   // 初始化时注册已有窗口
   wrappers.forEach((wrapper) => {

@@ -7,6 +7,7 @@ import { lazy, Suspense } from 'react';
 import { Toaster } from 'sonner';
 
 import { MainLayout } from './layouts/MainLayout';
+import { DshTrayController } from './components/DshTrayController';
 
 import './styles/globals.css';
 
@@ -66,6 +67,7 @@ export default function App() {
           offset={{ top: '48px' }}
           mobileOffset={{ top: '48px' }}
         />
+        <DshTrayController />
       </Suspense>
     </HashRouter>
   );

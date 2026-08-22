@@ -14,6 +14,11 @@ import type { Context } from '@deepseek-ai/cordis';
 import { logger } from '@main/logger';
 
 import { prepareDshProfile } from './profile';
+import {
+  getDshRunMode,
+  getExternalDshPort,
+  getSelectedDshProfile,
+} from './state';
 import { installProfilePackageResolver } from './module-resolution';
 
 const BIN_NAME = 'zhima-dsh';
@@ -26,10 +31,12 @@ export const DSH_HOME = resolveDshHome();
 
 /** 一次成功 boot 后的句柄。 */
 export interface DshBootResult {
-  /** 已启动的 Cordis 根上下文（dev 模式下为 undefined）。 */
+  /** 已启动的 Cordis 根上下文（external 模式下为 undefined）。 */
   ctx?: Context;
   /** webServer 实际监听的 loopback 端口。 */
   port: number;
+  /** 内置模式下实际 boot 的 profile；external 模式为空串。 */
+  profileName: string;
 }
 
 let bootTask: Promise<DshBootResult> | undefined;
@@ -37,6 +44,14 @@ let bootTask: Promise<DshBootResult> | undefined;
 /** 当前 boot/已 boot 状态；undefined 表示尚未发起过 boot。 */
 export function isDshBooted(): boolean {
   return bootTask !== undefined;
+}
+
+/** 真实的内置 Cordis 树 ctx（external 模式无 ctx，不视为需停止的内置 boot）。 */
+let activeCtx: Context | undefined;
+
+/** 是否确有内置 Cordis 树在跑（用于判断切外部前是否需停止内置 boot）。 */
+export function getActiveDshCtx(): Context | undefined {
+  return activeCtx;
 }
 
 /** 请求 Web UI 退出时关闭 DSH 窗口（不退出 zhima）。由 index.ts 注入。 */
@@ -58,19 +73,20 @@ export function bootDsh(): Promise<DshBootResult> {
 }
 
 async function doBoot(): Promise<DshBootResult> {
-  // DSH_WEB_DEV=true：连接外部 harness dev 实例，跳过内部 boot
-  if (process.env.DSH_WEB_DEV === 'true') {
-    const port = Number(process.env.DSH_WEB_PORT) || 3080;
+  // external 模式：连接外部手动启动的 dsh 实例，跳过内部 boot
+  if (getDshRunMode() === 'external') {
+    const port = getExternalDshPort();
     logger.info(
-      '[dsh] dev mode: 连接外部 dev 实例 http://127.0.0.1:' +
+      '[dsh] external mode: 连接外部实例 http://127.0.0.1:' +
         String(port) +
         '/',
     );
-    return { port };
+    return { port, profileName: '' };
   }
 
   mkdirSync(DSH_HOME, { recursive: true });
-  const prepared = prepareDshProfile(DSH_HOME);
+  const profileName = getSelectedDshProfile();
+  const prepared = prepareDshProfile(DSH_HOME, process.platform, profileName);
 
   // 以 profile 目录为基准解析 out-of-tree 插件（如皮肤 @dsh-external/...）。
   // Electron 主进程不可用 node-addon-require-builtin，靠 Node 解析 Hook 桥接。
@@ -111,14 +127,16 @@ async function doBoot(): Promise<DshBootResult> {
     throw new Error('[dsh] boot 后未发现 webServer.port，web UI 无法定位');
   }
 
+  activeCtx = ctx;
   logger.info('[dsh] booted, web server on 127.0.0.1:', port);
-  return { ctx, port };
+  return { ctx, port, profileName };
 }
 
 /** 终止 dsh 的 Cordis 插件树（幂等），供退出 zhima 时调用。 */
 export async function disposeDsh(): Promise<void> {
   const task = bootTask;
   bootTask = undefined;
+  activeCtx = undefined;
   if (task === undefined) return;
   try {
     const { ctx } = await task;

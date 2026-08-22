@@ -20,6 +20,9 @@ const DEFAULT_WINDOW_CONFIG = {
 /** 维护中的 DSH 窗口（单例），关闭后清空以便下次重建。 */
 let dshWindow: BrowserWindow | null = null;
 
+/** 当前加载的 loopback origin（导航守卫用；切换 profile 复用窗口后更新）。 */
+let currentUrlRoot = '';
+
 /** 当前 DSH 窗口是否仍可用。 */
 export function hasDshWindow(): boolean {
   return dshWindow !== null && !dshWindow.isDestroyed();
@@ -58,13 +61,14 @@ export function createDshWindow(url: string): BrowserWindow {
     },
   });
 
-  const urlRoot = new URL(url).origin;
+  currentUrlRoot = new URL(url).origin;
 
   // 导航守卫（M2）：仅放行同 origin；离开 loopback 一律拦截并转系统浏览器。
   // 用 origin 严格比较而非前缀匹配（避免 http://127.0.0.1:54321.evil.com 逃逸）。
+  // currentUrlRoot 可变：切换 profile 复用窗口换端口后 guard 跟随新 origin。
   const isSameOrigin = (targetUrl: string): boolean => {
     try {
-      return new URL(targetUrl).origin === urlRoot;
+      return new URL(targetUrl).origin === currentUrlRoot;
     } catch {
       return false;
     }
@@ -99,4 +103,24 @@ export function closeDshWindow(): void {
     dshWindow!.destroy();
   }
   dshWindow = null;
+}
+
+/** 隐藏 DSH 窗口（任务栏消失）：切换 profile 期间让用户以为窗口关闭。 */
+export function hideDshWindow(): void {
+  if (hasDshWindow()) dshWindow!.hide();
+}
+
+/**
+ * 复用当前窗口加载新 URL 并重新显示（切换 profile 后载入新实例）。
+ * 窗口未打开时退化为创建新窗口。
+ */
+export function reloadDshWindow(url: string): BrowserWindow {
+  if (!hasDshWindow()) return createDshWindow(url);
+  const win = dshWindow!;
+  currentUrlRoot = new URL(url).origin;
+  void win.loadURL(url);
+  win.show();
+  win.focus();
+  logger.info('[dsh] window reloaded, url:', url);
+  return win;
 }

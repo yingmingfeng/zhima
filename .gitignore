@@ -41,6 +41,9 @@ scripts/merge-yml/*.yml
 #deepseek-harness
 deepseek-harness
 
+# deepseek-harness-desktop 参考副本（自带 .git，可独立同步上游，不入库）
+deepseek-harness-desktop
+
 # 第三方复刻皮肤 bundle（工作区本地测试用，不入库）
 deepseek-harness-plugins/client/maid-atelier/
 deepseek-harness-plugins/client/orca-link/

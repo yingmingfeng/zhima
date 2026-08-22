@@ -9,14 +9,15 @@ import { dirname, join } from 'node:path';
 
 import { logger } from '@main/logger';
 
-import { DSH_HOME } from './boot';
+import { DSH_STATE_DIR } from './state';
 
 interface DshProfileStateV1 {
   version: 1;
   lastKnownGood?: string;
 }
 
-const STATE_FILE = join(DSH_HOME, 'profile-state.json');
+// zhima 私有健康状态放 Electron userData/profile-selection，不污染 ~/.dsh（dsh 官方用户数据目录）。
+const STATE_FILE = join(DSH_STATE_DIR, 'profile-state.json');
 
 function readState(): DshProfileStateV1 {
   try {
