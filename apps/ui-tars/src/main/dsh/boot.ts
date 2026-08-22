@@ -14,6 +14,7 @@ import type { Context } from '@deepseek-ai/cordis';
 import { logger } from '@main/logger';
 
 import { prepareDshProfile } from './profile';
+import { installProfilePackageResolver } from './module-resolution';
 
 const BIN_NAME = 'zhima-dsh';
 
@@ -71,21 +72,38 @@ async function doBoot(): Promise<DshBootResult> {
   mkdirSync(DSH_HOME, { recursive: true });
   const prepared = prepareDshProfile(DSH_HOME);
 
-  logger.info('[dsh] booting profile:', prepared.rootConfig);
-
-  const ctx = await boot(
-    BIN_NAME,
-    prepared.rootConfig,
-    prepared.patches,
-    async (hostCtx) => {
-      // 强制 loopback 绑定：--host 127.0.0.1 --port 0（随机端口）。
-      provideCmdline(hostCtx, {
-        args: ['--host', '127.0.0.1', '--port', '0', '--no-open'],
-        exit: () => onDshExitRequest?.(),
-      });
-    },
+  // 以 profile 目录为基准解析 out-of-tree 插件（如皮肤 @dsh-external/...）。
+  // Electron 主进程不可用 node-addon-require-builtin，靠 Node 解析 Hook 桥接。
+  const releasePackageResolver = installProfilePackageResolver(
     prepared.bareModuleBaseUrl,
   );
+
+  logger.info('[dsh] booting profile:', prepared.rootConfig);
+
+  let ctx: Context;
+  try {
+    ctx = await boot(
+      BIN_NAME,
+      prepared.rootConfig,
+      prepared.patches,
+      async (hostCtx) => {
+        // 解析桥随插件树生命周期存活：插件/皮肤运行期仍可能懒加载或 HMR。
+        hostCtx.effect(
+          () => releasePackageResolver,
+          'zhima-dsh: profile package resolution',
+        );
+        // 强制 loopback 绑定：--host 127.0.0.1 --port 0（随机端口）。
+        provideCmdline(hostCtx, {
+          args: ['--host', '127.0.0.1', '--port', '0', '--no-open'],
+          exit: () => onDshExitRequest?.(),
+        });
+      },
+      prepared.bareModuleBaseUrl,
+    );
+  } catch (cause) {
+    releasePackageResolver();
+    throw cause;
+  }
 
   const port = (ctx as Context & { webServer?: { port?: number } }).webServer
     ?.port;

@@ -12,6 +12,7 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { resolveDshHome } from '@deepseek-ai/dsh-home-paths';
 import {
   PROFILE_TEMPLATES,
   composeEntries,
@@ -24,7 +25,22 @@ import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader';
 import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include';
 
 const BIN_NAME = 'zhima-dsh';
-export const DSH_PROFILE_NAME = 'web';
+/** 默认 profile：dsh 官方模板，首次使用自动初始化。 */
+const DEFAULT_DSH_PROFILE = 'web';
+/** 实际使用的 profile：DSH_WEB_DEV=false 时可由 DSH_WEB_PROFILE 指定，默认 web。 */
+export const DSH_PROFILE_NAME =
+  process.env.DSH_WEB_PROFILE || DEFAULT_DSH_PROFILE;
+
+/**
+ * profile 是否可加载：官方模板（web）首次使用会自动初始化；自定义 profile 必须
+ * 已初始化（目录下存在 package.json），否则 openDshWindow 会弹窗拦截 boot。
+ */
+export function dshProfileExists(name: string): boolean {
+  if (PROFILE_TEMPLATES[name] !== undefined) return true;
+  return existsSync(
+    join(resolveProfileDir(name, resolveDshHome()), 'package.json'),
+  );
+}
 
 // H4：Windows 目录选择器 auto 后端 → browse 后端 + surface。
 const DIRECTORY_PICKER_ROW_ID = 'directory-picker';

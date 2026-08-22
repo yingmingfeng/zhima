@@ -9,11 +9,12 @@
  * 状态仅在主进程维护，通过订阅（当前转发到所有 zhima 窗口）通知渲染进程。
  */
 import { app, dialog } from 'electron';
-import { installFailLoud } from '@deepseek-ai/dsh-app-boot';
+import { installFailLoud, resolveProfileDir } from '@deepseek-ai/dsh-app-boot';
 
 import { logger } from '@main/logger';
 
 import {
+  DSH_HOME,
   bootDsh,
   disposeDsh as disposeDshBoot,
   setDshExitHandler,
@@ -22,7 +23,7 @@ import {
   getLastKnownGoodProfile,
   markDshProfileHealthy,
 } from './profile-state';
-import { DSH_PROFILE_NAME } from './profile';
+import { DSH_PROFILE_NAME, dshProfileExists } from './profile';
 import {
   injectRendererBootProbe,
   registerRendererBootRoute,
@@ -93,6 +94,23 @@ function handleRendererBootReport(report: RendererBootReport): void {
 export async function openDshWindow(): Promise<void> {
   if (state === 'booting') return;
   if (state === 'ready' && showDshWindow()) return;
+
+  // 内部 boot 模式：先验证 profile 可用（自定义 profile 须已存在），
+  // 否则弹窗提醒，不启动 boot。
+  if (
+    process.env.DSH_WEB_DEV !== 'true' &&
+    !dshProfileExists(DSH_PROFILE_NAME)
+  ) {
+    dialog.showErrorBox(
+      'DSH Profile 不存在',
+      `无法启动 DSH：profile "${DSH_PROFILE_NAME}" 尚未创建。\n\n` +
+        'zhima 仅在首次使用时自动初始化默认的 web profile；\n' +
+        `指定的自定义 profile 需先在命令行创建：\n` +
+        `  dsh plugin --profile ${DSH_PROFILE_NAME} add <package>\n\n` +
+        `profile 目录：${resolveProfileDir(DSH_PROFILE_NAME, DSH_HOME)}`,
+    );
+    return;
+  }
 
   setState('booting');
   try {

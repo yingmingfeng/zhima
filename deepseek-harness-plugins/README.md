@@ -20,6 +20,6 @@ DSH 自定义插件目录。按插件运行形态分类存放。
 
 ## 相关文档
 
-- 加载机制：[`../../personal_docs/DSH-UI自定义/07-Client插件加载机制.md`](../../personal_docs/DSH-UI自定义/07-Client插件加载机制.md)
-- host/client 区别：[`../../personal_docs/DSH-UI自定义/08-宿主插件与Client插件区别.md`](../../personal_docs/DSH-UI自定义/08-宿主插件与Client插件区别.md)
-- Profile 插件安装与卸载：[`../../personal_docs/DSH-UI自定义/09-Profile插件安装与卸载.md`](../../personal_docs/DSH-UI自定义/09-Profile插件安装与卸载.md)
+- 加载机制：[`../personal_docs/DSH-开发问题记录/01-Client插件加载机制.md`](../personal_docs/DSH-开发问题记录/01-Client插件加载机制.md)
+- host/client 区别：[`../personal_docs/DSH-开发问题记录/02-宿主插件与Client插件区别.md`](../personal_docs/DSH-开发问题记录/02-宿主插件与Client插件区别.md)
+- Profile 插件安装与卸载：[`../personal_docs/DSH-开发问题记录/03-Profile插件安装与卸载.md`](../personal_docs/DSH-开发问题记录/03-Profile插件安装与卸载.md)
