@@ -37,6 +37,8 @@ export function DshTrayController() {
   const [profileDialogName, setProfileDialogName] = useState<string | null>(
     null,
   );
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newProfileName, setNewProfileName] = useState('');
   const [portValue, setPortValue] = useState(String(DEFAULT_PORT));
   const [processing, setProcessing] = useState(false);
   const pendingModeRef = useRef<PendingModeSwitch | null>(null);
@@ -46,9 +48,8 @@ export function DshTrayController() {
     const offProfile = window.dsh.onProfileSwitchRequest(
       ({ name, isBooted }) => {
         if (!isBooted) {
-          // 未 boot，无代价直接切换
+          // 未 boot，无代价直接切换，结果 toast 由主进程统一广播。
           void window.dsh.confirmProfileSwitch(name, true);
-          toast.success(`已切换到配置文件 ${name}（下次打开生效）`);
           return;
         }
         // 已 boot，需确认（会重启会话、替换窗口）
@@ -80,10 +81,16 @@ export function DshTrayController() {
       else toast.success(message);
     });
 
+    const offCreate = window.dsh.onProfileCreateRequest(() => {
+      setNewProfileName('');
+      setCreateDialogOpen(true);
+    });
+
     return () => {
       offProfile();
       offMode();
       offToast();
+      offCreate();
     };
   }, []);
 
@@ -158,6 +165,17 @@ export function DshTrayController() {
     const name = profileDialogName;
     setProfileDialogName(null);
     if (name) void window.dsh.confirmProfileSwitch(name, false);
+  };
+
+  const confirmProfileCreate = (): void => {
+    const name = newProfileName.trim();
+    setCreateDialogOpen(false);
+    if (name) void window.dsh.confirmProfileCreate(name, true);
+  };
+
+  const cancelProfileCreate = (): void => {
+    setCreateDialogOpen(false);
+    void window.dsh.confirmProfileCreate('', false);
   };
 
   return (
@@ -242,6 +260,41 @@ export function DshTrayController() {
               取消
             </Button>
             <Button onClick={confirmProfileSwitch}>确定</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 新建配置文件 dialog */}
+      <Dialog
+        open={createDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) cancelProfileCreate();
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>创建并启动配置</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            创建一个可用于桌面界面的配置，并在下一次启动时使用。
+          </p>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">配置名称</label>
+            <Input
+              value={newProfileName}
+              onChange={(e) => setNewProfileName(e.target.value)}
+              placeholder="例如：work"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') confirmProfileCreate();
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={cancelProfileCreate}>
+              取消
+            </Button>
+            <Button onClick={confirmProfileCreate}>+ 创建并启动</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

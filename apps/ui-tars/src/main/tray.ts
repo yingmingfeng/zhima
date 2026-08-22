@@ -16,6 +16,7 @@ import { server } from '@main/ipcRoutes';
 import {
   IPC_DSH_MODE_SWITCH_REQUEST,
   IPC_DSH_PROFILE_SWITCH_REQUEST,
+  IPC_DSH_PROFILE_CREATE_REQUEST,
 } from '../shared/ipc-channels';
 
 import { getDshState } from './dsh';
@@ -81,8 +82,8 @@ function buildTrayMenu(): Menu {
   ];
 
   // 配置文件子菜单仅在内置模式显示；切换中（booting）整体置灰。
-  const profileSubmenu: Electron.MenuItemConstructorOptions[] =
-    listDshProfiles().map((profile) => ({
+  const profileSubmenu: Electron.MenuItemConstructorOptions[] = [
+    ...listDshProfiles().map((profile) => ({
       label: profile.name,
       type: 'radio' as const,
       checked: profile.name === currentProfile,
@@ -90,7 +91,16 @@ function buildTrayMenu(): Menu {
       click: () => {
         if (profile.name !== currentProfile) requestProfileSwitch(profile.name);
       },
-    }));
+    })),
+    { type: 'separator' as const },
+    {
+      label: '新建配置文件…',
+      click: () => {
+        void showWindow();
+        windowManager.broadcast(IPC_DSH_PROFILE_CREATE_REQUEST);
+      },
+    },
+  ];
 
   const template: Electron.MenuItemConstructorOptions[] = [
     { label: 'Show', click: () => showWindow() },

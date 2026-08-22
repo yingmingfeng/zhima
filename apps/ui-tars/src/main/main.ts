@@ -44,10 +44,12 @@ import {
   IPC_DSH_STATE_CHANGED,
   IPC_DSH_PROFILE_SWITCH_CONFIRM,
   IPC_DSH_MODE_SWITCH_CONFIRM,
+  IPC_DSH_PROFILE_CREATE_CONFIRM,
 } from '../shared/ipc-channels';
 import {
   disposeDsh,
   getDshState,
+  handleProfileCreate,
   initDshFacade,
   openDshWindow,
   selectDshMode,
@@ -316,6 +318,24 @@ const registerIPCHandlers = (
         return { ok: true as const };
       } catch (cause) {
         logger.error('[dsh] mode switch failed:', cause);
+        return {
+          ok: false as const,
+          error: cause instanceof Error ? cause.message : String(cause),
+        };
+      }
+    },
+  );
+  ipcMain.handle(
+    IPC_DSH_PROFILE_CREATE_CONFIRM,
+    async (_event, payload: { name?: string; confirmed?: boolean }) => {
+      try {
+        await handleProfileCreate(
+          payload?.name ?? '',
+          payload?.confirmed ?? false,
+        );
+        return { ok: true as const };
+      } catch (cause) {
+        logger.error('[dsh] profile create failed:', cause);
         return {
           ok: false as const,
           error: cause instanceof Error ? cause.message : String(cause),

@@ -29,7 +29,11 @@ import {
   getLastKnownGoodProfile,
   markDshProfileHealthy,
 } from './profile-state';
-import { ensureDefaultProfileExists, dshProfileExists } from './profile';
+import {
+  createProfile,
+  ensureDefaultProfileExists,
+  dshProfileExists,
+} from './profile';
 import {
   injectRendererBootProbe,
   registerRendererBootRoute,
@@ -208,7 +212,11 @@ export async function selectDshProfile(name: string): Promise<void> {
   if (name === getSelectedDshProfile()) return;
 
   setSelectedDshProfile(name);
-  if (!isDshBooted()) return;
+  // 无窗口时只改选择，下次打开生效（主进程统一广播结果，避免重复 toast）。
+  if (!isDshBooted()) {
+    broadcastDshToast(`已切换到配置文件 ${name}（下次打开生效）`, 'success');
+    return;
+  }
 
   const hadWindow = hasDshWindow();
   if (hadWindow) hideDshWindow();
@@ -273,6 +281,21 @@ export async function selectDshMode(
   }
   setDshRunMode('builtin');
   broadcastDshToast('已切换为内置模式', 'success');
+}
+
+/**
+ * 创建新 profile 并切换到它（打开 DSH 窗口）。
+ * profile 用 web 模板初始化，名称校验 + 重复检查后创建。
+ */
+export async function handleProfileCreate(
+  name: string,
+  confirmed: boolean,
+): Promise<void> {
+  if (!confirmed || !name) return;
+  createProfile(name, DSH_HOME);
+  setSelectedDshProfile(name);
+  // 首次打开：用新 profile boot + 建窗
+  await openDshWindow();
 }
 
 /** 关闭 DSH 窗口（harness 保持 boot，下次打开即复用）。 */

@@ -32,6 +32,8 @@ import {
   IPC_DSH_MODE_SWITCH_REQUEST,
   IPC_DSH_MODE_SWITCH_CONFIRM,
   IPC_DSH_TOAST,
+  IPC_DSH_PROFILE_CREATE_REQUEST,
+  IPC_DSH_PROFILE_CREATE_CONFIRM,
 } from '../shared/ipc-channels';
 
 export type Channels = '';
@@ -156,6 +158,17 @@ const dshApi = {
       ipcRenderer.off(IPC_DSH_TOAST, handler);
     };
   },
+  /** 订阅新建配置文件请求（托盘点击后触发）；返回退订函数。 */
+  onProfileCreateRequest: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on(IPC_DSH_PROFILE_CREATE_REQUEST, handler);
+    return () => {
+      ipcRenderer.off(IPC_DSH_PROFILE_CREATE_REQUEST, handler);
+    };
+  },
+  /** 确认/取消新建配置文件。 */
+  confirmProfileCreate: (name: string, confirmed: boolean) =>
+    ipcRenderer.invoke(IPC_DSH_PROFILE_CREATE_CONFIRM, { name, confirmed }),
 };
 
 export type DshApi = typeof dshApi;

@@ -52,6 +52,32 @@ export function ensureDefaultProfileExists(homeDir: string): void {
   }
 }
 
+/** 创建新 profile：用 web 模板初始化，校验名称合法性与重复。 */
+export function createProfile(name: string, homeDir: string): void {
+  if (
+    typeof name !== 'string' ||
+    name.length === 0 ||
+    name.length > 255 ||
+    name.includes('/') ||
+    name.includes('\\') ||
+    name === '.' ||
+    name === '..' ||
+    /[\0-\x1f\x7f-\x9f]/.test(name) ||
+    /[<>:"|?*]/.test(name) ||
+    /[. ]$/.test(name) ||
+    /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\..*)?$/i.test(name)
+  ) {
+    throw new Error(`配置文件名称无效：${JSON.stringify(name)}`);
+  }
+  if (PROFILE_TEMPLATES[name] !== undefined) {
+    throw new Error(`"${name}" 是 dsh 保留的官方模板名，不可创建`);
+  }
+  if (dshProfileExists(name)) {
+    throw new Error(`配置文件 "${name}" 已存在`);
+  }
+  initProfile(resolveProfileDir(name, homeDir), [...PROFILE_TEMPLATES.web]);
+}
+
 /** 一个已发现或可自动创建的 DSH profile（托盘切换用）。 */
 export interface DshProfileSummary {
   name: string;

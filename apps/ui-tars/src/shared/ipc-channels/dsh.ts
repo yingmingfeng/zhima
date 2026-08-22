@@ -25,3 +25,9 @@ export const IPC_DSH_MODE_SWITCH_CONFIRM = 'dsh:mode-switch-confirm';
 
 /** DSH 进度/结果 toast（主进程 → 渲染进程，event，payload: { message, type }） */
 export const IPC_DSH_TOAST = 'dsh:toast';
+
+/** 请求新建配置文件（主进程 → 渲染进程，event） */
+export const IPC_DSH_PROFILE_CREATE_REQUEST = 'dsh:profile-create-request';
+
+/** 确认/取消新建配置文件（渲染进程 → 主进程，invoke，payload: { name, confirmed }） */
+export const IPC_DSH_PROFILE_CREATE_CONFIRM = 'dsh:profile-create-confirm';
