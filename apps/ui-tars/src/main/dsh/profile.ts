@@ -44,6 +44,9 @@ const BIN_NAME = 'zhima-dsh';
 /** zhima 内置 advanced-shell client 插件（无边框材质 + AdvancedFrame 三栏布局）。 */
 const ADVANCED_SHELL_PACKAGE = '@zhima/dsh-client-advanced-shell';
 
+/** zhima 内置 DSH-better-sidebar（VSCode 风格侧边栏，host+client 双端）。 */
+const BETTER_SIDEBAR_PACKAGE = 'dsh-better-sidebar';
+
 /** advanced 无边框材质仅支持 win32/darwin（与 main/dsh/runtime.ts 一致）。 */
 function advancedShellSupported(platform: NodeJS.Platform): boolean {
   return (
@@ -65,6 +68,27 @@ function linkAdvancedShellPackage(homeDir: string): void {
   );
   const linkRoot = join(join(homeDir, 'profiles'), 'node_modules', '@zhima');
   const linkPath = join(linkRoot, 'dsh-client-advanced-shell');
+  if (existsSync(linkPath)) return;
+  mkdirSync(linkRoot, { recursive: true });
+  symlinkSync(
+    packageDir,
+    linkPath,
+    process.platform === 'win32' ? 'junction' : 'dir',
+  );
+}
+
+/**
+ * 把内置 DSH-better-sidebar 插件 link 进 $DSH_HOME/profiles/node_modules/，
+ * 使 host/client 都能按裸包名解析到它。它无 scope，直接放 node_modules 根
+ * （advanced-shell 放 @zhima/ 子目录，因为带 scope）。
+ */
+function linkBetterSidebarPackage(homeDir: string): void {
+  const require = createRequire(__filename);
+  const packageDir = dirname(
+    require.resolve(`${BETTER_SIDEBAR_PACKAGE}/package.json`),
+  );
+  const linkRoot = join(join(homeDir, 'profiles'), 'node_modules');
+  const linkPath = join(linkRoot, BETTER_SIDEBAR_PACKAGE);
   if (existsSync(linkPath)) return;
   mkdirSync(linkRoot, { recursive: true });
   symlinkSync(
@@ -273,7 +297,10 @@ export function prepareDshProfile(
   // 维护 $home/profiles/node_modules 扁平回退，让 in-box 插件从任意 profile 可解析。
   healProfilesModuleFallback(installAnchor, homeDir);
   // advanced 模式下把内置 advanced-shell 插件 link 进同一回退，供 client 加载。
-  if (advancedShellSupported(platform)) linkAdvancedShellPackage(homeDir);
+  if (advancedShellSupported(platform)) {
+    linkAdvancedShellPackage(homeDir);
+    linkBetterSidebarPackage(homeDir);
+  }
 
   const profile = loadProfile(BIN_NAME, profileName, installAnchor, homeDir);
   const rootConfig = join(profileDir, 'cordis.yml');

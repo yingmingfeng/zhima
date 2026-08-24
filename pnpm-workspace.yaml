@@ -4,10 +4,11 @@ packages:
   - 'apps/ui-tars/src/*'
   - 'packages/dsh'
   - 'packages/ui-tars/**'
-  - 'packages/agent-infra/**'
-  - '!packages/agent-infra/create-new-mcp/template-*'
+  - '!packages/agent-infra/**'
   - 'packages/common/*'
   - '!packages/ui-tars/visualizer'
+  - '!packages/ui-tars/operators/browser-operator'
+  - '!packages/ui-tars/operators/browserbase'
   # zhima 内置插件（advanced shell 窗口增强），dev 走 workspace link、prod 随 app 分发
   - 'packages/dsh-plugins/*'
 

@@ -18,7 +18,7 @@ import {
   showWidgetWindow,
 } from '../window/ScreenMarker';
 import { hideMainWindow, showMainWindow } from '../window';
-import { SearchEngine } from '@ui-tars/operator-browser';
+// [停用 browser-use] import { SearchEngine } from '@ui-tars/operator-browser';
 
 export const getModelVersion = (
   provider: VLMProviderV2 | undefined,
@@ -54,10 +54,14 @@ export const getSpByModelVersion = (
   }
 };
 
+// [停用 browser-use] 依赖 @ui-tars/operator-browser 的 SearchEngine 类型，已随 browser-use 停用。
 export const getLocalBrowserSearchEngine = (
-  engine?: SearchEngineForSettings,
+  _engine?: SearchEngineForSettings,
 ) => {
+  return undefined;
+  /*
   return (engine || SearchEngineForSettings.GOOGLE) as unknown as SearchEngine;
+  */
 };
 
 export const beforeAgentRun = async (operator: Operator) => {

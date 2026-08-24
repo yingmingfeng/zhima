@@ -25,7 +25,7 @@ import {
 } from '@renderer/components/Settings/local';
 
 import computerUseImg from '@resources/home_img/computer_use.png?url';
-import browserUseImg from '@resources/home_img/browser_use.png?url';
+// [停用 browser-use] import browserUseImg from '@resources/home_img/browser_use.png?url';
 import { sleep } from '@ui-tars/shared/utils';
 
 import { FreeTrialDialog } from '../../components/AlertDialog/freeTrialDialog';
@@ -74,7 +74,8 @@ const Home = () => {
     });
   };
 
-  const toRemoteBrowser = async (value: 'free' | 'paid') => {
+  // [停用 browser-use] toRemoteBrowser 依赖 Operator.RemoteBrowser，已随 browser-use 停用。
+  /*  const toRemoteBrowser = async (value: 'free' | 'paid') => {
     console.log('toRemoteBrowser', value);
 
     const session = await createSession('New Session', {
@@ -102,7 +103,7 @@ const Home = () => {
         from: 'home',
       },
     });
-  };
+  };*/
 
   /** local click logic start */
   const toLocal = async (operator: Operator) => {
@@ -130,11 +131,10 @@ const Home = () => {
   };
 
   const handleFreeDialogComfirm = async () => {
-    if (remoteConfig.operator === Operator.RemoteBrowser) {
-      toRemoteBrowser('free');
-    } else {
-      toRemoteComputer('free');
-    }
+    // [停用 browser-use] if (remoteConfig.operator === Operator.RemoteBrowser) { toRemoteBrowser('free'); }
+    // [停用 browser-use] else {
+    toRemoteComputer('free');
+    // [停用 browser-use] }
   };
 
   const handleRemoteDialogClose = (status: boolean) => {
@@ -181,6 +181,7 @@ const Home = () => {
               >
                 Computer Operator
               </Button>
+              {/* [停用 browser-use]
               <span>&nbsp;and&nbsp;</span>
               <Button
                 variant="link"
@@ -194,6 +195,7 @@ const Home = () => {
               >
                 Browser Operator
               </Button>
+              */}
             </div>
           </AlertDescription>
         </Alert>
@@ -222,6 +224,7 @@ const Home = () => {
               </Button>
             </CardFooter>
           </Card>
+          {/* [停用 browser-use]
           <Card className="w-[400px] py-5">
             <CardHeader className="px-5">
               <CardTitle>Browser Operator</CardTitle>
@@ -246,6 +249,7 @@ const Home = () => {
               </Button>
             </CardFooter>
           </Card>
+          */}
         </div>
         <LocalSettingsDialog
           isOpen={localConfig.open}

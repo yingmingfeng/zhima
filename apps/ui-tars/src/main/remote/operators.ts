@@ -11,7 +11,7 @@ import {
   parseBoxToScreenCoords,
   StatusEnum,
 } from '@ui-tars/sdk/core';
-import { RemoteBrowserOperator } from '@ui-tars/operator-browser';
+// [停用 browser-use] import { RemoteBrowserOperator } from '@ui-tars/operator-browser';
 
 import { logger } from '@main/logger';
 import { sleep } from '@ui-tars/shared/utils';
@@ -355,11 +355,15 @@ export class RemoteComputerOperator extends Operator {
   }
 }
 
+// [停用 browser-use] 依赖 @ui-tars/operator-browser 的 RemoteBrowserOperator，已随 browser-use 停用。
 export const createRemoteBrowserOperator = async () => {
+  throw new Error('browser-use is disabled in zhima');
+  /*
   const cdpUrl = await ProxyClient.getBrowserCDPUrl();
   if (!cdpUrl) {
     throw new Error('There is no available browser');
   }
   const operator = await RemoteBrowserOperator.getInstance(cdpUrl);
   return operator;
+  */
 };

@@ -11,25 +11,20 @@ import { GUIAgent, type GUIAgentConfig } from '@ui-tars/sdk';
 import { markClickPosition } from '@main/utils/image';
 import { UTIOService } from '@main/services/utio';
 import { NutJSElectronOperator } from '../agent/operator';
-import {
-  createRemoteBrowserOperator,
-  RemoteComputerOperator,
-} from '../remote/operators';
-import {
-  DefaultBrowserOperator,
-  RemoteBrowserOperator,
-} from '@ui-tars/operator-browser';
+// [停用 browser-use] import { createRemoteBrowserOperator } from '../remote/operators';
+import { RemoteComputerOperator } from '../remote/operators';
+// [停用 browser-use] import { DefaultBrowserOperator, RemoteBrowserOperator } from '@ui-tars/operator-browser';
 import { showPredictionMarker } from '@main/window/ScreenMarker';
 import { SettingStore } from '@main/store/setting';
 import { AppState, Operator } from '@main/store/types';
 import { GUIAgentManager } from '../ipcRoutes/agent';
-import { checkBrowserAvailability } from './browserCheck';
+// [停用 browser-use] import { checkBrowserAvailability } from './browserCheck';
 import {
   getModelVersion,
   getSpByModelVersion,
   beforeAgentRun,
   afterAgentRun,
-  getLocalBrowserSearchEngine,
+  // [停用 browser-use] getLocalBrowserSearchEngine,
 } from '../utils/agent';
 import { FREE_MODEL_BASE_URL } from '../remote/shared';
 import { getAuthHeader } from '../remote/auth';
@@ -118,18 +113,17 @@ export const runAgent = async (
     });
   };
 
-  let operatorType: 'computer' | 'browser' = 'computer';
-  let operator:
-    | NutJSElectronOperator
-    | DefaultBrowserOperator
-    | RemoteComputerOperator
-    | RemoteBrowserOperator;
+  // [停用 browser-use] 只保留 computer-use：operatorType 固定为 'computer'，operator 仅 computer 类型
+  let operatorType: 'computer' = 'computer';
+  let operator: NutJSElectronOperator | RemoteComputerOperator;
 
   switch (settings.operator) {
     case Operator.LocalComputer:
       operator = new NutJSElectronOperator();
       operatorType = 'computer';
       break;
+    // [停用 browser-use] case Operator.LocalBrowser: ...（依赖 @ui-tars/operator-browser，已停用）
+    /*
     case Operator.LocalBrowser:
       await checkBrowserAvailability();
       const { browserAvailable } = getState();
@@ -152,14 +146,18 @@ export const runAgent = async (
       );
       operatorType = 'browser';
       break;
+    */
     case Operator.RemoteComputer:
       operator = await RemoteComputerOperator.create();
       operatorType = 'computer';
       break;
+    // [停用 browser-use] case Operator.RemoteBrowser: ...（依赖 @ui-tars/operator-browser，已停用）
+    /*
     case Operator.RemoteBrowser:
       operator = await createRemoteBrowserOperator();
       operatorType = 'browser';
       break;
+    */
     default:
       break;
   }
@@ -174,8 +172,8 @@ export const runAgent = async (
   let modelAuthHdrs: Record<string, string> = {};
 
   if (
-    settings.operator === Operator.RemoteComputer ||
-    settings.operator === Operator.RemoteBrowser
+    settings.operator === Operator.RemoteComputer
+    // [停用 browser-use] || settings.operator === Operator.RemoteBrowser
   ) {
     const useResponsesApi = await ProxyClient.getRemoteVLMResponseApiSupport();
     modelConfig = {
