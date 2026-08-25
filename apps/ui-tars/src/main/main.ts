@@ -87,26 +87,6 @@ if (isProd) {
   });
 }
 
-const loadDevDebugTools = async () => {
-  import('electron-debug').then(({ default: electronDebug }) => {
-    electronDebug({ showDevTools: false });
-  });
-
-  import('electron-devtools-installer')
-    .then(({ default: installExtensionDefault, REACT_DEVELOPER_TOOLS }) => {
-      // @ts-ignore
-      const installExtension = installExtensionDefault?.default;
-      const extensions = [installExtension(REACT_DEVELOPER_TOOLS)];
-
-      return Promise.all(extensions)
-        .then((names) => logger.info('Added Extensions:', names.join(', ')))
-        .catch((err) =>
-          logger.error('An error occurred adding extension:', err),
-        );
-    })
-    .catch(logger.error);
-};
-
 const initializeApp = async () => {
   const isAccessibilityEnabled = app.isAccessibilitySupportEnabled();
   logger.info('isAccessibilityEnabled', isAccessibilityEnabled);
@@ -119,10 +99,6 @@ const initializeApp = async () => {
   }
 
   await checkBrowserAvailability();
-
-  // if (env.isDev) {
-  await loadDevDebugTools();
-  // }
 
   logger.info('createTray');
   // Tray
@@ -154,9 +130,10 @@ const initializeApp = async () => {
 
   app.on('window-all-closed', () => {
     logger.info('window-all-closed');
-    if (!env.isMacOS) {
-      app.quit();
-    }
+    // 全部窗口关闭时不退出，驻留托盘（zhima 是桌面 Agent，DSH 会话/托盘菜单仍在）。
+    // 用户通过托盘"打开 zhima"恢复窗口，托盘"退出"才真正退出。
+    // 原实现 non-macOS 直接 app.quit()，导致主窗口一关应用就退出（闪退/误退）。
+    // Tray 持有事件句柄可保活；不调用 app.quit() 即持续驻留，退出生效路径留给托盘/quit。
   });
 
   // DSH 清理守卫：dsh 曾启动过则先异步 dispose Cordis 树，再真正退出，避免残留子进程
@@ -418,13 +395,8 @@ const registerIPCHandlers = (
  * Add event listeners...
  */
 
-app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+// 残留的旧逻辑已删除：模块级 window-all-closed → app.quit() 与"关窗驻留托盘"设计冲突。
+// 当前窗口关闭即隐藏（window/index.ts close 拦截），全关也不退出，托盘常驻（main.ts initializeApp 内注册）。
 
 app
   .whenReady()
@@ -439,6 +411,19 @@ app
     // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
     app.on('browser-window-created', (_, window) => {
       optimizer.watchWindowShortcuts(window);
+      // 生产环境经设置项 enableProdDevtools 排错时允许 F12 开关 devtools。
+      // optimizer.watchWindowShortcuts 在 prod 只屏蔽 Ctrl+R 不响应 F12，这里单独补一个。
+      if (!env.isDev && SettingStore.get('enableProdDevtools')) {
+        window.webContents.on('before-input-event', (_e, input) => {
+          if (input.type === 'keyDown' && input.code === 'F12') {
+            if (window.webContents.isDevToolsOpened()) {
+              window.webContents.closeDevTools();
+            } else {
+              window.webContents.openDevTools({ mode: 'detach' });
+            }
+          }
+        });
+      }
     });
 
     await initializeApp();

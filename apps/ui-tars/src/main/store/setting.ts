@@ -24,6 +24,7 @@ export const DEFAULT_SETTING: LocalStore = {
   vlmApiKey: env.vlmApiKey || '',
   vlmModelName: env.vlmModelName || '',
   useResponsesApi: false,
+  enableProdDevtools: false,
   maxLoopCount: 100,
   loopIntervalInMs: 1000,
   searchEngineForBrowser: SearchEngineForSettings.GOOGLE,
@@ -38,7 +39,7 @@ export class SettingStore {
   public static getInstance(): ElectronStore<LocalStore> {
     if (!SettingStore.instance) {
       SettingStore.instance = new ElectronStore<LocalStore>({
-        name: 'ui_tars.setting',
+        name: 'zhima_setting',
         defaults: DEFAULT_SETTING,
       });
 

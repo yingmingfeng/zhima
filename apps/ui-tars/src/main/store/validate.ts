@@ -20,6 +20,8 @@ export const PresetSchema = z.object({
   vlmApiKey: z.string().min(1),
   vlmModelName: z.string().min(1),
   useResponsesApi: z.boolean().optional(),
+  // 生产环境允许用 F12 打开 devtools（排错用，dev 恒可用）
+  enableProdDevtools: z.boolean().optional(),
 
   // Chat Settings
   operator: z.nativeEnum(Operator),
