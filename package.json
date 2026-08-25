@@ -10,6 +10,7 @@
     "commit": "oco",
     "bootstrap": "pnpm i",
     "dev": "turbo run zhima#dev",
+    "build": "pnpm --filter zhima build",
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "test": "vitest",

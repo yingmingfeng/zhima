@@ -66,13 +66,13 @@ function Toolbar({ onSearchClick }: { onSearchClick: () => void }) {
     <div
       className="relative z-20 flex h-14 shrink-0 items-center pl-2"
       style={{
-        '-webkit-app-region': isWindows ? 'drag' : 'no-drag',
+        WebkitAppRegion: isWindows ? 'drag' : 'no-drag',
       }}
     >
       {/* 左侧：侧边栏切换 + 搜索 */}
       <div
         className="px-2 flex items-center gap-2"
-        style={{ '-webkit-app-region': 'no-drag' }}
+        style={{ WebkitAppRegion: 'no-drag' }}
       >
         <Tooltip>
           <TooltipTrigger asChild>

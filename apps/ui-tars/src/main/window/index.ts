@@ -34,6 +34,10 @@ export function createMainWindow() {
 
   mainWindow.on('close', (event) => {
     logger.info('mainWindow closed');
+    // 关闭即隐藏到托盘（桌面 Agent 驻留，DSH 会话/托盘菜单仍在），不销毁窗口。
+    // 用户从托盘"打开 zhima"恢复；真正退出走托盘"退出"(app.quit → before-quit 里 destroy)。
+    // 原实现仅 macOS 隐藏，Windows/Linux 直接销毁窗口且置 null，一关就触发
+    // window-all-closed → 退出，导致点击关闭即闪退。
     if (env.isMacOS) {
       event.preventDefault();
 
@@ -49,7 +53,8 @@ export function createMainWindow() {
         mainWindow?.hide();
       }
     } else {
-      mainWindow = null;
+      event.preventDefault();
+      mainWindow?.hide();
     }
   });
 

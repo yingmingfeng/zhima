@@ -49,7 +49,7 @@ export const CountDown = memo(({ operator, start = 0 }: CountDownProps) => {
   return (
     <div
       className="flex items-center gap-2 rounded-md bg-green-50 px-3 h-8 text-sm cursor-default"
-      style={{ '-webkit-app-region': 'no-drag' }}
+      style={{ WebkitAppRegion: 'no-drag' }}
     >
       <HoverCard
         open={showUpgrade}

@@ -19,16 +19,13 @@ export const getModuleRoot = (cwd: string, pkgName: string): string => {
       }),
     );
   } catch (error) {
+    // 某些包（如 koffi/pnpm/cmdk）exports 未暴露 ./package.json，
+    // fallback 用主入口解析是正常预期路径，成功时不打印误导性 warn；
+    // 若连主入口也解析不到，异常继续上抛，由调用方 catch 处理。
     moduleEntryPath = dirname(
       require.resolve(pkgName, {
         paths: [cwd || process.cwd()],
       }),
-    );
-    console.warn(
-      'Failed to read package.json:',
-      error,
-      'new_entry_path',
-      moduleEntryPath,
     );
   }
   let pkgPath = findUpSync('package.json', {

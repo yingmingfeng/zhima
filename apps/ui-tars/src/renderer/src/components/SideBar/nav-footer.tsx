@@ -15,8 +15,6 @@ import {
 } from '@renderer/components/ui/tooltip';
 
 export function NavSettings({ onClick }: { onClick?: () => void }) {
-  // TODO: 接入真实更新检测逻辑
-  const hasUpdate = false;
   const [scope, animate] = useAnimate();
 
   useEffect(() => {

@@ -11,7 +11,7 @@ import {
   TabsTrigger,
 } from '@renderer/components/ui/tabs';
 import { Button } from '@renderer/components/ui/button';
-import { SidebarTrigger, useSidebar } from '@renderer/components/ui/sidebar';
+import { SidebarTrigger } from '@renderer/components/ui/sidebar';
 import { NavHeader } from '@renderer/components/Detail/NavHeader';
 import { ScrollArea } from '@renderer/components/ui/scroll-area';
 
@@ -51,7 +51,6 @@ const getFinishedContent = (predictionParsed?: PredictionParsed[]) =>
 const RemoteOperator = () => {
   const state = useLocation().state as RouterState;
   const navigate = useNavigate();
-  const { setOpen } = useSidebar();
 
   const { status: agentStatus, messages = [], thinking, errorMsg } = useStore();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -337,7 +336,7 @@ const RemoteOperator = () => {
           size={'sm'}
           variant={'outline'}
           className="text-red-400 border-red-400 hover:bg-red-50 hover:text-red-500"
-          style={{ '-webkit-app-region': 'no-drag' }}
+          style={{ WebkitAppRegion: 'no-drag' }}
           disabled={disabled}
           onClick={() => onTerminateOpenChange(true)}
         >

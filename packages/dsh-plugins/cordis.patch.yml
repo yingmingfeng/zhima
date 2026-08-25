@@ -4,5 +4,6 @@
 - insert:
     - id: desktop-advanced-shell
       name: '@zhima/dsh-client-advanced-shell'
-    - id: better-sidebar
-      name: 'dsh-better-sidebar'
+    # [待修复] dsh-better-sidebar 的 pnpm workspace 链接未建立，暂不加载
+    # - id: better-sidebar
+    #   name: 'dsh-better-sidebar'

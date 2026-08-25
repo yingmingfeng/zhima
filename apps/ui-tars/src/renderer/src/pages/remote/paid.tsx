@@ -290,7 +290,7 @@ const RemoteOperator = () => {
           size={'sm'}
           variant={'outline'}
           className="text-red-400 border-red-400 hover:bg-red-50 hover:text-red-500"
-          style={{ '-webkit-app-region': 'no-drag' }}
+          style={{ WebkitAppRegion: 'no-drag' }}
           disabled={disabled}
           onClick={() => onTerminateOpenChange(true)}
         >

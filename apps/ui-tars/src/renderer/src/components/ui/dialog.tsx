@@ -45,7 +45,7 @@ function DialogOverlay({
         className,
       )}
       {...props}
-      style={{ ...style, '-webkit-app-region': 'no-drag' }}
+      style={{ ...style, WebkitAppRegion: 'no-drag' }}
     />
   );
 }
@@ -77,7 +77,7 @@ function DialogContent({
           className,
         )}
         {...props}
-        style={{ ...style, '-webkit-app-region': 'no-drag' }}
+        style={{ ...style, WebkitAppRegion: 'no-drag' }}
       >
         {children}
         {showCloseButton && (

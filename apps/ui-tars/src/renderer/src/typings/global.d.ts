@@ -15,6 +15,9 @@ interface Window {
 declare module 'react' {
   interface CSSProperties {
     '-webkit-app-region'?: 'drag' | 'no-drag';
+    // React 对 kebab-case 的 -webkit-app-region 会 warning "Did you mean WebkitAppRegion?"，
+    // 用 camelCase WebkitAppRegion 消除该 warning；此处补类型声明。
+    WebkitAppRegion?: 'drag' | 'no-drag';
     '--sidebar-width-icon'?: string;
   }
 }

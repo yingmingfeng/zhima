@@ -20,7 +20,7 @@ export function WindowControls() {
   return (
     <div
       className="flex h-full items-stretch"
-      style={{ '-webkit-app-region': 'no-drag' }}
+      style={{ WebkitAppRegion: 'no-drag' }}
     >
       {/* 最小化 */}
       <button

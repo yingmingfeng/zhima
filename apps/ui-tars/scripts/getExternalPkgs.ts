@@ -13,9 +13,12 @@ export const getExternalPkgs = () => {
 
   let dshDeps: string[] = [];
   try {
+    // 从 scripts/ 上三级到 zhima 根，指向 packages/dsh/package.json
+    // （原 ../../ 只到 apps/，导致读取失败、dshDeps 恒为空，
+    //   使打包时 keepModules 漏掉全部 @deepseek-ai/* 运行时包）
     const dshPkg = JSON.parse(
       readFileSync(
-        new URL('../../packages/dsh/package.json', import.meta.url),
+        new URL('../../../packages/dsh/package.json', import.meta.url),
         'utf8',
       ),
     ) as { dependencies?: Record<string, string> };

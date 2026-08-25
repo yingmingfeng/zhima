@@ -10,7 +10,7 @@ import {
   TabsTrigger,
 } from '@renderer/components/ui/tabs';
 import { Button } from '@renderer/components/ui/button';
-import { SidebarTrigger, useSidebar } from '@renderer/components/ui/sidebar';
+import { SidebarTrigger } from '@renderer/components/ui/sidebar';
 import { NavHeader } from '@renderer/components/Detail/NavHeader';
 import { ScrollArea } from '@renderer/components/ui/scroll-area';
 
@@ -59,7 +59,6 @@ const LocalOperator = () => {
   // 路由状态：携带 sessionId、operator 等上下文信息
   const state = useLocation().state as RouterState;
   const navigate = useNavigate();
-  const { setOpen } = useSidebar();
 
   // 从全局 store 获取运行状态、消息列表、思考状态、错误信息
   const { status, messages = [], thinking, errorMsg } = useStore();
