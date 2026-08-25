@@ -45,6 +45,18 @@ allowBuilds:
 
 # 统一 sharp 版本，避免 dsh（0.35.3）与应用（0.33.3）两版都带 libvips-42.dll，
 # 在 Windows 上 DLL 同名冲突导致 dsh-attachment-local 加载失败。
+# 统一 @electron-forge/shared-types 与 builder-util-runtime，避免 workspace 内
+# 各装两份不同版本导致 forge.config.ts / electron-updater 类型不兼容（TS2345）。
 overrides:
   sharp: 0.33.3
   tsx: ^4.23.0
+  '@electron-forge/shared-types': 7.8.0
+  builder-util-runtime: 9.7.0
+  # 统一 commander 到 DSH 运行时声明的版本（@deepseek-ai/dsh-web-app、dsh、dsh-headless 均 ^15）。
+  # 否则 @electron/asar（构建期工具，仅 CLI 用 commander@5）会占住 apps/ui-tars/node_modules 顶槽
+  # commander@5，导致打包时 @deepseek-ai/* 解析到 5.1.0（无 addHelpText）而报错，dev 却解析仓库
+  # 根 commander@15。override 让 dev 与打包的解析一致；DSH 升 commander 大版本时改这一行即可。
+  commander: ^15.0.0
+  # 同类问题：js-yaml 在 apps 顶槽被 electron-updater 的 ^4.1.0 占到 4.1.0，而 DSH 运行时（仓库根）用
+  # 4.3.1。electron-updater 的 ^4.1.0 兼容 4.3.x，override 到 root 一致版本安全，对齐 dev/打包解析。
+  js-yaml: ^4.3.1
