@@ -16,6 +16,7 @@
  */
 import Module from 'node:module';
 import { createRequire } from 'node:module';
+import { dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
@@ -108,18 +109,36 @@ export function installProfilePackageResolver(
     throw new Error('[dsh] registerHooks unavailable: Node version too old');
   }
   const profileManifestPath = fileURLToPath(profileBaseUrl);
+  const profileDirPath = dirname(profileManifestPath);
+
+  /** parent 是否落在 profile 目录内（含 manifest 自身），大小写/分隔符归一。 */
+  const isUnderProfileDir = (parentFilename: string | undefined): boolean => {
+    if (parentFilename === undefined) return false;
+    const norm = (p: string) => p.replace(/\\/g, '/').toLowerCase();
+    const parentNorm = norm(parentFilename);
+    const dirNorm = norm(profileDirPath);
+    const manifestNorm = norm(profileManifestPath);
+    return (
+      parentNorm === manifestNorm ||
+      parentNorm === dirNorm ||
+      parentNorm.startsWith(dirNorm + '/')
+    );
+  };
 
   // CJS 侧：ClientModuleRegistry 用 createRequire(ctx.baseUrl) 解析 browser bundle
-  // 的 manifest，ESM hook 观察不到该 CJS 查找。仅拦截以 profile manifest 为 parent
-  // 的精确包 manifest 请求，其余 CJS 解析不受影响。
+  // 的 manifest，ESM hook 观察不到该 CJS 查找。DSH 的 client-modules 等插件用
+  // createRequire(profile 目录) 再 resolve('<pkg>/package.json')（parent 是目录，
+  // 目录 URL 会合成 <dir>/noop.js 作父模块），原先只拦"parent === profile manifest"
+  // 的精确请求会漏掉它。故放宽为：parent 落在 profile 目录内且请求是包 manifest 时，
+  // 走 overlay 重定向（in-box 包→asar 安装树、out-of-tree 包→profile 真实路径），
+  // 跳过指向 app.asar 的坏符号链接；overlay 找不到时回退默认解析。
   const commonJsModule = Module as unknown as CommonJsModuleResolver;
   const previousResolveFilename = commonJsModule._resolveFilename;
   const overlayResolveFilename: CommonJsModuleResolver['_resolveFilename'] =
     function (this: CommonJsModuleResolver, request, parent, isMain, options) {
-      const packageName =
-        parent?.filename === profileManifestPath
-          ? packageNameFromManifestSpecifier(request)
-          : undefined;
+      const packageName = isUnderProfileDir(parent?.filename)
+        ? packageNameFromManifestSpecifier(request)
+        : undefined;
       if (packageName !== undefined) {
         const overlay = findOverlayPackage(packageName, {
           installPackageUrl: INSTALL_PACKAGE_URL,
