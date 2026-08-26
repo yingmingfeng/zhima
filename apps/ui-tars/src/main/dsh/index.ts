@@ -246,6 +246,11 @@ export async function openDshWindow(): Promise<void> {
   } catch (cause) {
     logger.error('[dsh] open failed:', cause);
     setState('error');
+    // 打开失败必须让前端可见：主进程统一广播 error toast（渲染进程 onToast 订阅）。
+    broadcastDshToast(
+      `DSH 窗口打开失败：${cause instanceof Error ? cause.message : String(cause)}`,
+      'error',
+    );
     throw cause;
   }
 }

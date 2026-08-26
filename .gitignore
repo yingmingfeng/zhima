@@ -38,6 +38,9 @@ scripts/merge-yml/*.yml
 # 打包临时文件（electron-forge 生成）
 *.tmp.*
 
+# Windows pwsh 沙箱的内置 node.exe（本地下载、不入库；见根 README「构建打包」）
+apps/ui-tars/resources/bin/
+
 #deepseek-harness
 deepseek-harness
 

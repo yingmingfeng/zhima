@@ -221,6 +221,9 @@ const BROWSE_PICKER_BACKEND = '@deepseek-ai/dsh-host-directory-picker-browse';
 const BROWSE_PICKER_SURFACE =
   '@deepseek-ai/dsh-client-ui-directory-picker-browse';
 
+// Windows pwsh 沙箱：上游 shell 提供者行 ID + 替换它的 zhima 包。
+const PWSH_SANDBOX_ROW_ID = 'pwsh-sandbox';
+
 /** dsh 主包自带的 agent presets 目录（standard/code/minimal/cordis）。 */
 function shippedPresetRoot(): string {
   const require = createRequire(__filename);
@@ -325,6 +328,36 @@ export function prepareDshProfile(
             {
               id: 'desktop-directory-picker-browse-surface',
               name: BROWSE_PICKER_SURFACE,
+            },
+          ],
+        },
+      );
+    }
+
+    // Windows 沙箱 pwsh shell 改用 zhima 内置真实 node.exe（packages/dsh-plugins/
+    // windows-pwsh-sandbox）。禁用上游 dsh-pwsh-sandbox 并插入 zhima 提供者，避免
+    // 上游默认 [process.execPath, runner.js] 触发 ELECTRON_RUN_AS_NODE 竞态
+    // （second-instance 置顶主窗）。cordis 一条服务只能一个提供者，故走 profile
+    // 行替换（禁用 + insert），不改 DSH 源码。
+    const pwshSandbox = rows.get(PWSH_SANDBOX_ROW_ID);
+    if (
+      pwshSandbox !== undefined &&
+      pwshSandbox.name === '@deepseek-ai/dsh-pwsh-sandbox'
+    ) {
+      patches.push(
+        {
+          id: PWSH_SANDBOX_ROW_ID,
+          name: '@deepseek-ai/dsh-pwsh-sandbox',
+          disabled: true,
+        },
+        {
+          insert: [
+            {
+              id: 'zhima-windows-pwsh-sandbox',
+              name: '@zhima/windows-pwsh-sandbox/windows-pwsh-sandbox',
+              ...(pwshSandbox.config !== undefined
+                ? { config: pwshSandbox.config }
+                : {}),
             },
           ],
         },

@@ -94,6 +94,8 @@ cd apps/ui-tars && pnpm build
 cd apps/ui-tars && pnpm make
 ```
 
+> **Windows 需自行下载内置 node.exe**：DSH 的 Windows pwsh 沙箱（read/write 模式）改用内置真实 node 执行 ACL runner，替代 Electron「假 node」（修复 `ELECTRON_RUN_AS_NODE` 的转圈与生产置顶问题）。构建/开发前将 **Node 22.x win32-x64** 二进制放到 `apps/ui-tars/resources/bin/node.exe`（该目录 git 已忽略、仅本地存在）。mac/linux 无需此文件——该沙箱为 Windows 限定。
+
 > 📖 详细使用说明请查看 [快速开始](./docs/quick-start.md)。
 
 ## 与上游对比

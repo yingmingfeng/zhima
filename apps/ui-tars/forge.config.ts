@@ -152,6 +152,9 @@ const unpackGlobs = [
   '@computer-use/libnut-*',
   '@computer-use/mac-screen-capture-permissions',
   '@computer-use/node-mac-permissions',
+  // windows-acl 沙箱 runner 由内置真实 node.exe 执行（非 Electron），读不了 asar；
+  // 整包 unpack 到 app.asar.unpacked，其 lib/runner.js 与依赖的 koffi 绑定才能被寻址。
+  '@deepseek-ai/dsh-sandbox-windows-acl',
   '@img/sharp-*',
   'koffi',
   '@koromix/koffi-*',
@@ -396,7 +399,12 @@ const config: ForgeConfig = {
   packagerConfig: {
     name: 'Zhima',
     icon: 'resources/icon',
-    extraResource: ['./resources/app-update.yml'],
+    extraResource: [
+      './resources/app-update.yml',
+      // Windows pwsh 沙箱专用的内置 node.exe 只在 Windows 打包带（沙箱修复本身 Windows
+      // 限定）；目录被 git 忽略、随本地文件存在，需按根 README「构建打包」预置。
+      ...(process.platform === 'win32' ? ['./resources/bin'] : []),
+    ],
     asar: {
       unpack,
     },
@@ -481,6 +489,9 @@ const config: ForgeConfig = {
       : [
           new FusesPlugin({
             version: FuseVersion.V1,
+            // DSH 沙箱 runner 已由 zhima 改用内置真实 node.exe（@zhima/windows-pwsh-sandbox
+            // 插件 + profile.ts 提供者替换），不再依赖 ELECTRON_RUN_AS_NODE，
+            // 故可保持 RunAsNode=false 的加固。
             [FuseV1Options.RunAsNode]: false,
             [FuseV1Options.EnableCookieEncryption]: true,
             [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
