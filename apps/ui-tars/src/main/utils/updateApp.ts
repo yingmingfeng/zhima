@@ -78,8 +78,14 @@ export class AppUpdater {
 
     if (app.isPackaged) {
       // Only check for updates in the packaged version!
-      this.autoUpdater.checkForUpdatesAndNotify();
-      // }
+      // 捕获 rejection：网络/仓库不可达时 checkForUpdatesAndNotify() 的 Promise 会
+      // reject，若不处理会被 DSH fail-loud 当"未处理异常"把整个应用退出——更新失败应
+      // 只是非致命日志，不该连带退出应用。
+      void this.autoUpdater
+        .checkForUpdatesAndNotify()
+        .catch((cause: unknown) => {
+          logger.error('checkForUpdatesAndNotify rejected:', cause);
+        });
     }
   }
 
