@@ -37,8 +37,6 @@ scripts/merge-yml/*.yml
 
 # 打包临时文件（electron-forge 生成）
 *.tmp.*
-# electron-packager win32 输出目录（手动倒入/残留产物，不入库）
-apps/ui-tars/build-out/
 
 #deepseek-harness
 deepseek-harness
