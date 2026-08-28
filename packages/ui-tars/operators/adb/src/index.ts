@@ -10,7 +10,7 @@ import {
   type ExecuteParams,
   type ExecuteOutput,
   StatusEnum,
-} from '@ui-tars/sdk/core';
+} from '@zhima/sdk/core';
 import { command } from 'execa';
 import inquirer from 'inquirer';
 import { readFileSync } from 'fs';

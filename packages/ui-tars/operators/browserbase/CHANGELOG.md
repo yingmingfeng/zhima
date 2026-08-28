@@ -1,11 +1,11 @@
-# @ui-tars/operator-browserbase
+# @zhima/operator-browserbase
 
 ## 1.2.3
 
 ### Patch Changes
 
-- @ui-tars/sdk@1.2.3
-- @ui-tars/shared@1.2.3
+- @zhima/sdk@1.2.3
+- @zhima/shared@1.2.3
 
 ## 1.2.2
 
@@ -13,15 +13,15 @@
 
 - a85ef50: chore: publish
 - Updated dependencies [a85ef50]
-  - @ui-tars/shared@1.2.2
-  - @ui-tars/sdk@1.2.2
+  - @zhima/shared@1.2.2
+  - @zhima/sdk@1.2.2
 
 ## 1.2.2-beta.3
 
 ### Patch Changes
 
-- @ui-tars/sdk@1.2.2-beta.3
-- @ui-tars/shared@1.2.2-beta.3
+- @zhima/sdk@1.2.2-beta.3
+- @zhima/shared@1.2.2-beta.3
 
 ## 1.2.2-beta.2
 
@@ -29,36 +29,36 @@
 
 - chore: publish
 - Updated dependencies
-  - @ui-tars/shared@1.2.2-beta.2
-  - @ui-tars/sdk@1.2.2-beta.2
+  - @zhima/shared@1.2.2-beta.2
+  - @zhima/sdk@1.2.2-beta.2
 
 ## 1.2.2-beta.1
 
 ### Patch Changes
 
-- @ui-tars/sdk@1.2.2-beta.1
-- @ui-tars/shared@1.2.2-beta.1
+- @zhima/sdk@1.2.2-beta.1
+- @zhima/shared@1.2.2-beta.1
 
 ## 1.2.2-beta.0
 
 ### Patch Changes
 
-- @ui-tars/sdk@1.2.2-beta.0
-- @ui-tars/shared@1.2.2-beta.0
+- @zhima/sdk@1.2.2-beta.0
+- @zhima/shared@1.2.2-beta.0
 
 ## 1.2.1
 
 ### Patch Changes
 
-- @ui-tars/sdk@1.2.1
-- @ui-tars/shared@1.2.1
+- @zhima/sdk@1.2.1
+- @zhima/shared@1.2.1
 
 ## 1.2.1-beta.0
 
 ### Patch Changes
 
-- @ui-tars/sdk@1.2.1-beta.0
-- @ui-tars/shared@1.2.1-beta.0
+- @zhima/sdk@1.2.1-beta.0
+- @zhima/shared@1.2.1-beta.0
 
 ## 1.2.0
 
@@ -92,8 +92,8 @@
 - Updated dependencies [d80285d]
 - Updated dependencies [5fb2821]
 - Updated dependencies [d169e46]
-  - @ui-tars/shared@1.2.0
-  - @ui-tars/sdk@1.2.0
+  - @zhima/shared@1.2.0
+  - @zhima/sdk@1.2.0
 
 ## 1.2.0-beta.24
 
@@ -101,8 +101,8 @@
 
 - chore: publish adb
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.24
-  - @ui-tars/sdk@1.2.0-beta.24
+  - @zhima/shared@1.2.0-beta.24
+  - @zhima/sdk@1.2.0-beta.24
 
 ## 1.2.0-beta.23
 
@@ -110,8 +110,8 @@
 
 - feat: ui-tars add adb operator
 - Updated dependencies
-  - @ui-tars/sdk@1.2.0-beta.23
-  - @ui-tars/shared@1.2.0-beta.23
+  - @zhima/sdk@1.2.0-beta.23
+  - @zhima/shared@1.2.0-beta.23
 
 ## 1.2.0-beta.22
 
@@ -119,8 +119,8 @@
 
 - chore: changeset
 - Updated dependencies
-  - @ui-tars/sdk@1.2.0-beta.22
-  - @ui-tars/shared@1.2.0-beta.22
+  - @zhima/sdk@1.2.0-beta.22
+  - @zhima/shared@1.2.0-beta.22
 
 ## 1.2.0-beta.21
 
@@ -128,8 +128,8 @@
 
 - fix: test
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.21
-  - @ui-tars/sdk@1.2.0-beta.21
+  - @zhima/shared@1.2.0-beta.21
+  - @zhima/sdk@1.2.0-beta.21
 
 ## 1.2.0-beta.20
 
@@ -137,8 +137,8 @@
 
 - feat(sdk): action parser add start_coords, end_coords
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.20
-  - @ui-tars/sdk@1.2.0-beta.20
+  - @zhima/shared@1.2.0-beta.20
+  - @zhima/sdk@1.2.0-beta.20
 
 ## 1.2.0-beta.19
 
@@ -146,8 +146,8 @@
 
 - chore: screenshot bug
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.19
-  - @ui-tars/sdk@1.2.0-beta.19
+  - @zhima/shared@1.2.0-beta.19
+  - @zhima/sdk@1.2.0-beta.19
 
 ## 1.2.0-beta.18
 
@@ -155,8 +155,8 @@
 
 - refactor: operator no need return width and height
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.18
-  - @ui-tars/sdk@1.2.0-beta.18
+  - @zhima/shared@1.2.0-beta.18
+  - @zhima/sdk@1.2.0-beta.18
 
 ## 1.2.0-beta.17
 
@@ -164,8 +164,8 @@
 
 - chore: same version
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.17
-  - @ui-tars/sdk@1.2.0-beta.17
+  - @zhima/shared@1.2.0-beta.17
+  - @zhima/sdk@1.2.0-beta.17
 
 ## 1.2.0-beta.15
 
@@ -173,22 +173,22 @@
 
 - feat: sdk factors version
 - Updated dependencies
-  - @ui-tars/sdk@1.2.0-beta.16
-  - @ui-tars/shared@1.2.0-beta.12
+  - @zhima/sdk@1.2.0-beta.16
+  - @zhima/shared@1.2.0-beta.12
 
 ## 1.2.0-beta.14
 
 ### Patch Changes
 
 - Updated dependencies
-  - @ui-tars/sdk@1.2.0-beta.15
+  - @zhima/sdk@1.2.0-beta.15
 
 ## 1.2.0-beta.13
 
 ### Patch Changes
 
 - Updated dependencies
-  - @ui-tars/sdk@1.2.0-beta.13
+  - @zhima/sdk@1.2.0-beta.13
 
 ## 1.2.0-beta.12
 
@@ -196,8 +196,8 @@
 
 - chore: open-operator
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.11
-  - @ui-tars/sdk@1.2.0-beta.12
+  - @zhima/shared@1.2.0-beta.11
+  - @zhima/sdk@1.2.0-beta.12
 
 ## 1.2.0-beta.11
 
@@ -205,4 +205,4 @@
 
 - chore: types
 - Updated dependencies
-  - @ui-tars/sdk@1.2.0-beta.11
+  - @zhima/sdk@1.2.0-beta.11

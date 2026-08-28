@@ -1,10 +1,10 @@
-# @ui-tars/operator-browser
+# @zhima/operator-browser
 
 ## 1.2.3
 
 ### Patch Changes
 
-- @ui-tars/sdk@1.2.3
+- @zhima/sdk@1.2.3
 
 ## 1.2.2
 
@@ -13,14 +13,14 @@
 - a85ef50: chore: publish
 - Updated dependencies [a85ef50]
   - @agent-infra/browser@0.1.1
-  - @ui-tars/sdk@1.2.2
+  - @zhima/sdk@1.2.2
 
 ## 1.2.2-beta.3
 
 ### Patch Changes
 
 - @agent-infra/browser@0.1.1-beta.2
-- @ui-tars/sdk@1.2.2-beta.3
+- @zhima/sdk@1.2.2-beta.3
 
 ## 1.2.2-beta.2
 
@@ -29,14 +29,14 @@
 - chore: publish
 - Updated dependencies
   - @agent-infra/browser@0.1.1-beta.1
-  - @ui-tars/sdk@1.2.2-beta.2
+  - @zhima/sdk@1.2.2-beta.2
 
 ## 1.2.2-beta.1
 
 ### Patch Changes
 
 - release agent tars beta
-  - @ui-tars/sdk@1.2.2-beta.1
+  - @zhima/sdk@1.2.2-beta.1
 
 ## 1.2.2-beta.0
 
@@ -45,7 +45,7 @@
 - release agent tars beta
 - Updated dependencies
   - @agent-infra/browser@0.1.1-beta.0
-  - @ui-tars/sdk@1.2.2-beta.0
+  - @zhima/sdk@1.2.2-beta.0
 
 ## 1.2.1
 
@@ -54,7 +54,7 @@
 - Updated dependencies [9089c63]
 - Updated dependencies
   - @agent-infra/browser@0.1.0
-  - @ui-tars/sdk@1.2.1
+  - @zhima/sdk@1.2.1
 
 ## 1.2.1-beta.0
 
@@ -62,7 +62,7 @@
 
 - Updated dependencies
   - @agent-infra/browser@0.0.3-beta.0
-  - @ui-tars/sdk@1.2.1-beta.0
+  - @zhima/sdk@1.2.1-beta.0
 
 ## 1.2.0
 
@@ -87,7 +87,7 @@
 - Updated dependencies [d80285d]
 - Updated dependencies [5fb2821]
 - Updated dependencies [d169e46]
-  - @ui-tars/sdk@1.2.0
+  - @zhima/sdk@1.2.0
   - @agent-infra/logger@0.0.1
   - @agent-infra/browser@0.0.2
 
@@ -98,7 +98,7 @@
 - chore: publish adb
 - Updated dependencies
   - @agent-infra/logger@0.0.1-beta.1
-  - @ui-tars/sdk@1.2.0-beta.24
+  - @zhima/sdk@1.2.0-beta.24
 
 ## 1.2.0-beta.23
 
@@ -107,4 +107,4 @@
 - feat: ui-tars add adb operator
 - Updated dependencies
   - @agent-infra/logger@0.0.1-beta.0
-  - @ui-tars/sdk@1.2.0-beta.23
+  - @zhima/sdk@1.2.0-beta.23

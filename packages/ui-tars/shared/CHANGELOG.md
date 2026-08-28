@@ -1,4 +1,4 @@
-# @ui-tars/shared
+# @zhima/shared
 
 ## 1.2.3
 

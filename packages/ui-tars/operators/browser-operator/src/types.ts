@@ -4,9 +4,9 @@
  */
 import { Logger } from '@agent-infra/logger';
 import type { BrowserInterface, Page, BrowserType } from '@agent-infra/browser';
-import type { ScreenshotOutput, ExecuteParams } from '@ui-tars/sdk/core';
+import type { ScreenshotOutput, ExecuteParams } from '@zhima/sdk/core';
 
-export { StatusEnum } from '@ui-tars/sdk';
+export { StatusEnum } from '@zhima/sdk';
 export type { Page, ScreenshotOutput, ExecuteParams };
 export type ParsedPrediction = ExecuteParams['parsedPrediction'];
 
@@ -55,7 +55,7 @@ export interface BrowserOperatorOptions {
 
   /**
    * Callback triggered when an operator action is performed
-   * @deprecated Will be removed when `@ui-tars/sdk` supports hooks natively
+   * @deprecated Will be removed when `@zhima/sdk` supports hooks natively
    */
   onOperatorAction?: (prediction: ParsedPrediction) => Promise<void>;
 

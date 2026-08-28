@@ -108,7 +108,7 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
-  apps/ui-tars:
+  apps/zhima:
     dependencies:
       '@computer-use/node-mac-permissions':
         specifier: 2.2.2
@@ -216,30 +216,30 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^5.0.0
         version: 5.62.0(eslint@8.57.1)(typescript@5.9.3)
-      '@ui-tars/action-parser':
-        specifier: workspace:*
-        version: link:../../packages/ui-tars/action-parser
-      '@ui-tars/electron-ipc':
-        specifier: workspace:*
-        version: link:../../packages/ui-tars/electron-ipc
-      '@ui-tars/operator-nut-js':
-        specifier: workspace:*
-        version: link:../../packages/ui-tars/operators/nut-js
-      '@ui-tars/sdk':
-        specifier: workspace:*
-        version: link:../../packages/ui-tars/sdk
-      '@ui-tars/shared':
-        specifier: workspace:*
-        version: link:../../packages/ui-tars/shared
-      '@ui-tars/utio':
-        specifier: workspace:*
-        version: link:../../packages/ui-tars/utio
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.7.0(vite@6.4.3(@types/node@20.14.8)(jiti@2.7.0)(lightningcss@1.33.0)(sass-embedded@1.102.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0))
       '@vitest/coverage-istanbul':
         specifier: ^3.0.3
         version: 3.2.7(vitest@3.2.7)
+      '@zhima/action-parser':
+        specifier: workspace:*
+        version: link:../../packages/ui-tars/action-parser
+      '@zhima/electron-ipc':
+        specifier: workspace:*
+        version: link:../../packages/ui-tars/electron-ipc
+      '@zhima/operator-nut-js':
+        specifier: workspace:*
+        version: link:../../packages/ui-tars/operators/nut-js
+      '@zhima/sdk':
+        specifier: workspace:*
+        version: link:../../packages/ui-tars/sdk
+      '@zhima/shared':
+        specifier: workspace:*
+        version: link:../../packages/ui-tars/shared
+      '@zhima/utio':
+        specifier: workspace:*
+        version: link:../../packages/ui-tars/utio
       builder-util-runtime:
         specifier: 9.7.0
         version: 9.7.0
@@ -334,7 +334,7 @@ importers:
         specifier: ^5.0.0
         version: 5.0.15(@types/react@19.1.2)(immer@10.2.0)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
 
-  apps/ui-tars/src/renderer:
+  apps/zhima/src/renderer:
     dependencies:
       '@emotion/react':
         specifier: ^11.13.3
@@ -1121,7 +1121,7 @@ importers:
 
   packages/ui-tars/action-parser:
     dependencies:
-      '@ui-tars/shared':
+      '@zhima/shared':
         specifier: workspace:*
         version: link:../shared
       lodash.isnumber:
@@ -1149,13 +1149,13 @@ importers:
       '@clack/prompts':
         specifier: ^0.10.0
         version: 0.10.1
-      '@ui-tars/operator-adb':
+      '@zhima/operator-adb':
         specifier: workspace:*
         version: link:../operators/adb
-      '@ui-tars/operator-nut-js':
+      '@zhima/operator-nut-js':
         specifier: workspace:*
         version: link:../operators/nut-js
-      '@ui-tars/sdk':
+      '@zhima/sdk':
         specifier: workspace:*
         version: link:../sdk
       commander:
@@ -1207,7 +1207,7 @@ importers:
 
   packages/ui-tars/operators/adb:
     dependencies:
-      '@ui-tars/shared':
+      '@zhima/shared':
         specifier: workspace:*
         version: link:../../shared
       execa:
@@ -1232,7 +1232,7 @@ importers:
       '@types/inquirer':
         specifier: 9.0.7
         version: 9.0.7
-      '@ui-tars/sdk':
+      '@zhima/sdk':
         specifier: workspace:*
         version: link:../../sdk
       typescript:
@@ -1247,7 +1247,7 @@ importers:
       '@computer-use/nut-js':
         specifier: ^4.2.0
         version: 4.2.0(encoding@0.1.13)
-      '@ui-tars/shared':
+      '@zhima/shared':
         specifier: workspace:*
         version: link:../../shared
       big.js:
@@ -1266,7 +1266,7 @@ importers:
       '@types/big.js':
         specifier: ^6.2.2
         version: 6.2.2
-      '@ui-tars/sdk':
+      '@zhima/sdk':
         specifier: workspace:*
         version: link:../../sdk
       typescript:
@@ -1278,10 +1278,10 @@ importers:
 
   packages/ui-tars/sdk:
     dependencies:
-      '@ui-tars/action-parser':
+      '@zhima/action-parser':
         specifier: workspace:*
         version: link:../action-parser
-      '@ui-tars/shared':
+      '@zhima/shared':
         specifier: workspace:*
         version: link:../shared
       async-retry:

@@ -1,5 +1,5 @@
 {
-  "name": "@ui-tars/operator-adb",
+  "name": "@zhima/operator-adb",
   "version": "1.2.3",
   "description": "Operator Android SDK for UI-TARS",
   "repository": {
@@ -35,13 +35,13 @@
     "registry": "https://registry.npmjs.org"
   },
   "dependencies": {
-    "@ui-tars/shared": "workspace:*",
+    "@zhima/shared": "workspace:*",
     "execa": "5.0.1",
     "inquirer": "8.2.4",
     "jimp": "1.6.0"
   },
   "devDependencies": {
-    "@ui-tars/sdk": "workspace:*",
+    "@zhima/sdk": "workspace:*",
     "@common/configs": "workspace:*",
     "@rslib/core": "0.10.0",
     "typescript": "^5.7.2",

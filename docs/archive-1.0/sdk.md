@@ -1,11 +1,11 @@
 > [!WARNING]
 > This document has been archived.
 
-# @ui-tars/sdk Guide (Experimental)
+# @zhima/sdk Guide (Experimental)
 
 ## Overview
 
-`@ui-tars/sdk` is a powerful cross-platform(ANY device/platform) toolkit for building GUI automation agents.
+`@zhima/sdk` is a powerful cross-platform(ANY device/platform) toolkit for building GUI automation agents.
 
 It provides a flexible framework to create agents that can interact with graphical user interfaces through various operators. It supports running on both **Node.js** and the **Web Browser**
 
@@ -54,7 +54,7 @@ classDiagram
 ## Try it out
 
 ```bash
-npx @ui-tars/cli start
+npx @zhima/cli start
 ```
 
 Input your UI-TARS Model Service Config(`baseURL`, `apiKey`, `model`), then you can control your computer with CLI.
@@ -106,7 +106,7 @@ sequenceDiagram
 
 ### Basic Usage
 
-Basic usage is largely derived from package `@ui-tars/sdk`, here's a basic example of using the SDK:
+Basic usage is largely derived from package `@zhima/sdk`, here's a basic example of using the SDK:
 
 > Note: Using `nut-js`(cross-platform computer control tool) as the operator, you can also use or customize other operators. NutJS operator that supports common desktop automation actions:
 > - Mouse actions: click, double click, right click, drag, hover
@@ -115,8 +115,8 @@ Basic usage is largely derived from package `@ui-tars/sdk`, here's a basic examp
 > - Screenshot capture
 
 ```ts
-import { GUIAgent } from '@ui-tars/sdk';
-import { NutJSOperator } from '@ui-tars/operator-nut-js';
+import { GUIAgent } from '@zhima/sdk';
+import { NutJSOperator } from '@zhima/operator-nut-js';
 
 const guiAgent = new GUIAgent({
   model: {
@@ -228,10 +228,10 @@ When implementing a custom operator, you need to implement two core methods: `sc
     "jimp": "^1.6.0"
   },
   "peerDependencies": {
-    "@ui-tars/sdk": "^1.2.0-beta.17"
+    "@zhima/sdk": "^1.2.0-beta.17"
   },
   "devDependencies": {
-    "@ui-tars/sdk": "^1.2.0-beta.17",
+    "@zhima/sdk": "^1.2.0-beta.17",
     "@rslib/core": "^0.5.4",
     "typescript": "^5.7.2",
     "vitest": "^3.0.2"
@@ -278,7 +278,7 @@ interface ExecuteParams {
 }
 ```
 
-Advanced sdk usage is largely derived from package `@ui-tars/sdk/core`, you can create custom operators by extending the base `Operator` class:
+Advanced sdk usage is largely derived from package `@zhima/sdk/core`, you can create custom operators by extending the base `Operator` class:
 
 ```typescript
 import {
@@ -286,7 +286,7 @@ import {
   type ScreenshotOutput,
   type ExecuteParams
   type ExecuteOutput,
-} from '@ui-tars/sdk/core';
+} from '@zhima/sdk/core';
 import { Jimp } from 'jimp';
 
 export class CustomOperator extends Operator {

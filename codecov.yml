@@ -8,10 +8,10 @@ component_management:
       paths:
         - packages/agent-infra/mcp-servers/browser/src/**
     - component_id: ui_tars_action_parser
-      name: ui-tars-action-parser
+      name: zhima-action-parser
       paths:
         - packages/ui-tars/action-parser/src/**
     - component_id: ui_tars_sdk
-      name: ui-tars-sdk
+      name: zhima-sdk
       paths:
         - packages/ui-tars/sdk/src/**

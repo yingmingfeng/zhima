@@ -20,7 +20,7 @@ A browser automation operator for UI-TARS that enables controlling web browsers 
 ## Installation
 
 ```bash
-npm install @ui-tars/operator-browser
+npm install @zhima/operator-browser
 ```
 
 ## Usage
@@ -30,8 +30,8 @@ Here's a basic example of how to use the Browser Operator:
 ```typescript
 import { LocalBrowser } from '@agent-infra/browser';
 import { ConsoleLogger } from '@agent-infra/logger';
-import { GUIAgent, StatusEnum } from '@ui-tars/sdk';
-import { BrowserOperator } from '@ui-tars/operator-browser';
+import { GUIAgent, StatusEnum } from '@zhima/sdk';
+import { BrowserOperator } from '@zhima/operator-browser';
 
 async function main() {
   // Create a local browser

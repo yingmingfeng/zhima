@@ -1,12 +1,12 @@
-# @ui-tars/sdk
+# @zhima/sdk
 
 ## 1.2.3
 
 ### Patch Changes
 
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.3
-  - @ui-tars/shared@1.2.3
+  - @zhima/action-parser@1.2.3
+  - @zhima/shared@1.2.3
 
 ## 1.2.2
 
@@ -14,15 +14,15 @@
 
 - a85ef50: chore: publish
 - Updated dependencies [a85ef50]
-  - @ui-tars/action-parser@1.2.2
-  - @ui-tars/shared@1.2.2
+  - @zhima/action-parser@1.2.2
+  - @zhima/shared@1.2.2
 
 ## 1.2.2-beta.3
 
 ### Patch Changes
 
-- @ui-tars/action-parser@1.2.2-beta.3
-- @ui-tars/shared@1.2.2-beta.3
+- @zhima/action-parser@1.2.2-beta.3
+- @zhima/shared@1.2.2-beta.3
 
 ## 1.2.2-beta.2
 
@@ -30,36 +30,36 @@
 
 - chore: publish
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.2-beta.2
-  - @ui-tars/shared@1.2.2-beta.2
+  - @zhima/action-parser@1.2.2-beta.2
+  - @zhima/shared@1.2.2-beta.2
 
 ## 1.2.2-beta.1
 
 ### Patch Changes
 
-- @ui-tars/action-parser@1.2.2-beta.1
-- @ui-tars/shared@1.2.2-beta.1
+- @zhima/action-parser@1.2.2-beta.1
+- @zhima/shared@1.2.2-beta.1
 
 ## 1.2.2-beta.0
 
 ### Patch Changes
 
-- @ui-tars/action-parser@1.2.2-beta.0
-- @ui-tars/shared@1.2.2-beta.0
+- @zhima/action-parser@1.2.2-beta.0
+- @zhima/shared@1.2.2-beta.0
 
 ## 1.2.1
 
 ### Patch Changes
 
-- @ui-tars/action-parser@1.2.1
-- @ui-tars/shared@1.2.1
+- @zhima/action-parser@1.2.1
+- @zhima/shared@1.2.1
 
 ## 1.2.1-beta.0
 
 ### Patch Changes
 
-- @ui-tars/action-parser@1.2.1-beta.0
-- @ui-tars/shared@1.2.1-beta.0
+- @zhima/action-parser@1.2.1-beta.0
+- @zhima/shared@1.2.1-beta.0
 
 ## 1.2.0
 
@@ -93,8 +93,8 @@
 - Updated dependencies [2b9c631]
 - Updated dependencies [d80285d]
 - Updated dependencies [5fb2821]
-  - @ui-tars/action-parser@1.2.0
-  - @ui-tars/shared@1.2.0
+  - @zhima/action-parser@1.2.0
+  - @zhima/shared@1.2.0
 
 ## 1.2.0-beta.24
 
@@ -102,8 +102,8 @@
 
 - chore: publish adb
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.0-beta.24
-  - @ui-tars/shared@1.2.0-beta.24
+  - @zhima/action-parser@1.2.0-beta.24
+  - @zhima/shared@1.2.0-beta.24
 
 ## 1.2.0-beta.23
 
@@ -111,8 +111,8 @@
 
 - feat: ui-tars add adb operator
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.0-beta.23
-  - @ui-tars/shared@1.2.0-beta.23
+  - @zhima/action-parser@1.2.0-beta.23
+  - @zhima/shared@1.2.0-beta.23
 
 ## 1.2.0-beta.22
 
@@ -120,8 +120,8 @@
 
 - chore: changeset
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.0-beta.22
-  - @ui-tars/shared@1.2.0-beta.22
+  - @zhima/action-parser@1.2.0-beta.22
+  - @zhima/shared@1.2.0-beta.22
 
 ## 1.2.0-beta.21
 
@@ -129,8 +129,8 @@
 
 - fix: test
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.0-beta.21
-  - @ui-tars/shared@1.2.0-beta.21
+  - @zhima/action-parser@1.2.0-beta.21
+  - @zhima/shared@1.2.0-beta.21
 
 ## 1.2.0-beta.20
 
@@ -138,8 +138,8 @@
 
 - feat(sdk): action parser add start_coords, end_coords
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.0-beta.20
-  - @ui-tars/shared@1.2.0-beta.20
+  - @zhima/action-parser@1.2.0-beta.20
+  - @zhima/shared@1.2.0-beta.20
 
 ## 1.2.0-beta.19
 
@@ -147,8 +147,8 @@
 
 - chore: screenshot bug
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.0-beta.19
-  - @ui-tars/shared@1.2.0-beta.19
+  - @zhima/action-parser@1.2.0-beta.19
+  - @zhima/shared@1.2.0-beta.19
 
 ## 1.2.0-beta.18
 
@@ -156,8 +156,8 @@
 
 - refactor: operator no need return width and height
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.18
-  - @ui-tars/action-parser@1.2.0-beta.18
+  - @zhima/shared@1.2.0-beta.18
+  - @zhima/action-parser@1.2.0-beta.18
 
 ## 1.2.0-beta.17
 
@@ -165,8 +165,8 @@
 
 - chore: same version
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.0-beta.17
-  - @ui-tars/shared@1.2.0-beta.17
+  - @zhima/action-parser@1.2.0-beta.17
+  - @zhima/shared@1.2.0-beta.17
 
 ## 1.2.0-beta.16
 
@@ -174,8 +174,8 @@
 
 - feat: sdk factors version
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.0-beta.12
-  - @ui-tars/shared@1.2.0-beta.12
+  - @zhima/action-parser@1.2.0-beta.12
+  - @zhima/shared@1.2.0-beta.12
 
 ## 1.2.0-beta.15
 
@@ -195,8 +195,8 @@
 
 - chore: open-operator
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.11
-  - @ui-tars/action-parser@1.2.0-beta.11
+  - @zhima/shared@1.2.0-beta.11
+  - @zhima/action-parser@1.2.0-beta.11
 
 ## 1.2.0-beta.11
 
@@ -209,8 +209,8 @@
 ### Patch Changes
 
 - update
-  - @ui-tars/action-parser@1.2.0-beta.10
-  - @ui-tars/shared@1.2.0-beta.10
+  - @zhima/action-parser@1.2.0-beta.10
+  - @zhima/shared@1.2.0-beta.10
 
 ## 1.2.0-beta.9
 
@@ -218,5 +218,5 @@
 
 - bump: sdk support
 - Updated dependencies
-  - @ui-tars/action-parser@1.2.0-beta.9
-  - @ui-tars/shared@1.2.0-beta.9
+  - @zhima/action-parser@1.2.0-beta.9
+  - @zhima/shared@1.2.0-beta.9

@@ -14,14 +14,14 @@
     },
     "zhima#build": {
       "outputs": [
-        "apps/ui-tars/dist/**",
-        "apps/ui-tars/out/**"
+        "apps/zhima/dist/**",
+        "apps/zhima/out/**"
       ]
     },
     "zhima#build:e2e": {
       "outputs": [
-        "apps/ui-tars/out/**",
-        "apps/ui-tars/dist/**"
+        "apps/zhima/out/**",
+        "apps/zhima/dist/**"
       ]
     },
     "zhima#test:e2e": {

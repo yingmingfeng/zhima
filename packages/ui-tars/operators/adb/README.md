@@ -1,4 +1,4 @@
-# @ui-tars/operator-adb
+# @zhima/operator-adb
 
 Operator Android SDK for UI-TARS using ADB.
 

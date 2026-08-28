@@ -4,7 +4,7 @@
  */
 import { LocalBrowser } from '@agent-infra/browser';
 import { ConsoleLogger } from '@agent-infra/logger';
-import { GUIAgent, StatusEnum } from '@ui-tars/sdk';
+import { GUIAgent, StatusEnum } from '@zhima/sdk';
 import { BrowserOperator, DefaultBrowserOperator } from '../src';
 
 async function main() {

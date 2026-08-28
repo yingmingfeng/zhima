@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 import { NextResponse } from 'next/server';
-import { GUIAgent, StatusEnum } from '@ui-tars/sdk';
-import { BrowserbaseOperator } from '@ui-tars/operator-browserbase';
+import { GUIAgent, StatusEnum } from '@zhima/sdk';
+import { BrowserbaseOperator } from '@zhima/operator-browserbase';
 
 export const dynamic = 'force-dynamic';
 

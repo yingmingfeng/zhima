@@ -25,7 +25,7 @@ export default {
   // importOrder: [
   //   '^node:(.*)$',
   //   '<THIRD_PARTY_MODULES>',
-  //   '^@ui-tars/(.*)$',
+  //   '^@zhima/(.*)$',
   //   '^@main/(.*)$',
   //   '^@shared/(.*)$',
   //   '^@renderer/(.*)$',

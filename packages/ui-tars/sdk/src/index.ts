@@ -4,6 +4,6 @@
  */
 export { GUIAgent } from './GUIAgent';
 export type { GUIAgentConfig } from './types';
-export type { GUIAgentData } from '@ui-tars/shared/types';
-export { StatusEnum } from '@ui-tars/shared/types';
-export { UITarsModelVersion } from '@ui-tars/shared/types';
+export type { GUIAgentData } from '@zhima/shared/types';
+export { StatusEnum } from '@zhima/shared/types';
+export { UITarsModelVersion } from '@zhima/shared/types';

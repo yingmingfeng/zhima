@@ -1,10 +1,10 @@
-# @ui-tars/sdk 指南（实验性）
+# @zhima/sdk 指南（实验性）
 
-[![NPM Downloads](https://img.shields.io/npm/d18m/@ui-tars/sdk)](https://www.npmjs.com/package/@ui-tars/sdk) [![codecov](https://codecov.io/gh/bytedance/UI-TARS-desktop/graph/badge.svg?component=ui_tars_sdk)](https://app.codecov.io/gh/bytedance/UI-TARS-desktop/components/ui_tars_sdk)
+[![NPM Downloads](https://img.shields.io/npm/d18m/@zhima/sdk)](https://www.npmjs.com/package/@zhima/sdk) [![codecov](https://codecov.io/gh/bytedance/UI-TARS-desktop/graph/badge.svg?component=ui_tars_sdk)](https://app.codecov.io/gh/bytedance/UI-TARS-desktop/components/ui_tars_sdk)
 
 ## 概述
 
-`@ui-tars/sdk` 是一个强大的跨平台（任何设备/平台）工具包，用于构建 GUI 自动化 Agent。
+`@zhima/sdk` 是一个强大的跨平台（任何设备/平台）工具包，用于构建 GUI 自动化 Agent。
 
 它提供了一个灵活的框架，用于创建能够通过各种 Operator 与图形用户界面交互的 Agent。支持在 **Node.js** 和 **Web 浏览器** 上运行。
 
@@ -53,7 +53,7 @@ classDiagram
 ## 快速体验
 
 ```bash
-npx @ui-tars/cli start
+npx @zhima/cli start
 ```
 
 输入你的 UI-TARS 模型服务配置（`baseURL`、`apiKey`、`model`），即可通过 CLI 控制你的计算机。
@@ -105,7 +105,7 @@ sequenceDiagram
 
 ### 基础用法
 
-基础用法主要源自 `@ui-tars/sdk` 包，以下是使用 SDK 的基本示例：
+基础用法主要源自 `@zhima/sdk` 包，以下是使用 SDK 的基本示例：
 
 > 注意：使用 `nut-js`（跨平台计算机控制工具）作为 Operator，你也可以使用或自定义其他 Operator。NutJS Operator 支持的常见桌面自动化操作：
 > - 鼠标操作：单击、双击、右键单击、拖拽、悬停
@@ -114,8 +114,8 @@ sequenceDiagram
 > - 截图
 
 ```ts
-import { GUIAgent } from '@ui-tars/sdk';
-import { NutJSOperator } from '@ui-tars/operator-nut-js';
+import { GUIAgent } from '@zhima/sdk';
+import { NutJSOperator } from '@zhima/operator-nut-js';
 
 const guiAgent = new GUIAgent({
   model: {
@@ -227,10 +227,10 @@ stateDiagram-v2
     "jimp": "^1.6.0"
   },
   "peerDependencies": {
-    "@ui-tars/sdk": "^1.2.0-beta.17"
+    "@zhima/sdk": "^1.2.0-beta.17"
   },
   "devDependencies": {
-    "@ui-tars/sdk": "^1.2.0-beta.17",
+    "@zhima/sdk": "^1.2.0-beta.17",
     "@rslib/core": "^0.5.4",
     "typescript": "^5.7.2",
     "vitest": "^3.0.2"
@@ -277,7 +277,7 @@ interface ExecuteParams {
 }
 ```
 
-高级 SDK 用法主要源自 `@ui-tars/sdk/core` 包，你可以通过扩展基础 `Operator` 类来创建自定义 Operator：
+高级 SDK 用法主要源自 `@zhima/sdk/core` 包，你可以通过扩展基础 `Operator` 类来创建自定义 Operator：
 
 ```typescript
 import {
@@ -285,7 +285,7 @@ import {
   type ScreenshotOutput,
   type ExecuteParams
   type ExecuteOutput,
-} from '@ui-tars/sdk/core';
+} from '@zhima/sdk/core';
 import { Jimp } from 'jimp';
 
 export class CustomOperator extends Operator {

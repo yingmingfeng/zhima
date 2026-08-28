@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="UI-TARS" width="260" src="../../apps/ui-tars/resources/icon.png">
+  <img alt="UI-TARS" width="260" src="../../apps/zhima/resources/icon.png">
 </p>
 
 # UI-TARS Desktop
@@ -55,7 +55,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## SDK (Experimental)
 
-See [@ui-tars/sdk](./sdk.md)
+See [@zhima/sdk](./sdk.md)
 
 ## License
 

@@ -1,5 +1,5 @@
 {
-  "name": "@ui-tars/operator-browserbase",
+  "name": "@zhima/operator-browserbase",
   "version": "1.2.3",
   "description": "Operator Browserbase SDK for UI-TARS",
   "repository": {
@@ -35,15 +35,15 @@
     "registry": "https://registry.npmjs.org"
   },
   "dependencies": {
-    "@ui-tars/shared": "workspace:*",
+    "@zhima/shared": "workspace:*",
     "@browserbasehq/stagehand": "^1.13.0",
     "big.js": "^6.2.2"
   },
   "peerDependencies": {
-    "@ui-tars/sdk": "workspace:*"
+    "@zhima/sdk": "workspace:*"
   },
   "devDependencies": {
-    "@ui-tars/sdk": "workspace:*",
+    "@zhima/sdk": "workspace:*",
     "@common/configs": "workspace:*",
     "@rslib/core": "0.10.0",
     "typescript": "^5.7.2",

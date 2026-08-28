@@ -1,12 +1,12 @@
-# @ui-tars/cli
+# @zhima/cli
 
 ## 1.2.3
 
 ### Patch Changes
 
-- @ui-tars/sdk@1.2.3
-- @ui-tars/operator-adb@1.2.3
-- @ui-tars/operator-nut-js@1.2.3
+- @zhima/sdk@1.2.3
+- @zhima/operator-adb@1.2.3
+- @zhima/operator-nut-js@1.2.3
 
 ## 1.2.2
 
@@ -14,17 +14,17 @@
 
 - a85ef50: chore: publish
 - Updated dependencies [a85ef50]
-  - @ui-tars/operator-nut-js@1.2.2
-  - @ui-tars/operator-adb@1.2.2
-  - @ui-tars/sdk@1.2.2
+  - @zhima/operator-nut-js@1.2.2
+  - @zhima/operator-adb@1.2.2
+  - @zhima/sdk@1.2.2
 
 ## 1.2.2-beta.3
 
 ### Patch Changes
 
-- @ui-tars/operator-adb@1.2.2-beta.3
-- @ui-tars/operator-nut-js@1.2.2-beta.3
-- @ui-tars/sdk@1.2.2-beta.3
+- @zhima/operator-adb@1.2.2-beta.3
+- @zhima/operator-nut-js@1.2.2-beta.3
+- @zhima/sdk@1.2.2-beta.3
 
 ## 1.2.2-beta.2
 
@@ -32,41 +32,41 @@
 
 - chore: publish
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.2-beta.2
-  - @ui-tars/operator-adb@1.2.2-beta.2
-  - @ui-tars/sdk@1.2.2-beta.2
+  - @zhima/operator-nut-js@1.2.2-beta.2
+  - @zhima/operator-adb@1.2.2-beta.2
+  - @zhima/sdk@1.2.2-beta.2
 
 ## 1.2.2-beta.1
 
 ### Patch Changes
 
-- @ui-tars/operator-adb@1.2.2-beta.1
-- @ui-tars/operator-nut-js@1.2.2-beta.1
-- @ui-tars/sdk@1.2.2-beta.1
+- @zhima/operator-adb@1.2.2-beta.1
+- @zhima/operator-nut-js@1.2.2-beta.1
+- @zhima/sdk@1.2.2-beta.1
 
 ## 1.2.2-beta.0
 
 ### Patch Changes
 
-- @ui-tars/operator-adb@1.2.2-beta.0
-- @ui-tars/operator-nut-js@1.2.2-beta.0
-- @ui-tars/sdk@1.2.2-beta.0
+- @zhima/operator-adb@1.2.2-beta.0
+- @zhima/operator-nut-js@1.2.2-beta.0
+- @zhima/sdk@1.2.2-beta.0
 
 ## 1.2.1
 
 ### Patch Changes
 
-- @ui-tars/operator-adb@1.2.1
-- @ui-tars/operator-nut-js@1.2.1
-- @ui-tars/sdk@1.2.1
+- @zhima/operator-adb@1.2.1
+- @zhima/operator-nut-js@1.2.1
+- @zhima/sdk@1.2.1
 
 ## 1.2.1-beta.0
 
 ### Patch Changes
 
-- @ui-tars/operator-adb@1.2.1-beta.0
-- @ui-tars/operator-nut-js@1.2.1-beta.0
-- @ui-tars/sdk@1.2.1-beta.0
+- @zhima/operator-adb@1.2.1-beta.0
+- @zhima/operator-nut-js@1.2.1-beta.0
+- @zhima/sdk@1.2.1-beta.0
 
 ## 1.2.0
 
@@ -102,9 +102,9 @@
 - Updated dependencies [d80285d]
 - Updated dependencies [5fb2821]
 - Updated dependencies [d169e46]
-  - @ui-tars/operator-nut-js@1.2.0
-  - @ui-tars/sdk@1.2.0
-  - @ui-tars/operator-adb@1.2.0
+  - @zhima/operator-nut-js@1.2.0
+  - @zhima/sdk@1.2.0
+  - @zhima/operator-adb@1.2.0
 
 ## 1.2.0-beta.24
 
@@ -112,9 +112,9 @@
 
 - chore: publish adb
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.24
-  - @ui-tars/operator-adb@1.2.0-beta.24
-  - @ui-tars/sdk@1.2.0-beta.24
+  - @zhima/operator-nut-js@1.2.0-beta.24
+  - @zhima/operator-adb@1.2.0-beta.24
+  - @zhima/sdk@1.2.0-beta.24
 
 ## 1.2.0-beta.23
 
@@ -122,9 +122,9 @@
 
 - feat: ui-tars add adb operator
 - Updated dependencies
-  - @ui-tars/operator-adb@1.2.0-beta.23
-  - @ui-tars/operator-nut-js@1.2.0-beta.23
-  - @ui-tars/sdk@1.2.0-beta.23
+  - @zhima/operator-adb@1.2.0-beta.23
+  - @zhima/operator-nut-js@1.2.0-beta.23
+  - @zhima/sdk@1.2.0-beta.23
 
 ## 1.2.0-beta.22
 
@@ -132,8 +132,8 @@
 
 - chore: changeset
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.22
-  - @ui-tars/sdk@1.2.0-beta.22
+  - @zhima/operator-nut-js@1.2.0-beta.22
+  - @zhima/sdk@1.2.0-beta.22
 
 ## 1.2.0-beta.21
 
@@ -141,8 +141,8 @@
 
 - fix: test
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.21
-  - @ui-tars/sdk@1.2.0-beta.21
+  - @zhima/operator-nut-js@1.2.0-beta.21
+  - @zhima/sdk@1.2.0-beta.21
 
 ## 1.2.0-beta.20
 
@@ -150,8 +150,8 @@
 
 - feat(sdk): action parser add start_coords, end_coords
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.20
-  - @ui-tars/sdk@1.2.0-beta.20
+  - @zhima/operator-nut-js@1.2.0-beta.20
+  - @zhima/sdk@1.2.0-beta.20
 
 ## 1.2.0-beta.19
 
@@ -159,8 +159,8 @@
 
 - chore: screenshot bug
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.19
-  - @ui-tars/sdk@1.2.0-beta.19
+  - @zhima/operator-nut-js@1.2.0-beta.19
+  - @zhima/sdk@1.2.0-beta.19
 
 ## 1.2.0-beta.18
 
@@ -168,8 +168,8 @@
 
 - refactor: operator no need return width and height
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.18
-  - @ui-tars/sdk@1.2.0-beta.18
+  - @zhima/operator-nut-js@1.2.0-beta.18
+  - @zhima/sdk@1.2.0-beta.18
 
 ## 1.2.0-beta.17
 
@@ -177,8 +177,8 @@
 
 - chore: same version
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.17
-  - @ui-tars/sdk@1.2.0-beta.17
+  - @zhima/operator-nut-js@1.2.0-beta.17
+  - @zhima/sdk@1.2.0-beta.17
 
 ## 1.2.0-beta.16
 
@@ -186,24 +186,24 @@
 
 - feat: sdk factors version
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.15
-  - @ui-tars/sdk@1.2.0-beta.16
+  - @zhima/operator-nut-js@1.2.0-beta.15
+  - @zhima/sdk@1.2.0-beta.16
 
 ## 1.2.0-beta.15
 
 ### Patch Changes
 
 - Updated dependencies
-  - @ui-tars/sdk@1.2.0-beta.15
-  - @ui-tars/operator-nut-js@1.2.0-beta.14
+  - @zhima/sdk@1.2.0-beta.15
+  - @zhima/operator-nut-js@1.2.0-beta.14
 
 ## 1.2.0-beta.14
 
 ### Patch Changes
 
 - Updated dependencies
-  - @ui-tars/sdk@1.2.0-beta.13
-  - @ui-tars/operator-nut-js@1.2.0-beta.13
+  - @zhima/sdk@1.2.0-beta.13
+  - @zhima/operator-nut-js@1.2.0-beta.13
 
 ## 1.2.0-beta.13
 
@@ -211,16 +211,16 @@
 
 - chore: open-operator
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.12
-  - @ui-tars/sdk@1.2.0-beta.12
+  - @zhima/operator-nut-js@1.2.0-beta.12
+  - @zhima/sdk@1.2.0-beta.12
 
 ## 1.2.0-beta.12
 
 ### Patch Changes
 
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.11
-  - @ui-tars/sdk@1.2.0-beta.11
+  - @zhima/operator-nut-js@1.2.0-beta.11
+  - @zhima/sdk@1.2.0-beta.11
 
 ## 1.2.0-beta.11
 
@@ -234,8 +234,8 @@
 
 - update
 - Updated dependencies
-  - @ui-tars/sdk@1.2.0-beta.10
-  - @ui-tars/operator-nut-js@1.2.0-beta.10
+  - @zhima/sdk@1.2.0-beta.10
+  - @zhima/operator-nut-js@1.2.0-beta.10
 
 ## 1.2.0-beta.9
 
@@ -243,8 +243,8 @@
 
 - bump: sdk support
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.9
-  - @ui-tars/sdk@1.2.0-beta.9
+  - @zhima/operator-nut-js@1.2.0-beta.9
+  - @zhima/sdk@1.2.0-beta.9
 
 ## 1.2.0-beta.8
 
@@ -252,16 +252,16 @@
 
 - fix: useConfig to useContext
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.8
-  - @ui-tars/sdk@1.2.0-beta.8
+  - @zhima/operator-nut-js@1.2.0-beta.8
+  - @zhima/sdk@1.2.0-beta.8
 
 ## 1.2.0-beta.7
 
 ### Patch Changes
 
 - Updated dependencies
-  - @ui-tars/sdk@1.2.0-beta.7
-  - @ui-tars/operator-nut-js@1.2.0-beta.7
+  - @zhima/sdk@1.2.0-beta.7
+  - @zhima/operator-nut-js@1.2.0-beta.7
 
 ## 1.2.0-beta.6
 
@@ -269,8 +269,8 @@
 
 - feat: new sdk
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.6
-  - @ui-tars/sdk@1.2.0-beta.6
+  - @zhima/operator-nut-js@1.2.0-beta.6
+  - @zhima/sdk@1.2.0-beta.6
 
 ## 1.2.0-beta.5
 
@@ -278,8 +278,8 @@
 
 - chore: update sdk
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.5
-  - @ui-tars/sdk@1.2.0-beta.5
+  - @zhima/operator-nut-js@1.2.0-beta.5
+  - @zhima/sdk@1.2.0-beta.5
 
 ## 1.2.0-beta.4
 
@@ -287,8 +287,8 @@
 
 - chore: new version
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.4
-  - @ui-tars/sdk@1.2.0-beta.4
+  - @zhima/operator-nut-js@1.2.0-beta.4
+  - @zhima/sdk@1.2.0-beta.4
 
 ## 1.2.0-beta.3
 
@@ -296,8 +296,8 @@
 
 - chore: add retry
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.3
-  - @ui-tars/sdk@1.2.0-beta.3
+  - @zhima/operator-nut-js@1.2.0-beta.3
+  - @zhima/sdk@1.2.0-beta.3
 
 ## 1.2.0-beta.2
 
@@ -305,8 +305,8 @@
 
 - chore: publish
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.2
-  - @ui-tars/sdk@1.2.0-beta.2
+  - @zhima/operator-nut-js@1.2.0-beta.2
+  - @zhima/sdk@1.2.0-beta.2
 
 ## 1.2.0-beta.1
 
@@ -314,8 +314,8 @@
 
 - chore: remove unused code
 - Updated dependencies
-  - @ui-tars/operator-nut-js@1.2.0-beta.1
-  - @ui-tars/sdk@1.2.0-beta.1
+  - @zhima/operator-nut-js@1.2.0-beta.1
+  - @zhima/sdk@1.2.0-beta.1
 
 ## 1.2.0-beta.0
 
@@ -326,5 +326,5 @@
 ### Patch Changes
 
 - Updated dependencies [a062e03]
-  - @ui-tars/operator-nut-js@1.2.0-beta.0
-  - @ui-tars/sdk@1.2.0-beta.0
+  - @zhima/operator-nut-js@1.2.0-beta.0
+  - @zhima/sdk@1.2.0-beta.0

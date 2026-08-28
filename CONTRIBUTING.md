@@ -41,7 +41,7 @@
   - [Vite](https://vitejs.dev/)
 - 状态管理与通信：
   - [Zustand](https://zustand.docs.pmnd.rs/)
-  - [@ui-tars/electron-ipc](https://github.com/yingmingfeng/zhima/tree/main/packages/ui-tars/electron-ipc)
+  - [@zhima/electron-ipc](https://github.com/yingmingfeng/zhima/tree/main/packages/ui-tars/electron-ipc)
 - 自动化框架/工具包：
   - [nut.js](https://nutjs.dev/)
 - 测试框架：

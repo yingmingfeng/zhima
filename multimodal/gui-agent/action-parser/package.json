@@ -33,7 +33,7 @@
     "registry": "https://registry.npmjs.org"
   },
   "dependencies": {
-    "@ui-tars/shared": "1.2.3",
+    "@zhima/shared": "1.2.3",
     "@gui-agent/shared": "workspace:*",
     "@agent-infra/logger": "0.0.2-beta.2",
     "fast-xml-parser": "^4.3.2",

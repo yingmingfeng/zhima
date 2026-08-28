@@ -1,4 +1,4 @@
-# @ui-tars/utio
+# @zhima/utio
 
 ## 1.2.3
 

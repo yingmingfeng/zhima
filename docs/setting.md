@@ -1,11 +1,11 @@
-# 设置配置指南
+﻿# 设置配置指南
 
 ## 概述
 
 **芝麻 (Zhima)** 通过其设置系统提供了对应用程序行为的细粒度控制。本文档提供了关于配置选项、预设管理和操作最佳实践的全面指南。
 
 <p align="center">
-  <img src="../apps/ui-tars/images/settings/setting.png" alt="Settings Interface Overview" width="650">
+  <img src="../apps/zhima/images/settings/setting.png" alt="Settings Interface Overview" width="650">
   <br>
   <em>主设置界面</em>
 </p>
@@ -83,7 +83,7 @@
 完成配置后，您可以点击 `检查模型可用性` 按钮来验证 VLM 模型是否可用。
 
 <p align="center">
-  <img src="../apps/ui-tars/images/settings/check_model.png" alt="check_model" width="650">
+  <img src="../apps/zhima/images/settings/check_model.png" alt="check_model" width="650">
   <br>
   <em>主设置界面</em>
 </p>
@@ -193,14 +193,14 @@ VLM Model Name: doubao-1.5-ui-tars-250328
 定义用于上传报告文件的 Base URL。 默认情况下，当未设置此选项时，用户点击 **导出为 HTML**（也称为 <b>分享</b>），将自动触发报告文件的下载：
 
 <p align="center">
-  <img src="../apps/ui-tars/images/download-report.png" alt="Download report" width="400">
+  <img src="../apps/zhima/images/download-report.png" alt="Download report" width="400">
   <br>
 </p>
 
 设置后，当用户点击 **导出为 HTML** 时，将弹出一个窗口询问您。如果您选择"**是，继续！**"，报告文件将直接上传。等待几秒后，将出现提示通知，告知您报告链接已复制到剪贴板。
 
 <p align="center">
-  <img src="../apps/ui-tars/images/upload-report-success.png" alt="Download report" width="800">
+  <img src="../apps/zhima/images/upload-report-success.png" alt="Download report" width="800">
   <br>
 </p>
 
@@ -244,7 +244,7 @@ VLM Model Name: doubao-1.5-ui-tars-250328
 **UTIO**（_UI-TARS Insights and Observation_）是一个数据收集机制，用于洞察 **芝麻 (Zhima)**（_介绍于 [#60](https://github.com/yingmingfeng/zhima/pull/60)_）。 UTIO 的设计也与分享相关。整体流程如下：
 
 <p align="center">
-  <img src="../apps/ui-tars/images/utio-flow.png" alt="UTIO Flow" width="800">
+  <img src="../apps/zhima/images/utio-flow.png" alt="UTIO Flow" width="800">
   <br>
   <em>UTIO 流程图</em>
 </p>

@@ -9,7 +9,7 @@ import { Operator } from '../src/types';
 import { Jimp } from 'jimp';
 import { useContext } from '../src/context/useContext';
 import { GUIAgentData, StatusEnum } from '../src';
-import { IMAGE_PLACEHOLDER } from '@ui-tars/shared/constants';
+import { IMAGE_PLACEHOLDER } from '@zhima/shared/constants';
 import { UITarsModel } from '../src/Model';
 import { mockOpenAIResponse } from './testKits/index';
 import { DEFAULT_FACTORS } from '../src/constants';

@@ -5,7 +5,7 @@
  */
 import { LocalBrowser } from '@agent-infra/browser';
 import { ConsoleLogger, Logger, defaultLogger } from '@agent-infra/logger';
-import { Operator, parseBoxToScreenCoords } from '@ui-tars/sdk/core';
+import { Operator, parseBoxToScreenCoords } from '@zhima/sdk/core';
 import {
   Page,
   KeyInput,
@@ -17,7 +17,7 @@ import type {
   ScreenshotOutput,
   ExecuteParams,
   ExecuteOutput,
-} from '@ui-tars/sdk/core';
+} from '@zhima/sdk/core';
 import { BrowserOperatorOptions, SearchEngine } from './types';
 import { UIHelper } from './ui-helper';
 import { BrowserFinder } from '@agent-infra/browser';

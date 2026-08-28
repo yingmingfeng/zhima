@@ -39,7 +39,7 @@ scripts/merge-yml/*.yml
 *.tmp.*
 
 # Windows pwsh 沙箱的内置 node.exe（本地下载、不入库；见根 README「构建打包」）
-apps/ui-tars/resources/bin/
+apps/zhima/resources/bin/
 
 #deepseek-harness-plugins
 deepseek-harness-plugins

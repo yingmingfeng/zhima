@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Bytedance, Inc. and its affiliates.
  * SPDX-License-Identifier: Apache-2.0
  */
-import { type ExecuteParams } from '@ui-tars/sdk/core';
+import { type ExecuteParams } from '@zhima/sdk/core';
 import {
   Button,
   Key,
@@ -17,7 +17,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NutJSOperator } from '../src/index';
 
-vi.mock('@ui-tars/sdk/core', async (importOriginal) => {
+vi.mock('@zhima/sdk/core', async (importOriginal) => {
   const actual: any = await importOriginal();
   return {
     useContext: vi.fn().mockReturnValue({

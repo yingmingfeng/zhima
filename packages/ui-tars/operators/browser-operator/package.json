@@ -1,5 +1,5 @@
 {
-  "name": "@ui-tars/operator-browser",
+  "name": "@zhima/operator-browser",
   "description": "Native-browser operator for UI-TARS",
   "version": "1.2.3",
   "repository": {
@@ -37,12 +37,12 @@
   "dependencies": {
     "@agent-infra/browser": "workspace:*",
     "@agent-infra/logger": "workspace:*",
-    "@ui-tars/sdk": "workspace:*"
+    "@zhima/sdk": "workspace:*"
   },
   "devDependencies": {
     "node-notifier": "10.0.1",
     "@agent-infra/browser": "workspace:*",
-    "@ui-tars/sdk": "workspace:*",
+    "@zhima/sdk": "workspace:*",
     "@common/configs": "workspace:*",
     "@rslib/core": "0.10.0",
     "typescript": "^5.7.2",

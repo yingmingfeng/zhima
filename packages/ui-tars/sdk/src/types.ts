@@ -10,7 +10,7 @@ import {
   ScreenshotResult,
   GUIAgentError,
   StatusEnum,
-} from '@ui-tars/shared/types';
+} from '@zhima/shared/types';
 
 import { BaseOperator, BaseModel } from './base';
 import { UITarsModel } from './Model';

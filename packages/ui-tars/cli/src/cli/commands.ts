@@ -8,11 +8,11 @@ import { version } from '../../package.json';
 import { CliOptions, start } from './start';
 
 export const run = () => {
-  program.name('ui-tars').usage('<command> [options]').version(version);
+  program.name('zhima').usage('<command> [options]').version(version);
 
   program
     .command('start')
-    .description('starting the ui-tars agent...')
+    .description('starting the zhima agent...')
     .option('-p, --presets <url>', 'Model Config Presets')
     .option('-t, --target <target>', 'The target operator')
     .option('-q, --query <query>', "Use's query")

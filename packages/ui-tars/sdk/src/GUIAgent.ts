@@ -11,9 +11,9 @@ import {
   ErrorStatusEnum,
   GUIAgentError,
   Message,
-} from '@ui-tars/shared/types';
-import { IMAGE_PLACEHOLDER, MAX_LOOP_COUNT } from '@ui-tars/shared/constants';
-import { sleep } from '@ui-tars/shared/utils';
+} from '@zhima/shared/types';
+import { IMAGE_PLACEHOLDER, MAX_LOOP_COUNT } from '@zhima/shared/constants';
+import { sleep } from '@zhima/shared/utils';
 import asyncRetry from 'async-retry';
 import { Jimp } from 'jimp';
 import { v4 as uuidv4 } from 'uuid';

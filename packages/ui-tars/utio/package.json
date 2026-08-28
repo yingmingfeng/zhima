@@ -1,5 +1,5 @@
 {
-  "name": "@ui-tars/utio",
+  "name": "@zhima/utio",
   "version": "1.2.3",
   "description": "UTIO (UI-TARS Insights and Observation)",
   "main": "./dist/index.js",

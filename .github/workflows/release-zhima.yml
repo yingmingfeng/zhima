@@ -65,14 +65,14 @@ jobs:
         env:
           NODE_ENV: production
         run: |
-          cd apps/ui-tars
+          cd apps/zhima
           npm run clean
           npm run typecheck
           npx electron-vite build
 
       - name: Package
         run: |
-          cd apps/ui-tars
+          cd apps/zhima
           npx electron-forge make --arch=${{ matrix.arch }}
 
       - name: Upload artifacts
@@ -80,10 +80,10 @@ jobs:
         with:
           name: installer-${{ matrix.platform }}-${{ matrix.arch }}
           path: |
-            apps/ui-tars/out/**/*Setup*.exe
-            apps/ui-tars/out/**/*.dmg
-            apps/ui-tars/out/**/*.zip
-            apps/ui-tars/out/**/latest*.yml
+            apps/zhima/out/**/*Setup*.exe
+            apps/zhima/out/**/*.dmg
+            apps/zhima/out/**/*.zip
+            apps/zhima/out/**/latest*.yml
           if-no-files-found: error
 
   release:
@@ -103,7 +103,7 @@ jobs:
 
       - name: Read version
         run: |
-          VERSION=$(node -p "require('./apps/ui-tars/package.json').version")
+          VERSION=$(node -p "require('./apps/zhima/package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Create Release

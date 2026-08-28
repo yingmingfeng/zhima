@@ -1,5 +1,5 @@
 {
-  "name": "@ui-tars/operator-nut-js",
+  "name": "@zhima/operator-nut-js",
   "version": "1.2.3",
   "description": "Operator Nut JS SDK for UI-TARS",
   "repository": {
@@ -35,16 +35,16 @@
     "registry": "https://registry.npmjs.org"
   },
   "dependencies": {
-    "@ui-tars/shared": "workspace:*",
+    "@zhima/shared": "workspace:*",
     "big.js": "^6.2.2",
     "jimp": "1.6.0",
     "@computer-use/nut-js": "^4.2.0"
   },
   "peerDependencies": {
-    "@ui-tars/sdk": "workspace:*"
+    "@zhima/sdk": "workspace:*"
   },
   "devDependencies": {
-    "@ui-tars/sdk": "workspace:*",
+    "@zhima/sdk": "workspace:*",
     "@common/configs": "workspace:*",
     "@rslib/core": "0.10.0",
     "typescript": "^5.7.2",

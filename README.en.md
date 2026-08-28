@@ -1,4 +1,4 @@
-<picture>
+﻿<picture>
   <img alt="Zhima Banner" src="./images/tars.png">
 </picture>
 
@@ -77,10 +77,10 @@ Advances in AI model capabilities are not a threat to Zhima — they are leverag
 pnpm install
 
 # Start development mode (hot reload)
-cd apps/ui-tars && pnpm dev
+cd apps/zhima && pnpm dev
 
 # Type check
-cd apps/ui-tars && pnpm typecheck
+cd apps/zhima && pnpm typecheck
 
 # Lint
 pnpm lint
@@ -90,8 +90,8 @@ pnpm lint
 
 ```bash
 # Production build + package installers
-cd apps/ui-tars && pnpm build
-cd apps/ui-tars && pnpm make
+cd apps/zhima && pnpm build
+cd apps/zhima && pnpm make
 ```
 
 > 📖 See [Quick Start](./docs/quick-start.md) for detailed setup instructions.

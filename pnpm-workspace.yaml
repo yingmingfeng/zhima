@@ -1,7 +1,7 @@
 packages:
   - 'apps/*'
   - 'apps/agent-tars/src/*'
-  - 'apps/ui-tars/src/*'
+  - 'apps/zhima/src/*'
   - 'packages/dsh'
   - 'packages/ui-tars/**'
   - '!packages/agent-infra/**'
@@ -58,7 +58,7 @@ overrides:
   '@electron-forge/shared-types': 7.8.0
   builder-util-runtime: 9.7.0
   # 统一 commander 到 DSH 运行时声明的版本（@deepseek-ai/dsh-web-app、dsh、dsh-headless 均 ^15）。
-  # 否则 @electron/asar（构建期工具，仅 CLI 用 commander@5）会占住 apps/ui-tars/node_modules 顶槽
+  # 否则 @electron/asar（构建期工具，仅 CLI 用 commander@5）会占住 apps/zhima/node_modules 顶槽
   # commander@5，导致打包时 @deepseek-ai/* 解析到 5.1.0（无 addHelpText）而报错，dev 却解析仓库
   # 根 commander@15。override 让 dev 与打包的解析一致；DSH 升 commander 大版本时改这一行即可。
   commander: ^15.0.0

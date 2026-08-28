@@ -1,10 +1,10 @@
-# @ui-tars/operator-adb
+# @zhima/operator-adb
 
 ## 1.2.3
 
 ### Patch Changes
 
-- @ui-tars/shared@1.2.3
+- @zhima/shared@1.2.3
 
 ## 1.2.2
 
@@ -12,13 +12,13 @@
 
 - a85ef50: chore: publish
 - Updated dependencies [a85ef50]
-  - @ui-tars/shared@1.2.2
+  - @zhima/shared@1.2.2
 
 ## 1.2.2-beta.3
 
 ### Patch Changes
 
-- @ui-tars/shared@1.2.2-beta.3
+- @zhima/shared@1.2.2-beta.3
 
 ## 1.2.2-beta.2
 
@@ -26,31 +26,31 @@
 
 - chore: publish
 - Updated dependencies
-  - @ui-tars/shared@1.2.2-beta.2
+  - @zhima/shared@1.2.2-beta.2
 
 ## 1.2.2-beta.1
 
 ### Patch Changes
 
-- @ui-tars/shared@1.2.2-beta.1
+- @zhima/shared@1.2.2-beta.1
 
 ## 1.2.2-beta.0
 
 ### Patch Changes
 
-- @ui-tars/shared@1.2.2-beta.0
+- @zhima/shared@1.2.2-beta.0
 
 ## 1.2.1
 
 ### Patch Changes
 
-- @ui-tars/shared@1.2.1
+- @zhima/shared@1.2.1
 
 ## 1.2.1-beta.0
 
 ### Patch Changes
 
-- @ui-tars/shared@1.2.1-beta.0
+- @zhima/shared@1.2.1-beta.0
 
 ## 1.2.0
 
@@ -71,7 +71,7 @@
 - Updated dependencies [2b9c631]
 - Updated dependencies [d80285d]
 - Updated dependencies [5fb2821]
-  - @ui-tars/shared@1.2.0
+  - @zhima/shared@1.2.0
 
 ## 1.2.0-beta.24
 
@@ -79,7 +79,7 @@
 
 - chore: publish adb
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.24
+  - @zhima/shared@1.2.0-beta.24
 
 ## 1.2.0-beta.23
 
@@ -87,4 +87,4 @@
 
 - feat: ui-tars add adb operator
 - Updated dependencies
-  - @ui-tars/shared@1.2.0-beta.23
+  - @zhima/shared@1.2.0-beta.23

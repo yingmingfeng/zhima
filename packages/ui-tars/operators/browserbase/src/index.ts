@@ -8,7 +8,7 @@ import {
   type ExecuteParams,
   type ExecuteOutput,
   StatusEnum,
-} from '@ui-tars/sdk/core';
+} from '@zhima/sdk/core';
 import { Stagehand, ConstructorParams } from '@browserbasehq/stagehand';
 
 export class BrowserbaseOperator extends Operator {

@@ -4,8 +4,8 @@
   "commit": false,
   "fixed": [
     [
-      "@ui-tars/*",
-      "!@ui-tars/visualizer"
+      "@zhima/*",
+      "!@zhima/visualizer"
     ],
     [
       "@agent-infra/mcp-*"
@@ -16,8 +16,8 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "ui-tars-desktop",
-    "ui-tars-desktop-renderer",
+    "zhima",
+    "zhima-renderer",
     "@common/*",
     "@agent-infra/mcp-benchmark"
   ]

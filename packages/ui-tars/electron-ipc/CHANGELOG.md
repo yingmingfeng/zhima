@@ -1,4 +1,4 @@
-# @ui-tars/electron-ipc
+# @zhima/electron-ipc
 
 ## 1.2.3
 

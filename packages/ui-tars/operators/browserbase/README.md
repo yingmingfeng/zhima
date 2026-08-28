@@ -1,4 +1,4 @@
-# @ui-tars/operator-browserbase
+# @zhima/operator-browserbase
 
 Operator Browserbase SDK for UI-TARS.
 

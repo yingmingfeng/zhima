@@ -1,4 +1,4 @@
-# 预设管理指南
+﻿# 预设管理指南
 
 > [!IMPORTANT]  
 > 目前，**芝麻 (Zhima)** 不直接提供服务端能力，因此我们暂未为开源社区提供预设。欢迎社区开发者在此处贡献你的预设：[examples/presets](../examples/presets/)。
@@ -39,9 +39,9 @@ graph TD
 
 | 功能 | 截图 |
 | --- | ---|
-| 打开设置 |<img width="320" alt="image" src="../apps/ui-tars/images/preset/import-preset-from-local.png" /> |
-| 导入成功 | <img width="320" alt="image" src="../apps/ui-tars/images/preset/local_success.png" />|
-| 异常：无效内容 | <img width="320" alt="image" src="../apps/ui-tars/images/preset/local_error.png" /> |
+| 打开设置 |<img width="320" alt="image" src="../apps/zhima/images/preset/import-preset-from-local.png" /> |
+| 导入成功 | <img width="320" alt="image" src="../apps/zhima/images/preset/local_success.png" />|
+| 异常：无效内容 | <img width="320" alt="image" src="../apps/zhima/images/preset/local_error.png" /> |
 
 
 <br>
@@ -53,8 +53,8 @@ graph TD
 
 | 功能 | 截图 |
 | --- | ---|
-| 打开设置 | <img width="320" alt="image" src="../apps/ui-tars/images/preset/import-preset-from-local.png" /> |
-| 导入成功（默认） | <img width="320" alt="image" src="../apps/ui-tars/images/preset/remote_success.png" /> |
+| 打开设置 | <img width="320" alt="image" src="../apps/zhima/images/preset/import-preset-from-local.png" /> |
+| 导入成功（默认） | <img width="320" alt="image" src="../apps/zhima/images/preset/remote_success.png" /> |
 
 
 <br>

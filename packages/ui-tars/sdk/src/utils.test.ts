@@ -11,7 +11,7 @@ import {
   toVlmModelFormat,
 } from './utils';
 import { DEFAULT_FACTORS } from './constants';
-import { IMAGE_PLACEHOLDER, MAX_IMAGE_LENGTH } from '@ui-tars/shared/constants';
+import { IMAGE_PLACEHOLDER, MAX_IMAGE_LENGTH } from '@zhima/shared/constants';
 
 describe('parseBoxToScreenCoords', () => {
   it('should correctly parse single point coordinates', () => {

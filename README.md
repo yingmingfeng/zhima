@@ -1,4 +1,4 @@
-<picture>
+﻿<picture>
   <img alt="芝麻 Banner" src="./images/tars.png">
 </picture>
 
@@ -77,10 +77,10 @@ AI 模型能力的提升对芝麻不是威胁，而是杠杆。模型越强，�
 pnpm install
 
 # 启动开发模式（热更新）
-cd apps/ui-tars && pnpm dev
+cd apps/zhima && pnpm dev
 
 # 类型检查
-cd apps/ui-tars && pnpm typecheck
+cd apps/zhima && pnpm typecheck
 
 # Lint
 pnpm lint
@@ -90,11 +90,11 @@ pnpm lint
 
 ```bash
 # 生产构建 + 打包安装包
-cd apps/ui-tars && pnpm build
-cd apps/ui-tars && pnpm make
+cd apps/zhima && pnpm build
+cd apps/zhima && pnpm make
 ```
 
-> **Windows 需自行下载内置 node.exe**：DSH 的 Windows pwsh 沙箱（read/write 模式）改用内置真实 node 执行 ACL runner，替代 Electron「假 node」（修复 `ELECTRON_RUN_AS_NODE` 的转圈与生产置顶问题）。构建/开发前将 **Node 22.x win32-x64** 二进制放到 `apps/ui-tars/resources/bin/node.exe`（该目录 git 已忽略、仅本地存在）。mac/linux 无需此文件——该沙箱为 Windows 限定。
+> **Windows 需自行下载内置 node.exe**：DSH 的 Windows pwsh 沙箱（read/write 模式）改用内置真实 node 执行 ACL runner，替代 Electron「假 node」（修复 `ELECTRON_RUN_AS_NODE` 的转圈与生产置顶问题）。构建/开发前将 **Node 22.x win32-x64** 二进制放到 `apps/zhima/resources/bin/node.exe`（该目录 git 已忽略、仅本地存在）。mac/linux 无需此文件——该沙箱为 Windows 限定。
 
 > 📖 详细使用说明请查看 [快速开始](./docs/quick-start.md)。
 
