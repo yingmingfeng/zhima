@@ -42,22 +42,16 @@ import {
   IPC_DSH_OPEN,
   IPC_DSH_GET_STATE,
   IPC_DSH_STATE_CHANGED,
-  IPC_DSH_PROFILE_SWITCH_CONFIRM,
   IPC_DSH_MODE_SWITCH_CONFIRM,
-  IPC_DSH_PROFILE_CREATE_CONFIRM,
-  IPC_DSH_SHELL_MODE_SWITCH_CONFIRM,
   IPC_DSH_PROFILE_CHANGED_RESTART,
 } from '../shared/ipc-channels';
 import {
   disposeDsh,
   getDshState,
-  handleProfileCreate,
   initDshFacade,
   openDshWindow,
   restartDshSession,
   selectDshMode,
-  selectDshProfile,
-  selectDshShellMode,
   subscribeDshState,
 } from './dsh';
 
@@ -266,23 +260,6 @@ const registerIPCHandlers = (
   });
 
   ipcMain.handle(
-    IPC_DSH_PROFILE_SWITCH_CONFIRM,
-    async (_event, payload: { name?: string; confirmed?: boolean }) => {
-      try {
-        if (payload?.confirmed && payload.name) {
-          await selectDshProfile(payload.name);
-        }
-        return { ok: true as const };
-      } catch (cause) {
-        logger.error('[dsh] profile switch failed:', cause);
-        return {
-          ok: false as const,
-          error: cause instanceof Error ? cause.message : String(cause),
-        };
-      }
-    },
-  );
-  ipcMain.handle(
     IPC_DSH_MODE_SWITCH_CONFIRM,
     async (
       _event,
@@ -299,44 +276,6 @@ const registerIPCHandlers = (
         return { ok: true as const };
       } catch (cause) {
         logger.error('[dsh] mode switch failed:', cause);
-        return {
-          ok: false as const,
-          error: cause instanceof Error ? cause.message : String(cause),
-        };
-      }
-    },
-  );
-  ipcMain.handle(
-    IPC_DSH_SHELL_MODE_SWITCH_CONFIRM,
-    async (
-      _event,
-      payload: { mode?: 'compatibility' | 'advanced'; confirmed?: boolean },
-    ) => {
-      try {
-        if (payload?.confirmed && payload.mode) {
-          await selectDshShellMode(payload.mode);
-        }
-        return { ok: true as const };
-      } catch (cause) {
-        logger.error('[dsh] shell mode switch failed:', cause);
-        return {
-          ok: false as const,
-          error: cause instanceof Error ? cause.message : String(cause),
-        };
-      }
-    },
-  );
-  ipcMain.handle(
-    IPC_DSH_PROFILE_CREATE_CONFIRM,
-    async (_event, payload: { name?: string; confirmed?: boolean }) => {
-      try {
-        await handleProfileCreate(
-          payload?.name ?? '',
-          payload?.confirmed ?? false,
-        );
-        return { ok: true as const };
-      } catch (cause) {
-        logger.error('[dsh] profile create failed:', cause);
         return {
           ok: false as const,
           error: cause instanceof Error ? cause.message : String(cause),

@@ -27,15 +27,9 @@ import {
   IPC_DSH_OPEN,
   IPC_DSH_GET_STATE,
   IPC_DSH_STATE_CHANGED,
-  IPC_DSH_PROFILE_SWITCH_REQUEST,
-  IPC_DSH_PROFILE_SWITCH_CONFIRM,
   IPC_DSH_MODE_SWITCH_REQUEST,
   IPC_DSH_MODE_SWITCH_CONFIRM,
   IPC_DSH_TOAST,
-  IPC_DSH_PROFILE_CREATE_REQUEST,
-  IPC_DSH_PROFILE_CREATE_CONFIRM,
-  IPC_DSH_SHELL_MODE_SWITCH_REQUEST,
-  IPC_DSH_SHELL_MODE_SWITCH_CONFIRM,
   IPC_DSH_PROFILE_CHANGED,
   IPC_DSH_PROFILE_CHANGED_RESTART,
 } from '../shared/ipc-channels';
@@ -97,9 +91,6 @@ const electronHandler = {
 /** DSH 运行模式（与主进程 state.ts 保持一致）。 */
 export type DshRunMode = 'builtin' | 'external';
 
-/** DSH 窗口呈现模式（与主进程 state.ts 保持一致）。 */
-export type DshShellMode = 'compatibility' | 'advanced';
-
 /** DSH 门面：渲染进程通过 window.dsh 访问。 */
 const dshApi = {
   /** 打开 DSH 窗口（首次触发懒加载 boot）。 */
@@ -114,22 +105,6 @@ const dshApi = {
       ipcRenderer.off(IPC_DSH_STATE_CHANGED, handler);
     };
   },
-  /** 订阅切换 profile 请求（托盘点选后触发）；payload 含 profile 名与是否已 boot。 */
-  onProfileSwitchRequest: (
-    callback: (payload: { name: string; isBooted: boolean }) => void,
-  ) => {
-    const handler = (
-      _event: unknown,
-      payload: { name: string; isBooted: boolean },
-    ) => callback(payload);
-    ipcRenderer.on(IPC_DSH_PROFILE_SWITCH_REQUEST, handler);
-    return () => {
-      ipcRenderer.off(IPC_DSH_PROFILE_SWITCH_REQUEST, handler);
-    };
-  },
-  /** 确认/取消切换 profile。 */
-  confirmProfileSwitch: (name: string, confirmed: boolean) =>
-    ipcRenderer.invoke(IPC_DSH_PROFILE_SWITCH_CONFIRM, { name, confirmed }),
   /** 订阅切换运行模式请求（托盘点选后触发）；返回退订函数。 */
   onModeSwitchRequest: (
     callback: (payload: {
@@ -165,31 +140,6 @@ const dshApi = {
       ipcRenderer.off(IPC_DSH_TOAST, handler);
     };
   },
-  /** 订阅新建配置文件请求（托盘点击后触发）；返回退订函数。 */
-  onProfileCreateRequest: (callback: () => void) => {
-    const handler = () => callback();
-    ipcRenderer.on(IPC_DSH_PROFILE_CREATE_REQUEST, handler);
-    return () => {
-      ipcRenderer.off(IPC_DSH_PROFILE_CREATE_REQUEST, handler);
-    };
-  },
-  /** 确认/取消新建配置文件。 */
-  confirmProfileCreate: (name: string, confirmed: boolean) =>
-    ipcRenderer.invoke(IPC_DSH_PROFILE_CREATE_CONFIRM, { name, confirmed }),
-  /** 订阅切换窗口呈现模式请求（托盘点选后触发）；返回退订函数。 */
-  onShellModeSwitchRequest: (
-    callback: (payload: { mode: DshShellMode }) => void,
-  ) => {
-    const handler = (_event: unknown, payload: { mode: DshShellMode }) =>
-      callback(payload);
-    ipcRenderer.on(IPC_DSH_SHELL_MODE_SWITCH_REQUEST, handler);
-    return () => {
-      ipcRenderer.off(IPC_DSH_SHELL_MODE_SWITCH_REQUEST, handler);
-    };
-  },
-  /** 确认/取消切换窗口呈现模式。 */
-  confirmShellModeSwitch: (mode: DshShellMode, confirmed: boolean) =>
-    ipcRenderer.invoke(IPC_DSH_SHELL_MODE_SWITCH_CONFIRM, { mode, confirmed }),
   /** 订阅当前 profile 插件变化检测（需重启生效）；返回退订函数。 */
   onProfileChangedRequest: (
     callback: (payload: {

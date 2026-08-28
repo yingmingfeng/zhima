@@ -1,8 +1,11 @@
 /**
  * 托盘触发的 DSH 交互控制器（挂载于主窗口全局）：
- * - 切换 profile：未 boot 时直接切换（无代价）；已 boot 时弹确认 dialog（会重启会话、替换窗口）
- * - 切换运行模式（内置/外部）：统一用模态框 dialog（确认 + 处理中状态）
+ * - 切换运行模式（内置/外部）：统一用模态框 dialog（确认 + 处理中状态）。
+ *   切外部时内置 CLI 保留后台（方案 B），不提示「停止内置」。
+ * - 插件变化检测：弹 diff dialog 引导重启
  * - 结果反馈：主进程广播的进度/成功/失败 toast（loading 会被后续消息 dismiss）
+ *
+ * zhima 固定使用 zhima-desktop profile + 增强模式，无 profile/窗口模式切换。
  */
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -19,16 +22,12 @@ import { Input } from '@/renderer/src/components/ui/input';
 
 type DshRunMode = 'builtin' | 'external';
 
-type DshShellMode = 'compatibility' | 'advanced';
-
 interface PendingModeSwitch {
   mode: DshRunMode;
-  needsStop: boolean;
 }
 
 interface ModeDialogState {
   mode: DshRunMode;
-  needsStop: boolean;
 }
 
 interface ProfileChangeDialog {
@@ -42,46 +41,22 @@ const DEFAULT_PORT = 3080;
 export function DshTrayController() {
   const [modeDialogState, setModeDialogState] =
     useState<ModeDialogState | null>(null);
-  const [profileDialogName, setProfileDialogName] = useState<string | null>(
-    null,
-  );
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [newProfileName, setNewProfileName] = useState('');
   const [portValue, setPortValue] = useState(String(DEFAULT_PORT));
   const [processing, setProcessing] = useState(false);
-  const [shellModeDialog, setShellModeDialog] = useState<DshShellMode | null>(
-    null,
-  );
-  const [shellModeProcessing, setShellModeProcessing] = useState(false);
   const [profileChange, setProfileChange] =
     useState<ProfileChangeDialog | null>(null);
   const [profileChangeProcessing, setProfileChangeProcessing] = useState(false);
   const pendingModeRef = useRef<PendingModeSwitch | null>(null);
 
   useEffect(() => {
-    // profile 切换：未 boot 直接切换，已 boot 弹确认 dialog。
-    const offProfile = window.dsh.onProfileSwitchRequest(
-      ({ name, isBooted }) => {
-        if (!isBooted) {
-          // 未 boot，无代价直接切换，结果 toast 由主进程统一广播。
-          void window.dsh.confirmProfileSwitch(name, true);
-          return;
-        }
-        // 已 boot，需确认（会重启会话、替换窗口）
-        setProfileDialogName(name);
-      },
-    );
+    const offMode = window.dsh.onModeSwitchRequest(({ mode, port }) => {
+      pendingModeRef.current = { mode };
+      setPortValue(String(port ?? DEFAULT_PORT));
+      setProcessing(false);
+      setModeDialogState({ mode });
+    });
 
-    const offMode = window.dsh.onModeSwitchRequest(
-      ({ mode, port, needsStop }) => {
-        pendingModeRef.current = { mode, needsStop: needsStop ?? false };
-        setPortValue(String(port ?? DEFAULT_PORT));
-        setProcessing(false);
-        setModeDialogState({ mode, needsStop: needsStop ?? false });
-      },
-    );
-
-    // loading toast 需主动 dismiss，否则"正在停止内置 DSH…"会一直转。
+    // loading toast 需主动 dismiss，否则"正在切换为外部模式…"会一直转。
     let loadingId: string | number | undefined;
     const offToast = window.dsh.onToast(({ message, type }) => {
       if (type === 'loading') {
@@ -96,16 +71,6 @@ export function DshTrayController() {
       else toast.success(message);
     });
 
-    const offCreate = window.dsh.onProfileCreateRequest(() => {
-      setNewProfileName('');
-      setCreateDialogOpen(true);
-    });
-
-    const offShellMode = window.dsh.onShellModeSwitchRequest(({ mode }) => {
-      setShellModeProcessing(false);
-      setShellModeDialog(mode);
-    });
-
     // 检测到当前选中 profile 插件变化 → 弹 diff dialog 引导重启。
     const offProfileChanged = window.dsh.onProfileChangedRequest((payload) => {
       setProfileChangeProcessing(false);
@@ -117,11 +82,8 @@ export function DshTrayController() {
     });
 
     return () => {
-      offProfile();
       offMode();
       offToast();
-      offCreate();
-      offShellMode();
       offProfileChanged();
     };
   }, []);
@@ -175,57 +137,13 @@ export function DshTrayController() {
   const modeDialogTitle = (): string => {
     if (!modeDialogState) return '';
     if (processing) {
-      if (modeDialogState.mode === 'external') {
-        return modeDialogState.needsStop
-          ? '正在停止内置 DSH…'
-          : '正在切换为外部模式…';
-      }
-      return '正在切换为内置模式…';
+      return modeDialogState.mode === 'external'
+        ? '正在切换为外部模式…'
+        : '正在切换为内置模式…';
     }
     return modeDialogState.mode === 'external'
       ? '连接外部 DSH 实例'
       : '切换到内置模式';
-  };
-
-  const confirmProfileSwitch = (): void => {
-    const name = profileDialogName;
-    setProfileDialogName(null);
-    if (name) void window.dsh.confirmProfileSwitch(name, true);
-  };
-
-  const cancelProfileSwitch = (): void => {
-    const name = profileDialogName;
-    setProfileDialogName(null);
-    if (name) void window.dsh.confirmProfileSwitch(name, false);
-  };
-
-  const confirmProfileCreate = (): void => {
-    const name = newProfileName.trim();
-    setCreateDialogOpen(false);
-    if (name) void window.dsh.confirmProfileCreate(name, true);
-  };
-
-  const cancelProfileCreate = (): void => {
-    setCreateDialogOpen(false);
-    void window.dsh.confirmProfileCreate('', false);
-  };
-
-  const confirmShellModeSwitch = async (): Promise<void> => {
-    const mode = shellModeDialog;
-    if (!mode) return;
-    setShellModeProcessing(true);
-    const result = await window.dsh.confirmShellModeSwitch(mode, true);
-    setShellModeProcessing(false);
-    setShellModeDialog(null);
-    if (result && !result.ok) {
-      toast.error(typeof result.error === 'string' ? result.error : '切换失败');
-    }
-  };
-
-  const cancelShellModeSwitch = (): void => {
-    const mode = shellModeDialog;
-    setShellModeDialog(null);
-    if (mode) void window.dsh.confirmShellModeSwitch(mode, false);
   };
 
   const confirmProfileChangeRestart = async (): Promise<void> => {
@@ -259,9 +177,7 @@ export function DshTrayController() {
           {!modeDialogState ? null : processing ? (
             <p className="text-sm text-muted-foreground">
               {modeDialogState.mode === 'external'
-                ? modeDialogState.needsStop
-                  ? '正在停止内置 DSH，请稍候…'
-                  : '正在切换为外部模式，请稍候…'
+                ? '正在切换为外部模式，请稍候…'
                 : '正在切换为内置模式，请稍候…'}
             </p>
           ) : modeDialogState.mode === 'external' ? (
@@ -281,7 +197,7 @@ export function DshTrayController() {
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
-              确定要切换到内置模式吗？将由 zhima 主进程内置启动 DSH。
+              确定要切换到内置模式吗？将由 zhima 内置启动 DSH。
             </p>
           )}
           <DialogFooter>
@@ -301,103 +217,6 @@ export function DshTrayController() {
                 <Button onClick={() => void confirmModeSwitch()}>确定</Button>
               </>
             )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* profile 切换确认 dialog（仅已 boot 时出现） */}
-      <Dialog
-        open={profileDialogName !== null}
-        onOpenChange={(open) => {
-          if (!open) cancelProfileSwitch();
-        }}
-      >
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>切换配置文件</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            确定要切换到配置文件 &ldquo;{profileDialogName}&rdquo;
-            吗？切换会重启 DSH 会话，当前打开的 DSH 窗口会被替换。
-          </p>
-          <DialogFooter>
-            <Button variant="ghost" onClick={cancelProfileSwitch}>
-              取消
-            </Button>
-            <Button onClick={confirmProfileSwitch}>确定</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* 窗口模式切换确认 dialog（兼容/增强，会重启 DSH 会话并重建窗口） */}
-      <Dialog
-        open={shellModeDialog !== null}
-        onOpenChange={(open) => {
-          if (!shellModeProcessing && !open) cancelShellModeSwitch();
-        }}
-      >
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>切换窗口模式</DialogTitle>
-          </DialogHeader>
-          {shellModeProcessing ? (
-            <p className="text-sm text-muted-foreground">
-              正在切换窗口模式，请稍候…
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              确定要切换到
-              {shellModeDialog === 'advanced' ? '增强模式' : '兼容模式'}吗？
-              切换会重启 DSH 会话并重建窗口（增强模式使用无边框原生材质 +
-              三栏布局）。
-            </p>
-          )}
-          <DialogFooter>
-            {!shellModeProcessing && (
-              <>
-                <Button variant="ghost" onClick={cancelShellModeSwitch}>
-                  取消
-                </Button>
-                <Button onClick={() => void confirmShellModeSwitch()}>
-                  确定
-                </Button>
-              </>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* 新建配置文件 dialog */}
-      <Dialog
-        open={createDialogOpen}
-        onOpenChange={(open) => {
-          if (!open) cancelProfileCreate();
-        }}
-      >
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>创建并启动配置</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            创建一个可用于桌面界面的配置，并在下一次启动时使用。
-          </p>
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">配置名称</label>
-            <Input
-              value={newProfileName}
-              onChange={(e) => setNewProfileName(e.target.value)}
-              placeholder="例如：work"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') confirmProfileCreate();
-              }}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={cancelProfileCreate}>
-              取消
-            </Button>
-            <Button onClick={confirmProfileCreate}>+ 创建并启动</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
