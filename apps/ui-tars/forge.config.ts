@@ -29,17 +29,25 @@ const keepModules = new Set([
   '@computer-use/mac-screen-capture-permissions',
 ]);
 
-// 读取 packages/dsh-plugins/ 下所有内置插件的包名，打包时一并保留。
+// 读取 packages/dsh-overlay/ 下所有内置插件的包名，打包时一并保留。
+// 插件分两层：base-overlay（后端）/ web-overlay（UI），逐个扫描两组子目录。
 // 这些是 workspace 包，pnpm link 不会在打包后保留，必须显式加入白名单。
-const dshPluginsDir = resolve(__dirname, '../../packages/dsh-plugins');
+const dshPluginsDir = resolve(__dirname, '../../packages/dsh-overlay');
+const OVERLAY_GROUPS = ['base-overlay', 'web-overlay'];
 const builtinPluginNames: string[] = [];
-try {
-  for (const entry of readdirSync(dshPluginsDir, { withFileTypes: true })) {
+function collectBuiltinPlugins(groupDir: string): void {
+  let entries: ReturnType<typeof readdirSync>;
+  try {
+    entries = readdirSync(groupDir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     // dsh-better-sidebar 暂未启用且其独立 pnpm-workspace 未链接到根 node_modules，
     // getModuleRoot 找不到它会报 copy 错误；等真正启用并链接后再移除该排除。
     if (entry.name === 'DSH-better-sidebar') continue;
-    const pkgPath = resolve(dshPluginsDir, entry.name, 'package.json');
+    const pkgPath = resolve(groupDir, entry.name, 'package.json');
     try {
       const pluginPkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
       if (pluginPkg.name) {
@@ -48,14 +56,17 @@ try {
       }
     } catch {}
   }
-} catch {}
+}
+for (const group of OVERLAY_GROUPS) {
+  collectBuiltinPlugins(resolve(dshPluginsDir, group));
+}
 // @zhima/dsh 是 DSH 容器：仅 build 期靠 packages/dsh/vendor/*.tgz 让 pnpm 解压出
 // @deepseek-ai/* 到根 node_modules。它 main/exports 为空、运行时不执行任何代码，
 // 且无任何运行时代码引用它，故从打包产物剔除（源码 packages/dsh 仍保留供 build 期使用）。
 keepModules.delete('@zhima/dsh');
 
 /**
- * 内置插件（packages/dsh-plugins/ 下的 workspace 包）打包后保留运行时最小集，
+ * 内置插件（packages/dsh-overlay/ 下的 workspace 包）打包后保留运行时最小集，
  * 剔除源码/构建文件，避免体积冗余和源码暴露。
  */
 function pruneBuiltinPlugin(dir: string): void {
@@ -123,7 +134,7 @@ async function collectProdDeps(
     if (visited.has(name)) continue;
     visited.add(name);
     try {
-      const moduleRoot = getModuleRoot(root, name);
+      const moduleRoot = resolveInnerPluginRoot(root, name);
       if (!moduleRoot) continue;
       const pkg = JSON.parse(
         fs.readFileSync(path.join(moduleRoot, 'package.json'), 'utf8'),
@@ -136,6 +147,32 @@ async function collectProdDeps(
     }
   }
   return [...visited];
+}
+/**
+ * 定位包源目录：@dsh-overlay/* 内置插件聚合在容器目录
+ * （packages/dsh-overlay/<name>）且 pnpm 不提升到依赖树顶层，getModuleRoot
+ * 找不到，走容器目录拼接；其余包仍走 getModuleRoot。
+ */
+function resolveInnerPluginRoot(projectRoot: string, item: string): string {
+  if (item.startsWith('@dsh-overlay/')) {
+    const shortName = item.slice('@dsh-overlay/'.length);
+    for (const group of OVERLAY_GROUPS) {
+      const candidate = resolve(dshPluginsDir, group, shortName);
+      if (fs.existsSync(path.join(candidate, 'package.json'))) return candidate;
+    }
+    return resolve(dshPluginsDir, shortName);
+  }
+  if (item.startsWith('@zhima/')) {
+    // overlay bundle（@zhima/dsh-base-overlay 等）：遍历分组目录按包名匹配
+    for (const group of OVERLAY_GROUPS) {
+      const candidate = resolve(dshPluginsDir, group);
+      const pkgPath = path.join(candidate, 'package.json');
+      if (!fs.existsSync(pkgPath)) continue;
+      const name = JSON.parse(fs.readFileSync(pkgPath, 'utf-8')).name;
+      if (name === item) return candidate;
+    }
+  }
+  return getModuleRoot(projectRoot, item);
 }
 const ignorePattern = new RegExp(
   `^/node_modules/(?!${[...keepModules].join('|')})`,
@@ -242,17 +279,20 @@ async function cleanSources(
       }
 
       try {
-        const moduleRoot = getModuleRoot(projectRoot, item);
+        const moduleRoot = resolveInnerPluginRoot(projectRoot, item);
 
         if (fs.existsSync(moduleRoot)) {
           const dest = path.join(buildPath, 'node_modules', item);
-          await cp(moduleRoot, dest, { recursive: true });
-          // 内置插件（packages/dsh-plugins/ 下的 workspace 包）会带源码/构建文件，
+          // dereference 必须为 true：源目录的 node_modules 内含指向同级插件目录的
+          // symlink，Windows 非 Admin/开发者模式下重建 symlink 会 EPERM，导致
+          // cp 中途抛错中止、打包产物残缺；解引用成真实文件复制则无此问题
+          await cp(moduleRoot, dest, { recursive: true, dereference: true });
+          // 内置插件（packages/dsh-overlay/ 下的 workspace 包）会带源码/构建文件，
           // 只保留运行时产物（lib + package.json + cordis.patch.yml + LICENSE + 运行时依赖），
           // 剔除 src/build/tsconfig/README 等（体积冗余 + 暴露源码）。
           if (
             moduleRoot.includes(
-              `${path.sep}packages${path.sep}dsh-plugins${path.sep}`,
+              `${path.sep}packages${path.sep}dsh-overlay${path.sep}`,
             )
           ) {
             pruneBuiltinPlugin(dest);
@@ -267,22 +307,6 @@ async function cleanSources(
     }),
   );
 
-  // 内置插件统一清单 packages/dsh-plugins/cordis.patch.yml：prod 下插件包被复制为
-  // node_modules/@zhima/<pkg>/ 真实目录，loadBuiltinPluginPatches 用 dirname(pluginDir)
-  // 拼清单路径 → node_modules/@zhima/cordis.patch.yml。dev 因 require.resolve 解析符号
-  // 链接到 packages/dsh-plugins 故能命中，打包产物需补拷到同位置（否则 openDshWindow 报
-  // ENOENT cordis.patch.yml）。
-  const builtinManifest = resolve(
-    __dirname,
-    '../../packages/dsh-plugins/cordis.patch.yml',
-  );
-  if (fs.existsSync(builtinManifest)) {
-    await cp(
-      builtinManifest,
-      path.join(buildPath, 'node_modules', '@zhima', 'cordis.patch.yml'),
-    );
-  }
-
   const subDependencies = await getExternalPkgsDependencies(
     needSubDependencies,
     projectRoot,
@@ -296,13 +320,11 @@ async function cleanSources(
       }
 
       if (fs.existsSync(subDependency.path)) {
-        return cp(
-          subDependency.path,
-          path.join(buildPath, 'node_modules', subDependency.name),
-          {
-            recursive: true,
-          },
-        );
+        return cp(subDependency.path, path.join(buildPath, 'node_modules', subDependency.name), {
+          recursive: true,
+          // 同上：源路径内可能含 symlink，Windows 下重建会 EPERM
+          dereference: true,
+        });
       }
       return;
     }),
@@ -489,7 +511,7 @@ const config: ForgeConfig = {
       : [
           new FusesPlugin({
             version: FuseVersion.V1,
-            // DSH 沙箱 runner 已由 zhima 改用内置真实 node.exe（@zhima/windows-pwsh-sandbox
+            // DSH 沙箱 runner 已由 zhima 改用内置真实 node.exe（@dsh-overlay/windows-pwsh-sandbox
             // 插件 + profile.ts 提供者替换），不再依赖 ELECTRON_RUN_AS_NODE，
             // 故可保持 RunAsNode=false 的加固。
             [FuseV1Options.RunAsNode]: false,

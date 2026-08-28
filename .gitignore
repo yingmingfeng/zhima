@@ -41,11 +41,17 @@ scripts/merge-yml/*.yml
 # Windows pwsh 沙箱的内置 node.exe（本地下载、不入库；见根 README「构建打包」）
 apps/ui-tars/resources/bin/
 
+#deepseek-harness-plugins
+deepseek-harness-plugins
+
 #deepseek-harness
 deepseek-harness
 
 # deepseek-harness-desktop 参考副本（自带 .git，可独立同步上游，不入库）
 deepseek-harness-desktop
+
+#Minke
+Minke
 
 # 第三方复刻皮肤 bundle（工作区本地测试用，不入库）
 deepseek-harness-plugins/client/maid-atelier/
