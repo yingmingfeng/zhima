@@ -1,0 +1,40 @@
+# The web-overlay bundle patch（zhima DSH UI 定制层）。
+# 在官方 @deepseek-ai/dsh-web-app 之上的 profile 层，由 profile「zhima-desktop」的
+# bundles 列表加载；patch 覆盖目标行整个 config（不合并）。
+
+# ── 内置 UI 插件（在官方 web-app 之上追加）──────────────────────────────────
+- insert:
+    - id: desktop-advanced-shell
+      name: '@dsh-overlay/advanced-shell'
+    # 测试插件：验证 Electron preload 注入
+    - id: hello-test
+      name: '@dsh-overlay/hello-plugin'
+
+# ── 布局策略（固定增强模式）─────────────────────────────────────────────────
+# zhima 固定增强模式：禁用官方 ui-layout（AdvancedFrame 接管 root 槽），保持
+# ui-sidebar/ui-conversation 启用（上游默认已启用，静态 false 无副作用）。
+- id: ui-layout
+  name: '@deepseek-ai/dsh-client-ui-layout'
+  disabled: true
+- id: ui-sidebar
+  name: '@deepseek-ai/dsh-client-ui-sidebar'
+  disabled: false
+- id: ui-conversation
+  name: '@deepseek-ai/dsh-client-ui-conversation'
+  disabled: false
+
+# ── webserver（loopback 安全不变量）─────────────────────────────────────────
+# 强制 loopback 绑定是宿主安全不变量，不是用户配置。
+- id: webserver
+  name: '@deepseek-ai/dsh-host-webserver'
+  disabled: false
+  config:
+    host: '127.0.0.1'
+    port: 0
+# ── 第三方插件：DSH-better-sidebar（VSCode 式右侧栏）─────────────────────────
+# 产物由 deepseek-harness-plugins/hybrid/DSH-better-sidebar 构建同步（见
+# .claude/skills/dsh-overlay-plugin-build）；依赖多（@codemirror/mermaid/node-pty），
+# host 端 node-pty 须随 app 打包（forge unpack）。
+- insert:
+    - id: better-sidebar
+      name: '@dsh-overlay/better-sidebar'

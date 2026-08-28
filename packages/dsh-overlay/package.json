@@ -1,0 +1,10 @@
+{
+  "name": "@zhima/dsh-overlay",
+  "version": "0.0.1",
+  "private": true,
+  "description": "zhima 内置 DSH 定制层容器：聚合两个 overlay bundle（@zhima/dsh-base-overlay 后端 / @zhima/dsh-web-overlay UI），apps/ui-tars 仅依赖本容器",
+  "dependencies": {
+    "@zhima/dsh-base-overlay": "workspace:*",
+    "@zhima/dsh-web-overlay": "workspace:*"
+  }
+}

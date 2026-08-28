@@ -1,9 +1,0 @@
-# @zhima/dsh-plugins 内置插件统一注入清单。
-# 所有内置插件在此暴露一行（新增插件在此追加，勿在插件子包内各写 cordis.patch.yml）。
-# zhima 主进程 prepareDshProfile 在 advanced 模式直接加载本清单的 insert 作为 patches。
-- insert:
-    - id: desktop-advanced-shell
-      name: '@zhima/dsh-client-advanced-shell'
-    # [待修复] dsh-better-sidebar 的 pnpm workspace 链接未建立，暂不加载
-    # - id: better-sidebar
-    #   name: 'dsh-better-sidebar'

@@ -1,0 +1,29 @@
+{
+  "name": "@dsh-overlay/advanced-shell",
+  "version": "0.0.1",
+  "description": "zhima 内置插件：DSH 桌面窗口增强（advanced shell）——无边框原生材质窗口 + AdvancedFrame 三栏布局。注入清单在容器根 packages/dsh-overlay/cordis.patch.yml",
+  "private": true,
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "inject": [],
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-client-runtime": "0.1.1-rc.2",
+    "@deepseek-ai/dsh-client-ui-slots": "0.1.1-rc.2",
+    "@deepseek-ai/dsh-client-ui-theme": "0.1.1-rc.2"
+  },
+  "files": [
+    "lib",
+    "LICENSE"
+  ]
+}

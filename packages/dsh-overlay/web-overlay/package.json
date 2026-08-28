@@ -1,0 +1,20 @@
+{
+  "name": "@zhima/dsh-web-overlay",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "zhima DSH UI 定制 bundle（profile 层，在官方 @deepseek-ai/dsh-web-app 之上）：内置 UI 插件、布局策略、webserver loopback",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "dependencies": {
+    "@dsh-overlay/advanced-shell": "workspace:*",
+    "@dsh-overlay/hello-plugin": "workspace:*",
+    "@dsh-overlay/better-sidebar": "workspace:*"
+  },
+  "files": [
+    "cordis.patch.yml"
+  ]
+}

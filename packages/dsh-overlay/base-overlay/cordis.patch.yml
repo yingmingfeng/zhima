@@ -1,0 +1,16 @@
+# The base-overlay bundle patch（zhima DSH 后端定制层）。
+# 在官方 @deepseek-ai/dsh-base 之上的 profile 层，由 profile「zhima-desktop」的
+# bundles 列表加载；patch 覆盖目标行整个 config（不合并）。
+
+# ── Windows pwsh 沙箱替换 ─────────────────────────────────────────────────
+# 仅 Electron 主进程（in-process boot）需要替换——此时 process.execPath 是 Electron
+# 假 node，得改用 zhima 内置真实 node.exe；dsh CLI 启动（纯 node 进程）时 process.execPath
+# 本就是真实 node，无需替换，保持上游 @deepseek-ai/dsh-pwsh-sandbox。
+# 判别式：process.versions.electron 存在（Electron）与否；该表达式由 loader 运行时 eval。
+- id: pwsh-sandbox
+  name: '@deepseek-ai/dsh-pwsh-sandbox'
+  disabled: !!js process.versions.electron !== undefined
+- insert:
+    - id: zhima-windows-pwsh-sandbox
+      name: '@dsh-overlay/windows-pwsh-sandbox/windows-pwsh-sandbox'
+      disabled: !!js process.versions.electron === undefined

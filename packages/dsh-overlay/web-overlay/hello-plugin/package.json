@@ -1,0 +1,25 @@
+{
+  "name": "@dsh-overlay/hello-plugin",
+  "version": "0.0.1",
+  "description": "测试插件：验证 Electron preload 注入是否生效",
+  "private": true,
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "inject": [],
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1"
+  },
+  "files": [
+    "lib"
+  ]
+}
