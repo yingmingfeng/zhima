@@ -3,12 +3,12 @@ packages:
   - 'apps/agent-tars/src/*'
   - 'apps/zhima/src/*'
   - 'packages/dsh'
-  - 'packages/ui-tars/**'
+  - 'packages/zhima/**'
   - '!packages/agent-infra/**'
   - 'packages/common/*'
-  - '!packages/ui-tars/visualizer'
-  - '!packages/ui-tars/operators/browser-operator'
-  - '!packages/ui-tars/operators/browserbase'
+  - '!packages/zhima/visualizer'
+  - '!packages/zhima/operators/browser-operator'
+  - '!packages/zhima/operators/browserbase'
   # zhima 内置插件容器（packages/dsh-overlay）与各内置插件子包（分 base-overlay 后端 / web-overlay UI 两层）。
   # dev 走 workspace link、prod 随 app 分发。apps 仅依赖容器 @zhima/dsh-overlay。
   - 'packages/dsh-overlay'

@@ -21,7 +21,7 @@ export default defineProject({
 
   plugins: [
     tsconfigPath({
-      projects: ['../../../ui-tars/tsconfig.node.json'],
+      projects: ['../../../zhima/tsconfig.node.json'],
     }),
   ],
 });

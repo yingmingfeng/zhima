@@ -10,8 +10,8 @@ component_management:
     - component_id: ui_tars_action_parser
       name: zhima-action-parser
       paths:
-        - packages/ui-tars/action-parser/src/**
+        - packages/zhima/action-parser/src/**
     - component_id: ui_tars_sdk
       name: zhima-sdk
       paths:
-        - packages/ui-tars/sdk/src/**
+        - packages/zhima/sdk/src/**
