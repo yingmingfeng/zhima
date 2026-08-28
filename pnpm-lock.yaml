@@ -224,22 +224,22 @@ importers:
         version: 3.2.7(vitest@3.2.7)
       '@zhima/action-parser':
         specifier: workspace:*
-        version: link:../../packages/ui-tars/action-parser
+        version: link:../../packages/zhima/action-parser
       '@zhima/electron-ipc':
         specifier: workspace:*
-        version: link:../../packages/ui-tars/electron-ipc
+        version: link:../../packages/zhima/electron-ipc
       '@zhima/operator-nut-js':
         specifier: workspace:*
-        version: link:../../packages/ui-tars/operators/nut-js
+        version: link:../../packages/zhima/operators/nut-js
       '@zhima/sdk':
         specifier: workspace:*
-        version: link:../../packages/ui-tars/sdk
+        version: link:../../packages/zhima/sdk
       '@zhima/shared':
         specifier: workspace:*
-        version: link:../../packages/ui-tars/shared
+        version: link:../../packages/zhima/shared
       '@zhima/utio':
         specifier: workspace:*
-        version: link:../../packages/ui-tars/utio
+        version: link:../../packages/zhima/utio
       builder-util-runtime:
         specifier: 9.7.0
         version: 9.7.0
@@ -1119,7 +1119,7 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1(@deepseek-ai/cordis-plugin-include@1.0.6)(@deepseek-ai/cordis-plugin-loader@1.0.2)
 
-  packages/ui-tars/action-parser:
+  packages/zhima/action-parser:
     dependencies:
       '@zhima/shared':
         specifier: workspace:*
@@ -1144,7 +1144,7 @@ importers:
         specifier: ^3.0.2
         version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(@vitest/browser@3.2.7)(happy-dom@17.6.3)(jiti@2.7.0)(jsdom@24.1.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.33.0)(sass-embedded@1.102.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0)
 
-  packages/ui-tars/cli:
+  packages/zhima/cli:
     dependencies:
       '@clack/prompts':
         specifier: ^0.10.0
@@ -1187,7 +1187,7 @@ importers:
         specifier: ^3.0.2
         version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(@vitest/browser@3.2.7)(happy-dom@17.6.3)(jiti@2.7.0)(jsdom@24.1.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.33.0)(sass-embedded@1.102.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0)
 
-  packages/ui-tars/electron-ipc:
+  packages/zhima/electron-ipc:
     devDependencies:
       '@common/configs':
         specifier: workspace:*
@@ -1205,7 +1205,7 @@ importers:
         specifier: ^3.0.2
         version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(@vitest/browser@3.2.7)(happy-dom@17.6.3)(jiti@2.7.0)(jsdom@24.1.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.33.0)(sass-embedded@1.102.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0)
 
-  packages/ui-tars/operators/adb:
+  packages/zhima/operators/adb:
     dependencies:
       '@zhima/shared':
         specifier: workspace:*
@@ -1242,7 +1242,7 @@ importers:
         specifier: ^3.0.2
         version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(@vitest/browser@3.2.7)(happy-dom@17.6.3)(jiti@2.7.0)(jsdom@24.1.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.33.0)(sass-embedded@1.102.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0)
 
-  packages/ui-tars/operators/nut-js:
+  packages/zhima/operators/nut-js:
     dependencies:
       '@computer-use/nut-js':
         specifier: ^4.2.0
@@ -1276,7 +1276,7 @@ importers:
         specifier: ^3.0.2
         version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(@vitest/browser@3.2.7)(happy-dom@17.6.3)(jiti@2.7.0)(jsdom@24.1.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.33.0)(sass-embedded@1.102.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0)
 
-  packages/ui-tars/sdk:
+  packages/zhima/sdk:
     dependencies:
       '@zhima/action-parser':
         specifier: workspace:*
@@ -1328,7 +1328,7 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1(@types/react-dom@19.1.1(@types/react@19.1.2))(@types/react@19.1.2)(@vitest/browser@3.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vitest@3.2.7)
 
-  packages/ui-tars/shared:
+  packages/zhima/shared:
     devDependencies:
       '@common/configs':
         specifier: workspace:*
@@ -1340,7 +1340,7 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
-  packages/ui-tars/utio:
+  packages/zhima/utio:
     devDependencies:
       '@common/configs':
         specifier: workspace:*
@@ -5425,8 +5425,8 @@ packages:
     resolution: {integrity: sha512-3kSBtG8ObcTVfXanm5vVJ6UnBLEVmVsRk1M+vGqCuMBV+XLCbJYuWQful+yIy0GQDsSlK0kHEriEHn7SPk4EnA==}
     engines: {node: '>=22.12.0'}
 
-  '@electron/node-gyp@https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2}
+  '@electron/node-gyp@git+ssh://git@github.com/electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2':
+    resolution: {commit: 06b29aafb7708acef8b3669835c8a7857ebc92d2, repo: git@github.com:electron/node-gyp.git, type: git}
     version: 10.2.0-electron.1
     engines: {node: '>=12.13.0'}
     hasBin: true
@@ -21582,7 +21582,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@electron/node-gyp@https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2':
+  '@electron/node-gyp@git+ssh://git@github.com/electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2':
     dependencies:
       env-paths: 2.2.1
       exponential-backoff: 3.1.3
@@ -21645,7 +21645,7 @@ snapshots:
 
   '@electron/rebuild@3.7.2':
     dependencies:
-      '@electron/node-gyp': https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2
+      '@electron/node-gyp': git+ssh://git@github.com/electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2
       '@malept/cross-spawn-promise': 2.0.0
       chalk: 4.1.2
       debug: 4.4.3
