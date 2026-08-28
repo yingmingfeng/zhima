@@ -18,12 +18,13 @@ import { showWindow } from '@main/window';
 import { windowManager } from '@main/services/windowManager';
 import { IPC_DSH_TOAST, IPC_DSH_PROFILE_CHANGED } from '@shared/ipc-channels';
 
+import { spawnDshCli, type DshCliLaunch } from './cli-launch';
+import type { Context } from '@deepseek-ai/cordis';
 import {
   DSH_HOME,
   bootDsh,
   disposeDsh as disposeDshBoot,
   getActiveDshCtx,
-  isDshSessionRunning,
   setDshExitHandler,
 } from './boot';
 import {
@@ -31,9 +32,7 @@ import {
   markDshProfileHealthy,
 } from './profile-state';
 import {
-  createProfile,
   ensureDefaultProfileExists,
-  dshProfileExists,
 } from './profile';
 import {
   injectRendererBootProbe,
@@ -55,15 +54,10 @@ import {
 import {
   DEFAULT_DSH_PROFILE,
   getDshRunMode,
-  getDshShellMode,
   getExternalDshPort,
-  getSelectedDshProfile,
   setDshRunMode,
-  setDshShellMode,
   setExternalDshPort,
-  setSelectedDshProfile,
   type DshRunMode,
-  type DshShellMode,
 } from './state';
 
 /** DSH 生命周期状态，渲染进程按钮据此显示加载态。 */
@@ -78,6 +72,42 @@ let activeDshProfileName: string | undefined;
 /** 插件变化基线（内置模式）：boot 时记录当前 profile 签名，供「检查插件变更」手动对比。 */
 let pluginChangeDetector: PluginChangeDetector | undefined;
 let pluginChangeProfile: string | undefined;
+
+/**
+ * DSH 后端是否在运行（托盘「内置模式·运行中」据此同步）。
+ * 当前内置模式走 dsh CLI 独立进程（boot 在子进程），「运行中」以 CLI 子进程存活为准。
+ * 若后续退回 in-process boot，可改为 `getActiveDshCtx() !== undefined`。
+ */
+export function isDshBackendRunning(): boolean {
+  return isDshCliRunning();
+}
+
+/** CLI 启动模式下 dsh CLI 子进程与其 webServer 端口（in-process boot 模式为 undefined）。 */
+let activeCliLaunch: DshCliLaunch | undefined;
+
+/**
+ * dsh CLI 子进程是否存活（打开 DSH 窗口时复用；托盘「内置模式·运行中」据此同步）。
+ * CLI 常驻后不再随窗口开关重启，仅显式停止/退出 zhima 时才终止。
+ */
+export function isDshCliRunning(): boolean {
+  return (
+    activeCliLaunch !== undefined &&
+    activeCliLaunch.child.exitCode === null &&
+    activeCliLaunch.child.signalCode === null
+  );
+}
+
+/** 停止正在跑的 dsh CLI 子进程（幂等）。仅显式停止/退出 zhima 时调用，窗口开关不触发。 */
+function stopCliIfRunning(): void {
+  if (activeCliLaunch !== undefined) {
+    try {
+      activeCliLaunch.child.kill();
+    } catch {
+      // 进程已退出，忽略
+    }
+    activeCliLaunch = undefined;
+  }
+}
 
 function clearPluginDetector(): void {
   pluginChangeDetector = undefined;
@@ -192,33 +222,22 @@ function broadcastDshToast(
 
 /**
  * 打开 DSH 窗口：按当前运行模式分流。
- * - builtin：内部 boot（用选中的 profile）；profile 缺失时默认 zhima-desktop 自动创建
+ * - builtin：dsh CLI 独立进程启动（主进程不 boot、不阻塞事件循环）
  * - external：连接外部手动启动的实例，不可达则 toast 报错
  */
 export async function openDshWindow(): Promise<void> {
   if (state === 'booting') return;
   if (state === 'ready' && showDshWindow()) return;
 
-  // builtin 模式：校验 profile 可用（默认 zhima-desktop 自动创建，自定义须已存在）
-  if (getDshRunMode() === 'builtin') {
-    const profileName = getSelectedDshProfile();
-    if (profileName !== DEFAULT_DSH_PROFILE && !dshProfileExists(profileName)) {
-      broadcastDshToast(
-        `profile "${profileName}" 尚未创建，请先用 dsh 命令创建`,
-        'error',
-      );
-      logger.warn(
-        '[dsh] profile not found:',
-        profileName,
-        resolveProfileDir(profileName, DSH_HOME),
-      );
-      return;
-    }
-  }
-
   setState('booting');
   try {
-    const { ctx, port, profileName } = await bootDsh();
+    // builtin 模式走 dsh CLI 独立进程启动。
+    if (getDshRunMode() === 'builtin') {
+      await openDshViaCli();
+      setState('ready');
+      return;
+    }
+    const { ctx, port, profileName } = await bootDshSession();
     if (profileName) activeDshProfileName = profileName;
 
     // external 模式：检查外部实例是否可达
@@ -255,6 +274,53 @@ export async function openDshWindow(): Promise<void> {
   }
 }
 
+// ===== CLI spawn 独立进程模式（当前内置模式的启动方式）=====
+/**
+ * 用 dsh CLI 独立进程加载 DSH（builtin 模式的当前启动方式）。
+ * 主进程只 spawn + 解析端口 + 建窗，boot 全部在 CLI 进程执行。
+ * CLI 进程 webServer 已起，主进程拿不到 ctx → 不注册 renderer boot 路由
+ * （探针注入仍执行，POST /_dsh/desktop/renderer-boot 404 静默降级，lastKnownGood 不提升）。
+ */
+async function openDshViaCli(): Promise<void> {
+  const profileName = DEFAULT_DSH_PROFILE;
+  // CLI 已在跑（后台常驻）则复用其 webServer（免二次 boot）；否则 spawn 首次。
+  if (!isDshCliRunning()) {
+    activeCliLaunch = await spawnDshCli(DSH_HOME, profileName);
+  }
+  if (profileName) activeDshProfileName = profileName;
+  rendererBootRouteRegistered = false;
+  const win = createDshWindow(activeCliLaunch!.url);
+  // M3：注入 boot 探针（UI 未就绪也能被窗口察觉；CLI 模式下上报路由未注册，404 无害）。
+  injectRendererBootProbe(win.webContents);
+  ensurePluginDetector(profileName);
+}
+
+/**
+ * 统一 DSH 会话启动：builtin 走 dsh CLI 独立进程（boot 在子进程，主进程不阻塞），
+ * external 走 bootDsh 假 boot（连接外部实例）。
+ * CLI 模式返回无 ctx（进程分离），调用方勿依赖 ctx 做注册（renderer boot 路由降级）。
+ */
+async function bootDshSession(): Promise<{
+  ctx?: Context;
+  port: number;
+  profileName: string;
+}> {
+  if (getDshRunMode() === 'builtin') {
+    const profileName = DEFAULT_DSH_PROFILE;
+    // CLI 已在跑则复用其 webServer；否则 spawn 首次（守护常驻语义）。
+    if (!isDshCliRunning()) {
+      activeCliLaunch = await spawnDshCli(DSH_HOME, profileName);
+    }
+    return { port: activeCliLaunch!.port, profileName };
+  }
+  const inProcess = await bootDsh();
+  return {
+    ctx: inProcess.ctx,
+    port: inProcess.port,
+    profileName: inProcess.profileName,
+  };
+}
+
 /** 探测外部 DSH 实例是否可达，2 秒超时。 */
 function checkExternalReachable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -270,117 +336,6 @@ function checkExternalReachable(port: number): Promise<boolean> {
 }
 
 /**
- * 切换 profile（仅内置模式）：持久化选择 → 重启 DSH 会话（复用窗口）。
- * 若 DSH 从未 boot（窗口未开），只持久化，下次打开生效。
- */
-export async function selectDshProfile(name: string): Promise<void> {
-  if (getDshRunMode() !== 'builtin') {
-    throw new Error('外部模式不支持切换 profile');
-  }
-  if (name !== DEFAULT_DSH_PROFILE && !dshProfileExists(name)) {
-    throw new Error(`profile "${name}" 尚未创建`);
-  }
-  if (name === getSelectedDshProfile()) return;
-
-  setSelectedDshProfile(name);
-  // 无窗口时只改选择，下次打开生效（主进程统一广播结果，避免重复 toast）。
-  if (!isDshSessionRunning()) {
-    broadcastDshToast(`已切换到配置文件 ${name}（下次打开生效）`, 'success');
-    return;
-  }
-
-  const hadWindow = hasDshWindow();
-  if (hadWindow) hideDshWindow();
-  rendererBootRouteRegistered = false;
-  await disposeDshBoot();
-  setState('booting'); // 切换中：托盘「配置文件」菜单置灰
-  broadcastDshToast(`正在切换配置文件 → ${name}…`, 'loading');
-  try {
-    const { ctx, port, profileName } = await bootDsh();
-    if (profileName) activeDshProfileName = profileName;
-    if (ctx && !rendererBootRouteRegistered) {
-      registerRendererBootRoute(ctx, handleRendererBootReport);
-      rendererBootRouteRegistered = true;
-    }
-    if (hadWindow) {
-      const win = reloadDshWindow(`http://127.0.0.1:${port}/`);
-      injectRendererBootProbe(win.webContents);
-    }
-    ensurePluginDetector(profileName ?? DEFAULT_DSH_PROFILE);
-    setState('ready');
-    broadcastDshToast(`已切换到配置文件 ${name}`, 'success');
-  } catch (cause) {
-    logger.error('[dsh] profile switch failed:', cause);
-    setState('error');
-    broadcastDshToast(
-      `切换失败：${cause instanceof Error ? cause.message : String(cause)}`,
-      'error',
-    );
-    throw cause;
-  }
-}
-
-/** 窗口模式标签（toast 文案）。 */
-function shellModeLabel(mode: DshShellMode): string {
-  return mode === 'advanced' ? '增强模式' : '兼容模式';
-}
-
-/**
- * 切换窗口呈现模式（兼容/增强）：持久化 → 重启 DSH 会话。
- * 窗口材质在 BrowserWindow 构造时固定，故切换须销毁旧窗口并重建
- * （不同于 profile 切换的复用窗口）。若 DSH 窗口未开，只持久化。
- */
-export async function selectDshShellMode(mode: DshShellMode): Promise<void> {
-  if (getDshRunMode() !== 'builtin') {
-    throw new Error('外部模式不支持切换窗口模式');
-  }
-  if (mode === getDshShellMode()) return;
-  setDshShellMode(mode);
-  // 未发起过 boot：只改选择，下次打开生效。用 isDshSessionRunning() 而非 hasDshWindow()——
-  // 窗口关闭后树仍在跑；切换模式必须重建树（patches 因 mode 不同），否则下次
-  // openDshWindow 复用旧树，出现「兼容窗口 + enhanced 树」→ ui-layout disabled
-  // 而 layout 服务无人提供，导致 ui-sidebar/ui-conversation pending。
-  if (!isDshSessionRunning()) {
-    broadcastDshToast(
-      `窗口模式已切换为 ${shellModeLabel(mode)}（下次打开生效）`,
-      'success',
-    );
-    return;
-  }
-
-  const hadWindow = hasDshWindow();
-  // 切换前后窗口选项不同，必须销毁重建（reload 只能复用同一 BrowserWindow）。
-  if (hadWindow) closeDshWindow();
-  rendererBootRouteRegistered = false;
-  await disposeDshBoot();
-  setState('booting'); // 切换中：托盘「窗口模式」菜单置灰
-  broadcastDshToast(`正在切换窗口模式 → ${shellModeLabel(mode)}…`, 'loading');
-  try {
-    const { ctx, port, profileName } = await bootDsh();
-    if (profileName) activeDshProfileName = profileName;
-    if (ctx && !rendererBootRouteRegistered) {
-      registerRendererBootRoute(ctx, handleRendererBootReport);
-      rendererBootRouteRegistered = true;
-    }
-    if (hadWindow) {
-      const win = createDshWindow(`http://127.0.0.1:${port}/`);
-      injectRendererBootProbe(win.webContents);
-    }
-    ensurePluginDetector(profileName ?? DEFAULT_DSH_PROFILE);
-    setState('ready');
-    broadcastDshToast(`窗口模式已切换为 ${shellModeLabel(mode)}`, 'success');
-  } catch (cause) {
-    logger.error('[dsh] shell mode switch failed:', cause);
-    setState('error');
-    broadcastDshToast(
-      `切换失败：${cause instanceof Error ? cause.message : String(cause)}`,
-      'error',
-    );
-    throw cause;
-  }
-}
-
-/**
  * 重新加载插件：重启当前 profile 的 DSH 会话（dispose + 重新 boot）。
  * 用于用户在外部安装/移除了插件后手动生效。仅内置模式；有窗口时复用窗口 reload。
  */
@@ -392,10 +347,13 @@ export async function restartDshSession(): Promise<void> {
   if (hadWindow) hideDshWindow();
   rendererBootRouteRegistered = false;
   await disposeDshBoot();
+  // CLI 模式：强制重启 CLI 进程，让新增/移除插件的 patch 生效（CLI 常驻，
+  // 若不显式停会复用旧进程，新插件不会加载）。
+  stopCliIfRunning();
   setState('booting'); // 切换中：托盘「重新加载插件」置灰
   broadcastDshToast('正在重新加载插件…', 'loading');
   try {
-    const { ctx, port, profileName } = await bootDsh();
+    const { ctx, port, profileName } = await bootDshSession();
     if (profileName) activeDshProfileName = profileName;
     if (ctx && !rendererBootRouteRegistered) {
       registerRendererBootRoute(ctx, handleRendererBootReport);
@@ -429,45 +387,45 @@ export async function selectDshMode(
 ): Promise<void> {
   if (mode === 'external') {
     const targetPort = port ?? getExternalDshPort();
-    // 先持久化选择，即使停止内置失败端口/模式也已记住。
+    // 先持久化选择，即使后续失败端口/模式也已记住。
     setExternalDshPort(targetPort);
     setDshRunMode('external');
-    // 仅确有内置 Cordis 树在跑时才需要停止（external 模式的假 boot 无需停止）。
     if (getActiveDshCtx() !== undefined) {
-      broadcastDshToast('正在停止内置 DSH…', 'loading');
-      try {
-        rendererBootRouteRegistered = false;
-        await disposeDshBoot();
-      } finally {
-        closeDshWindow();
-        clearPluginDetector();
-        setState('idle');
-      }
-      broadcastDshToast('内置 DSH 已停止', 'success');
+      rendererBootRouteRegistered = false;
+      await disposeDshBoot();
     }
-    broadcastDshToast(
-      `已切换为外部模式（端口 ${targetPort}），请手动启动 DSH 实例`,
-      'success',
-    );
+    const hadWindow = hasDshWindow();
+    // 切换模式须重建窗口（材质因模式不同：内置=增强无边框，外部=原生框）。
+    if (hadWindow) closeDshWindow();
+    if (hadWindow) {
+      const reachable = await checkExternalReachable(targetPort);
+      if (reachable) {
+        const win = createDshWindow(`http://127.0.0.1:${targetPort}/`);
+        injectRendererBootProbe(win.webContents);
+        setState('ready');
+        broadcastDshToast(`已连接外部 DSH 实例（端口 ${targetPort}）`, 'success');
+      } else {
+        setState('idle');
+        broadcastDshToast(
+          `无法连接外部 DSH 实例 http://127.0.0.1:${targetPort}/，请先手动启动 DSH`,
+          'error',
+        );
+      }
+    } else {
+      broadcastDshToast(`已切换为外部模式（端口 ${targetPort}）`, 'success');
+    }
     return;
   }
   setDshRunMode('builtin');
-  broadcastDshToast('已切换为内置模式', 'success');
-}
-
-/**
- * 创建新 profile 并切换到它（打开 DSH 窗口）。
- * profile 用 web 模板初始化，名称校验 + 重复检查后创建。
- */
-export async function handleProfileCreate(
-  name: string,
-  confirmed: boolean,
-): Promise<void> {
-  if (!confirmed || !name) return;
-  createProfile(name, DSH_HOME);
-  setSelectedDshProfile(name);
-  // 首次打开：用新 profile boot + 建窗
-  await openDshWindow();
+  const hadWindow = hasDshWindow();
+  // 外部窗口是原生框，切回内置需重建为增强窗口。
+  if (hadWindow) closeDshWindow();
+  if (hadWindow) {
+    // 内置：in-process boot 已就绪则复用，否则重新 boot（openDshWindow 内部处理）。
+    await openDshWindow();
+  } else {
+    broadcastDshToast('已切换为内置模式', 'success');
+  }
 }
 
 /** 关闭 DSH 窗口（harness 保持 boot，下次打开即复用）。 */
@@ -475,9 +433,10 @@ export function closeDsh(): void {
   closeDshWindow();
 }
 
-/** 退出 zhima 前的清理：dispose Cordis 树 + 关窗口。 */
+/** 退出 zhima 前的清理：停 dsh CLI 进程（若 CLI 模式）+ dispose in-process 树 + 关窗口。 */
 export async function disposeDsh(): Promise<void> {
   closeDshWindow();
+  stopCliIfRunning();
   await disposeDshBoot();
   clearPluginDetector();
   setState('idle');

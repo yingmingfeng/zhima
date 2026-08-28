@@ -1,11 +1,15 @@
 /**
- * zhima DSH 运行状态持久化：运行模式（内置/外部）、选中 profile、外部端口。
+ * zhima DSH 运行状态持久化：运行模式（内置/外部）、外部端口。
  *
  * 状态文件位于 Electron userData/profile-selection/state.json（与 DSH Desktop
  * 的 profile-selection 结构一致），是 zhima 应用私有状态，不污染 ~/.dsh
  * （~/.dsh 是 dsh 官方用户数据，凭据/设置/会话/profile 由 dsh 生态读写）。
  * 运行模式取代了原来的 DSH_WEB_DEV / DSH_WEB_PROFILE 环境变量：
  * 切换无需重启 zhima，直接持久化后按需生效。
+ *
+ * zhima 固定使用 zhima-desktop profile（其声明 4 个 overlay bundle），不支持
+ * profile 切换；窗口呈现模式固定为增强（advanced），不支持兼容模式——故二者
+ * 不再持久化（历史 state.json 中的旧字段忽略）。
  */
 import { app } from 'electron';
 import {
@@ -18,11 +22,8 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 
-/** DSH 运行模式：builtin=主进程内置 boot；external=连接外部手动启动的实例。 */
+/** DSH 运行模式：builtin=zhima 拉起内置 DSH CLI；external=连接外部手动启动的实例。 */
 export type DshRunMode = 'builtin' | 'external';
-
-/** DSH 窗口呈现模式：compatibility=上游默认布局+原生框；advanced=桌面增强（AdvancedFrame + 无边框材质）。 */
-export type DshShellMode = 'compatibility' | 'advanced';
 
 /** zhima DSH 私有状态目录（Electron userData/dsh/profile-selection，与 DSH Desktop 对齐）。 */
 export const DSH_STATE_DIR = join(
@@ -33,7 +34,7 @@ export const DSH_STATE_DIR = join(
 
 const STATE_FILE = join(DSH_STATE_DIR, 'state.json');
 
-/** 默认 profile：本质是 web profile，仅名称换成 zhima-desktop（后续迭代差异）。 */
+/** 默认（唯一）profile：zhima 内置定制来自该 profile 声明的 4 bundles，固定使用。 */
 export const DEFAULT_DSH_PROFILE = 'zhima-desktop';
 
 /** 外部模式默认端口（dsh web 默认 3080）。 */
@@ -43,21 +44,15 @@ interface ZhimaDshStateV1 {
   version: 1;
   /** 当前运行模式。 */
   mode: DshRunMode;
-  /** 内置模式下加载的 profile。 */
-  selectedProfile: string;
   /** 外部模式连接端口。 */
   externalPort: number;
-  /** 窗口呈现模式（兼容/增强）。 */
-  shellMode: DshShellMode;
 }
 
 function defaultState(): ZhimaDshStateV1 {
   return {
     version: 1,
     mode: 'builtin',
-    selectedProfile: DEFAULT_DSH_PROFILE,
     externalPort: DEFAULT_EXTERNAL_PORT,
-    shellMode: 'advanced',
   };
 }
 
@@ -74,11 +69,6 @@ function readState(): ZhimaDshStateV1 {
         return {
           version: 1,
           mode: value.mode === 'external' ? 'external' : 'builtin',
-          selectedProfile:
-            typeof value.selectedProfile === 'string' &&
-            value.selectedProfile.length > 0
-              ? value.selectedProfile
-              : DEFAULT_DSH_PROFILE,
           externalPort:
             typeof value.externalPort === 'number' &&
             Number.isInteger(value.externalPort) &&
@@ -86,8 +76,6 @@ function readState(): ZhimaDshStateV1 {
             value.externalPort <= 65535
               ? value.externalPort
               : DEFAULT_EXTERNAL_PORT,
-          shellMode:
-            value.shellMode === 'compatibility' ? 'compatibility' : 'advanced',
         };
       }
     }
@@ -118,37 +106,15 @@ export function getDshRunMode(): DshRunMode {
   return readState().mode;
 }
 
-/** 内置模式下选中的 profile（默认 zhima-desktop）。 */
-export function getSelectedDshProfile(): string {
-  return readState().selectedProfile;
-}
-
 /** 外部模式连接端口（默认 3080）。 */
 export function getExternalDshPort(): number {
   return readState().externalPort;
-}
-
-/** 窗口呈现模式（默认 advanced）。 */
-export function getDshShellMode(): DshShellMode {
-  return readState().shellMode;
-}
-
-/** 持久化窗口呈现模式。 */
-export function setDshShellMode(mode: DshShellMode): void {
-  const state = readState();
-  writeState({ ...state, shellMode: mode });
 }
 
 /** 持久化运行模式。 */
 export function setDshRunMode(mode: DshRunMode): void {
   const state = readState();
   writeState({ ...state, mode });
-}
-
-/** 持久化选中的 profile。 */
-export function setSelectedDshProfile(profile: string): void {
-  const state = readState();
-  writeState({ ...state, selectedProfile: profile });
 }
 
 /** 持久化外部模式端口。 */

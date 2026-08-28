@@ -11,7 +11,6 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
-  readdirSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
@@ -19,11 +18,9 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { parseDocument } from 'yaml';
+import { app } from 'electron';
 
-import { resolveDshHome } from '@deepseek-ai/dsh-home-paths';
 import {
-  PROFILE_TEMPLATES,
   composeEntries,
   healProfilesModuleFallback,
   initProfile,
@@ -35,82 +32,177 @@ import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include';
 
 import {
   DEFAULT_DSH_PROFILE,
-  getDshShellMode,
-  getSelectedDshProfile,
 } from './state';
 
 const BIN_NAME = 'zhima-dsh';
 
-/** zhima 内置 advanced-shell client 插件（无边框材质 + AdvancedFrame 三栏布局）。 */
-const ADVANCED_SHELL_PACKAGE = '@zhima/dsh-client-advanced-shell';
+/** zhima 内置插件容器包：聚合 packages/dsh-overlay 下所有内置插件。 */
+const INNER_PLUGINS_PACKAGE = '@zhima/dsh-overlay';
 
-/** advanced 无边框材质仅支持 win32/darwin（与 main/dsh/runtime.ts 一致）。 */
-function advancedShellSupported(platform: NodeJS.Platform): boolean {
-  return (
-    getDshShellMode() === 'advanced' &&
-    (platform === 'win32' || platform === 'darwin')
-  );
+/** 内置插件裸包 scope（与插件包名一致）。 */
+const INNER_PLUGINS_SCOPE = '@dsh-overlay';
+
+/** 内置插件在容器目录下的分组子目录（参考 DSH bundle 的 base/web 分层）。 */
+const OVERLAY_GROUPS = ['base-overlay', 'web-overlay'] as const;
+
+/** zhima-desktop profile 声明的 bundle 列表：官方 base/web-app + zhima 两个 overlay bundle。 */
+const ZHIMA_DESKTOP_BUNDLES = [
+  '@deepseek-ai/dsh-base',
+  '@deepseek-ai/dsh-web-app',
+  '@zhima/dsh-base-overlay',
+  '@zhima/dsh-web-overlay',
+];
+
+/** 确保默认 profile 的 manifest 声明 zhima 的 4 bundles（bundle 机制由 profile manifest 驱动）。 */
+function ensureZhimaBundlesDeclared(profileDir: string): void {
+  const manifestPath = join(profileDir, 'package.json');
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  const current = manifest.dsh?.profile?.bundles;
+  if (
+    Array.isArray(current) &&
+    current.join('|') === ZHIMA_DESKTOP_BUNDLES.join('|')
+  ) {
+    return;
+  }
+  manifest.dsh = {
+    ...(manifest.dsh ?? {}),
+    profile: {
+      ...(manifest.dsh?.profile ?? {}),
+      bundles: ZHIMA_DESKTOP_BUNDLES,
+    },
+  };
+  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
 }
 
 /**
- * 把内置 advanced-shell 插件 link 进 $DSH_HOME/profiles/node_modules/@zhima/，
- * 使 ClientModuleRegistry（以 profile 目录为 createRequire 基准）与 ESM overlay
- * 都能按裸包名解析到它。healProfilesModuleFallback 只覆盖 @deepseek-ai/dsh 依赖
- * 闭包，不含 @zhima/* 包，须由 zhima 自管这一步。
+ * 把 zhima 的两个 overlay bundle（base-overlay/web-overlay）link 进
+ * profiles/node_modules/@zhima/，使 dsh-app-boot 的 resolveBundleDir（从 profile
+ * 目录或 install 树解析 bundle）能按裸包名找到它们。
+ * CLI 启动（spawnDshCli）也复用：CLI 进程内 loadProfile 从 profile 目录解析 bundle。
  */
-function linkAdvancedShellPackage(homeDir: string): void {
-  const require = createRequire(__filename);
-  const packageDir = dirname(
-    require.resolve(`${ADVANCED_SHELL_PACKAGE}/package.json`),
-  );
+export function linkOverlayBundles(homeDir: string): void {
   const linkRoot = join(join(homeDir, 'profiles'), 'node_modules', '@zhima');
-  const linkPath = join(linkRoot, 'dsh-client-advanced-shell');
-  if (existsSync(linkPath)) return;
-  mkdirSync(linkRoot, { recursive: true });
-  symlinkSync(
-    packageDir,
-    linkPath,
-    process.platform === 'win32' ? 'junction' : 'dir',
-  );
+  for (const group of OVERLAY_GROUPS) {
+    const bundleDir = join(innerPluginsRoot(), group);
+    if (!existsSync(join(bundleDir, 'package.json'))) continue;
+    const bundlePkg = JSON.parse(
+      readFileSync(join(bundleDir, 'package.json'), 'utf8'),
+    ) as { name?: string };
+    if (bundlePkg.name === undefined || !bundlePkg.name.startsWith('@zhima/')) {
+      continue;
+    }
+    const linkPath = join(linkRoot, bundlePkg.name.slice('@zhima/'.length));
+    if (existsSync(linkPath)) continue;
+    mkdirSync(linkRoot, { recursive: true });
+    symlinkSync(
+      bundleDir,
+      linkPath,
+      process.platform === 'win32' ? 'junction' : 'dir',
+    );
+  }
 }
 
-/**
- * 加载内置插件统一注入清单 packages/dsh-plugins/cordis.patch.yml 的 insert 行。
- * 清单在插件容器根（插件包目录的上一级），所有内置插件都在此暴露；新增插件无需改代码。
- */
-function loadBuiltinPluginPatches(): PatchOptions[] {
+/** dev 下定位内置插件目录：先在 base/web 两组子目录里找，退回容器根平铺。 */
+function locateOverlayPluginDir(containerDir: string, shortName: string): string {
+  for (const group of OVERLAY_GROUPS) {
+    const candidate = join(containerDir, group, shortName);
+    if (existsSync(join(candidate, 'package.json'))) return candidate;
+  }
+  return join(containerDir, shortName);
+}
+
+/** dev 下定位 overlay bundle 目录（base/web 分组本身，name 匹配）。 */
+function locateOverlayBundleDir(
+  containerDir: string,
+  packageName: string,
+): string | undefined {
+  for (const group of OVERLAY_GROUPS) {
+    const candidate = join(containerDir, group);
+    if (!existsSync(join(candidate, 'package.json'))) continue;
+    try {
+      const name = (
+        JSON.parse(readFileSync(join(candidate, 'package.json'), 'utf8')) as {
+          name?: string;
+        }
+      ).name;
+      if (name === packageName) return candidate;
+    } catch {
+      // manifest 缺失忽略
+    }
+  }
+  return undefined;
+}
+
+/** 内置插件容器根目录（package.json 与 cordis.patch.yml 同目录）。 */
+function innerPluginsRoot(): string {
   const require = createRequire(__filename);
-  const pluginDir = dirname(
-    require.resolve(`${ADVANCED_SHELL_PACKAGE}/package.json`),
-  );
-  const manifestPath = join(dirname(pluginDir), 'cordis.patch.yml');
-  const document = parseDocument(readFileSync(manifestPath, 'utf8'), {
-    prettyErrors: true,
-  });
-  if (document.errors.length > 0) {
-    throw new Error(
-      `${BIN_NAME}: invalid builtin plugin manifest ${manifestPath}: ` +
-        document.errors.map((error) => error.message).join('; '),
-    );
-  }
-  const patches = document.toJS() as PatchOptions[];
-  if (!Array.isArray(patches)) {
-    throw new Error(
-      `${BIN_NAME}: builtin plugin manifest ${manifestPath} 格式错误：顶层必须是列表`,
-    );
-  }
-  return patches;
+  return dirname(require.resolve(`${INNER_PLUGINS_PACKAGE}/package.json`));
 }
 
 /**
- * profile 是否可加载：官方模板（web）首次使用会自动初始化；自定义 profile 必须
- * 已初始化（目录下存在 package.json），否则 openDshWindow 会弹窗拦截 boot。
+ * 把容器声明的所有 @dsh-overlay/* 内置插件 link 进
+ * $DSH_HOME/profiles/node_modules/@dsh-overlay/，使 ClientModuleRegistry
+ * （以 profile 目录为 createRequire 基准）与 ESM overlay 都能按裸包名解析。
+ * healProfilesModuleFallback 只覆盖 @deepseek-ai/dsh 依赖闭包，不含内置插件，
+ * 须由 zhima 自管这一步。新增插件只需加入容器 dependencies + cordis.patch.yml，
+ * 无需改此处代码。
+ * CLI 启动模式（spawnDshCli）也复用它：内置插件的 bare import 在 CLI 进程内
+ * 以 profile 目录为解析基准，同样需要这些 link。
  */
-export function dshProfileExists(name: string): boolean {
-  if (PROFILE_TEMPLATES[name] !== undefined) return true;
-  return existsSync(
-    join(resolveProfileDir(name, resolveDshHome()), 'package.json'),
+export function linkInnerPlugins(homeDir: string): void {
+  const containerDir = innerPluginsRoot();
+  const containerPkg = JSON.parse(
+    readFileSync(join(containerDir, 'package.json'), 'utf8'),
+  ) as { dependencies?: Record<string, string> };
+  const linkRoot = join(
+    join(homeDir, 'profiles'),
+    'node_modules',
+    INNER_PLUGINS_SCOPE,
   );
+  // 子插件定位：dev 下 pnpm 不把容器依赖提升到顶层，子插件聚合在容器目录
+  // 的 base/web 分组下（packages/dsh-overlay/{base,web}-overlay/<name>）；
+  // prod 下 forge 把每个子插件单独 copy 到 node_modules/@dsh-overlay/<name> + asar.unpacked，
+  // 须经 createRequire 在 app 依赖树寻址（asar 自动转发 unpacked）。
+  const resolveFromMain = createRequire(__filename);
+  // 收集需 link 的内置插件：容器直接依赖的 @dsh-overlay/*，以及各 overlay bundle
+  // （@zhima/dsh-*-overlay）依赖的 @dsh-overlay/*（插件聚合在 bundle 下）。
+  const pluginSpecifiers = new Set<string>();
+  for (const specifier of Object.keys(containerPkg.dependencies ?? {})) {
+    if (specifier.startsWith(`${INNER_PLUGINS_SCOPE}/`)) {
+      pluginSpecifiers.add(specifier);
+      continue;
+    }
+    if (!specifier.startsWith('@zhima/')) continue;
+    const bundleDir = app.isPackaged
+      ? dirname(resolveFromMain.resolve(`${specifier}/package.json`))
+      : locateOverlayBundleDir(containerDir, specifier);
+    if (bundleDir === undefined) continue;
+    try {
+      const bundlePkg = JSON.parse(
+        readFileSync(join(bundleDir, 'package.json'), 'utf8'),
+      ) as { dependencies?: Record<string, string> };
+      for (const dep of Object.keys(bundlePkg.dependencies ?? {})) {
+        if (dep.startsWith(`${INNER_PLUGINS_SCOPE}/`)) pluginSpecifiers.add(dep);
+      }
+    } catch {
+      // bundle manifest 缺失忽略
+    }
+  }
+  for (const specifier of pluginSpecifiers) {
+    const shortName = specifier.slice(INNER_PLUGINS_SCOPE.length + 1);
+    const packageDir = app.isPackaged
+      ? dirname(resolveFromMain.resolve(`${specifier}/package.json`))
+      : locateOverlayPluginDir(containerDir, shortName);
+    if (!existsSync(join(packageDir, 'package.json'))) continue;
+    const linkPath = join(linkRoot, shortName);
+    if (existsSync(linkPath)) continue;
+    mkdirSync(linkRoot, { recursive: true });
+    symlinkSync(
+      packageDir,
+      linkPath,
+      process.platform === 'win32' ? 'junction' : 'dir',
+    );
+  }
 }
 
 /**
@@ -122,96 +214,10 @@ export function ensureDefaultProfileExists(homeDir: string): void {
   const profileDir = resolveProfileDir(DEFAULT_DSH_PROFILE, homeDir);
   mkdirSync(profileDir, { recursive: true });
   if (!existsSync(join(profileDir, 'package.json'))) {
-    initProfile(profileDir, [...PROFILE_TEMPLATES.web]);
+    initProfile(profileDir, ZHIMA_DESKTOP_BUNDLES);
   }
-}
-
-/** 创建新 profile：用 web 模板初始化，校验名称合法性与重复。 */
-export function createProfile(name: string, homeDir: string): void {
-  if (
-    typeof name !== 'string' ||
-    name.length === 0 ||
-    name.length > 255 ||
-    name.includes('/') ||
-    name.includes('\\') ||
-    name === '.' ||
-    name === '..' ||
-    /[\0-\x1f\x7f-\x9f]/.test(name) ||
-    /[<>:"|?*]/.test(name) ||
-    /[. ]$/.test(name) ||
-    /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\..*)?$/i.test(name)
-  ) {
-    throw new Error(`配置文件名称无效：${JSON.stringify(name)}`);
-  }
-  if (PROFILE_TEMPLATES[name] !== undefined) {
-    throw new Error(`"${name}" 是 dsh 保留的官方模板名，不可创建`);
-  }
-  if (dshProfileExists(name)) {
-    throw new Error(`配置文件 "${name}" 已存在`);
-  }
-  initProfile(resolveProfileDir(name, homeDir), [...PROFILE_TEMPLATES.web]);
-}
-
-/** 一个已发现或可自动创建的 DSH profile（托盘切换用）。 */
-export interface DshProfileSummary {
-  name: string;
-  dir: string;
-  exists: boolean;
-  selectable: boolean;
-}
-
-/** 列出可选 profile：扫描 $DSH_HOME/profiles + 虚拟默认项（zhima-desktop / 官方模板）。 */
-export function listDshProfiles(): DshProfileSummary[] {
-  const home = resolveDshHome();
-  const profilesDir = join(home, 'profiles');
-  const seen = new Map<string, DshProfileSummary>();
-  try {
-    for (const entry of readdirSync(profilesDir, { withFileTypes: true })) {
-      if (
-        entry.name === 'node_modules' ||
-        (!entry.isDirectory() && !entry.isSymbolicLink())
-      ) {
-        continue;
-      }
-      const dir = join(profilesDir, entry.name);
-      if (!existsSync(join(dir, 'package.json'))) continue;
-      seen.set(entry.name, {
-        name: entry.name,
-        dir,
-        exists: true,
-        selectable: true,
-      });
-    }
-  } catch (cause) {
-    if ((cause as NodeJS.ErrnoException).code !== 'ENOENT') throw cause;
-  }
-  // 虚拟默认项：zhima-desktop（不存在自动创建）+ 官方模板中 web-capable 的
-  // （含 dsh-web-app，如 web）。headless 等无 Web UI 的官方模板不列出，
-  // zhima 需要 webServer 提供 DSH 界面。
-  const WEB_BUNDLE = '@deepseek-ai/dsh-web-app';
-  const webTemplateNames = Object.entries(PROFILE_TEMPLATES)
-    .filter(([, bundles]) => bundles.includes(WEB_BUNDLE))
-    .map(([name]) => name);
-  for (const name of [DEFAULT_DSH_PROFILE, ...webTemplateNames]) {
-    if (seen.has(name)) continue;
-    seen.set(name, {
-      name,
-      dir: resolveProfileDir(name, home),
-      exists: false,
-      selectable: true,
-    });
-  }
-  const priority = (name: string): number =>
-    name === DEFAULT_DSH_PROFILE
-      ? 0
-      : PROFILE_TEMPLATES[name] !== undefined
-        ? 1
-        : 2;
-  return [...seen.values()].sort((left, right) => {
-    const diff = priority(left.name) - priority(right.name);
-    if (diff !== 0) return diff;
-    return left.name < right.name ? -1 : left.name > right.name ? 1 : 0;
-  });
+  // 已存在时也确保 manifest 声明 zhima 的 4 bundles（bundle 机制由 manifest 驱动）。
+  ensureZhimaBundlesDeclared(profileDir);
 }
 
 // H4：Windows 目录选择器 auto 后端 → browse 后端 + surface。
@@ -220,9 +226,6 @@ const AUTO_PICKER_PACKAGE = '@deepseek-ai/dsh-host-directory-picker-auto';
 const BROWSE_PICKER_BACKEND = '@deepseek-ai/dsh-host-directory-picker-browse';
 const BROWSE_PICKER_SURFACE =
   '@deepseek-ai/dsh-client-ui-directory-picker-browse';
-
-// Windows pwsh 沙箱：上游 shell 提供者行 ID + 替换它的 zhima 包。
-const PWSH_SANDBOX_ROW_ID = 'pwsh-sandbox';
 
 /** dsh 主包自带的 agent presets 目录（standard/code/minimal/cordis）。 */
 function shippedPresetRoot(): string {
@@ -263,7 +266,7 @@ export interface PreparedDshProfile {
 export function prepareDshProfile(
   homeDir: string,
   platform: NodeJS.Platform = process.platform,
-  profileName: string = getSelectedDshProfile(),
+  profileName: string = DEFAULT_DSH_PROFILE,
 ): PreparedDshProfile {
   const require = createRequire(__filename);
   const installAnchor = require.resolve('@deepseek-ai/dsh/package.json');
@@ -271,16 +274,18 @@ export function prepareDshProfile(
   mkdirSync(profileDir, { recursive: true });
 
   if (!existsSync(join(profileDir, 'package.json'))) {
-    initProfile(profileDir, [...PROFILE_TEMPLATES.web]);
+    initProfile(profileDir, ZHIMA_DESKTOP_BUNDLES);
+  } else if (profileName === DEFAULT_DSH_PROFILE) {
+    // 默认 profile 已存在时也确保 manifest 声明 zhima 的 4 bundles；
+    // 自定义 profile 保持用户自己的配置，不强加 zhima bundles。
+    ensureZhimaBundlesDeclared(profileDir);
   }
   // 维护 $home/profiles/node_modules 扁平回退，让 in-box 插件从任意 profile 可解析。
   healProfilesModuleFallback(installAnchor, homeDir);
-  // advanced 模式下把内置 advanced-shell 插件 link 进同一回退，供 client 加载。
-  if (advancedShellSupported(platform)) {
-    linkAdvancedShellPackage(homeDir);
-    // [待修复] dsh-better-sidebar 的 pnpm workspace 链接未建立，暂不 link
-    // linkBetterSidebarPackage(homeDir);
-  }
+  // 把内置插件容器声明的所有 @dsh-overlay/* link 进同一回退，供 client/host 加载。
+  linkInnerPlugins(homeDir);
+  // 把 zhima 的两个 overlay bundle 也 link 进去，供 resolveBundleDir 按裸包名解析。
+  linkOverlayBundles(homeDir);
 
   const profile = loadProfile(BIN_NAME, profileName, installAnchor, homeDir);
   const rootConfig = join(profileDir, 'cordis.yml');
@@ -309,6 +314,10 @@ export function prepareDshProfile(
     });
   }
 
+  // zhima 定制由 profile manifest 的 4 bundles（官方 dsh-base/dsh-web-app + zhima
+  // base-overlay/web-overlay）自动提供：loadProfile 已把各 bundle 的 patch 读入
+  // basePatches，无需在此手动注入（原 loadBuiltinPluginPatches 已由 bundle 机制取代）。
+
   if (platform === 'win32') {
     // H4：目录选择器 auto 后端在宿主壳里可能无响应，换成 browse 后端 + surface。
     const directoryPicker = rows.get(DIRECTORY_PICKER_ROW_ID);
@@ -334,36 +343,6 @@ export function prepareDshProfile(
       );
     }
 
-    // Windows 沙箱 pwsh shell 改用 zhima 内置真实 node.exe（packages/dsh-plugins/
-    // windows-pwsh-sandbox）。禁用上游 dsh-pwsh-sandbox 并插入 zhima 提供者，避免
-    // 上游默认 [process.execPath, runner.js] 触发 ELECTRON_RUN_AS_NODE 竞态
-    // （second-instance 置顶主窗）。cordis 一条服务只能一个提供者，故走 profile
-    // 行替换（禁用 + insert），不改 DSH 源码。
-    const pwshSandbox = rows.get(PWSH_SANDBOX_ROW_ID);
-    if (
-      pwshSandbox !== undefined &&
-      pwshSandbox.name === '@deepseek-ai/dsh-pwsh-sandbox'
-    ) {
-      patches.push(
-        {
-          id: PWSH_SANDBOX_ROW_ID,
-          name: '@deepseek-ai/dsh-pwsh-sandbox',
-          disabled: true,
-        },
-        {
-          insert: [
-            {
-              id: 'zhima-windows-pwsh-sandbox',
-              name: '@zhima/windows-pwsh-sandbox/windows-pwsh-sandbox',
-              ...(pwshSandbox.config !== undefined
-                ? { config: pwshSandbox.config }
-                : {}),
-            },
-          ],
-        },
-      );
-    }
-
     // 默认 full-access：dsh 沙箱 workspace-write 在 Windows/Electron 会冻结主进程（上游 bug），
     // read-only 会弹控制台黑窗导致 pwsh 转圈（未解决）。默认 full-access 才能开箱即用；
     // 用户切到沙箱模式需自行承担风险。
@@ -378,25 +357,6 @@ export function prepareDshProfile(
       });
     }
   }
-
-  // advanced 模式：禁用官方 ui-layout（它注册 root 槽，AdvancedFrame 会接管），
-  // 保持 ui-sidebar/ui-conversation 启用，并注入内置插件（统一清单
-  // packages/dsh-plugins/cordis.patch.yml）。参考 dsh-plugin-desktop/src/profile.ts。
-  if (advancedShellSupported(platform)) {
-    patches.push(
-      { id: 'ui-layout', disabled: true },
-      { id: 'ui-sidebar', disabled: false },
-      { id: 'ui-conversation', disabled: false },
-      ...loadBuiltinPluginPatches(),
-    );
-  }
-
-  // 强制 loopback 绑定是宿主安全不变量，不是用户配置。
-  patches.push({
-    id: 'webserver',
-    disabled: false,
-    config: { host: '127.0.0.1', port: 0 },
-  });
 
   return {
     homeDir,

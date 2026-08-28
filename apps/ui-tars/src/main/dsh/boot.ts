@@ -15,9 +15,9 @@ import { logger } from '@main/logger';
 
 import { prepareDshProfile } from './profile';
 import {
+  DEFAULT_DSH_PROFILE,
   getDshRunMode,
   getExternalDshPort,
-  getSelectedDshProfile,
 } from './state';
 import { installProfilePackageResolver } from './module-resolution';
 
@@ -88,7 +88,7 @@ async function doBoot(): Promise<DshBootResult> {
   }
 
   mkdirSync(DSH_HOME, { recursive: true });
-  const profileName = getSelectedDshProfile();
+  const profileName = DEFAULT_DSH_PROFILE;
   const prepared = prepareDshProfile(DSH_HOME, process.platform, profileName);
 
   // 以 profile 目录为基准解析 out-of-tree 插件（如皮肤 @dsh-external/...）。

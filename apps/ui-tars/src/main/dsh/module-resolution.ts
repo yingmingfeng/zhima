@@ -49,10 +49,10 @@ const LOADER_ENTRY_URL = pathToFileURL(
   requireFromBundle.resolve('@deepseek-ai/cordis-plugin-loader'),
 ).href;
 // 安装树锚点用 bundle 自身（apps/ui-tars/dist/main/main.js）而非某个 DSH 包：
-// findPackageJSON 从它向上爬，既能命中 apps/ui-tars/node_modules（@zhima/*、@ui-tars/*
+// findPackageJSON 从它向上爬，既能命中 apps/ui-tars/node_modules（@dsh-overlay/*、@ui-tars/*
 // 等宿主包含包都 link 在那里），也能命中根 node_modules（@deepseek-ai/* 全部 hoisted
 // 在那）。若锚到 @deepseek-ai/dsh/package.json（根树），爬不上 apps/ui-tars/node_modules，
-// 导致 @zhima/windows-pwsh-sandbox 这类宿主插件解析失败（ERR_MODULE_NOT_FOUND）。
+// 导致 @dsh-overlay/windows-pwsh-sandbox 这类宿主插件解析失败（ERR_MODULE_NOT_FOUND）。
 const INSTALL_PACKAGE_URL = pathToFileURL(__filename).href;
 
 // loader 内联进 bundle 时，它的运行时 `import(name)` 的 parentURL 就是 bundle 自身
@@ -186,7 +186,7 @@ export function installProfilePackageResolver(
           overlay.selected.source === 'profile'
             ? nextResolve(specifier, { ...context, parentURL: profileBaseUrl })
             : // install 源：从安装树锚点解析，而非 loader 所在位置（loader 的
-              // node_modules 里没有 @zhima/* 等宿主包，需从 app 依赖树解析）。
+              // node_modules 里没有 @dsh-overlay/* 等宿主包，需从 app 依赖树解析）。
               nextResolve(specifier, {
                 ...context,
                 parentURL: INSTALL_PACKAGE_URL,

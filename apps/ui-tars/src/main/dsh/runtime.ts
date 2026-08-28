@@ -4,12 +4,17 @@
  * 参考 dsh-plugin-desktop/src/electron-runtime.ts 裁剪：只保留窗口部分，
  * 砍掉托盘/更新/终端/主题联动。zhima 不依赖 dsh 的 desktop-shell 插件，
  * 窗口完全由本文件自建并管理。
+ *
+ * zhima 固定使用增强模式（advanced）呈现 DSH 窗口（无边框原生材质 + AdvancedFrame
+ * 三栏布局），不支持兼容模式切换。
  */
+import path from 'node:path';
+
 import { BrowserWindow, shell } from 'electron';
 
 import { logger } from '@main/logger';
 
-import { getDshRunMode, getDshShellMode, type DshShellMode } from './state';
+import { getDshRunMode } from './state';
 
 /** DSH 窗口尺寸，参照 dsh-desktop 的默认窗口规格。 */
 const DEFAULT_WINDOW_CONFIG = {
@@ -27,38 +32,35 @@ const SUPPORTS_ADVANCED =
 const WINDOWS_TITLEBAR_HEIGHT = 32;
 
 /**
- * 是否应用 advanced 窗口材质。
- * 仅内置模式（advanced-shell 客户端插件由 zhima 在 builtin boot 时注入，
- * external 连接的外部实例不会加载它）且平台支持时启用。
+ * 是否使用增强窗口（材质 + AdvancedFrame）。
+ * 仅内置模式启用——zhima 的 advanced-shell 插件由内置 bundle 注入，external 连接的
+ * 外部实例不含它，故 external 窗口退回原生框，避免「无边框 + 无布局接管」的悬空 UI。
  */
-function isAdvancedWindow(mode: DshShellMode): boolean {
-  return (
-    mode === 'advanced' && SUPPORTS_ADVANCED && getDshRunMode() === 'builtin'
-  );
+function useAdvancedShell(): boolean {
+  return getDshRunMode() === 'builtin' && SUPPORTS_ADVANCED;
 }
 
 /**
- * 按呈现模式构建 BrowserWindow 选项。
- * - advanced（win32）：隐藏标题栏 + 原生 overlay 控件 + mica 材质
- * - advanced（darwin）：hiddenInset 红绿灯 + vibrancy + 透明
- * - compatibility：原生框 + 白底
+ * 构建 BrowserWindow 选项（增强模式）：
+ * - win32：隐藏标题栏 + 原生 overlay 控件 + mica 材质
+ * - darwin：hiddenInset 红绿灯 + vibrancy + 透明
+ * - 其他/外部模式：原生框 + 白底
  */
-function shellWindowOptions(
-  mode: DshShellMode,
-): Electron.BrowserWindowConstructorOptions {
+function shellWindowOptions(): Electron.BrowserWindowConstructorOptions {
   const base: Electron.BrowserWindowConstructorOptions = {
     ...DEFAULT_WINDOW_CONFIG,
     autoHideMenuBar: true,
     title: 'DeepSeek Harness',
     backgroundColor: '#ffffff',
-    // 远程内容页面：保持隔离，不注入 preload/Node 能力。
+    // 远程内容页面：注入 preload 脚本以支持 Electron API 访问。
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true,
+      sandbox: false, // 需要 sandbox=false 才能加载 preload 脚本
+      preload: path.join(__dirname, '../preload/index.js'),
     },
   };
-  if (!isAdvancedWindow(mode)) return base;
+  if (!useAdvancedShell()) return base;
   if (process.platform === 'win32') {
     return {
       ...base,
@@ -86,9 +88,9 @@ function shellWindowOptions(
   };
 }
 
-/** 渲染器 URL：advanced 模式追加模式/平台标记，供页面内 advanced-shell client 解析。 */
-function rendererUrl(baseUrl: string, mode: DshShellMode): string {
-  if (!isAdvancedWindow(mode)) return baseUrl;
+/** 渲染器 URL：增强模式追加模式/平台标记，供页面内 advanced-shell client 解析。 */
+function rendererUrl(baseUrl: string): string {
+  if (!useAdvancedShell()) return baseUrl;
   const url = new URL(baseUrl);
   url.searchParams.set('dsh-desktop-mode', 'advanced');
   url.searchParams.set('dsh-desktop-platform', process.platform);
@@ -98,7 +100,7 @@ function rendererUrl(baseUrl: string, mode: DshShellMode): string {
 /** 维护中的 DSH 窗口（单例），关闭后清空以便下次重建。 */
 let dshWindow: BrowserWindow | null = null;
 
-/** 当前加载的 loopback origin（导航守卫用；切换 profile 复用窗口后更新）。 */
+/** 当前加载的 loopback origin（导航守卫用）。 */
 let currentUrlRoot = '';
 
 /** 当前 DSH 窗口是否仍可用。 */
@@ -126,15 +128,13 @@ export function createDshWindow(url: string): BrowserWindow {
     return dshWindow!;
   }
 
-  const mode = getDshShellMode();
-  const win = new BrowserWindow(shellWindowOptions(mode));
-  const targetUrl = rendererUrl(url, mode);
+  const win = new BrowserWindow(shellWindowOptions());
+  const targetUrl = rendererUrl(url);
 
   currentUrlRoot = new URL(targetUrl).origin;
 
   // 导航守卫（M2）：仅放行同 origin；离开 loopback 一律拦截并转系统浏览器。
   // 用 origin 严格比较而非前缀匹配（避免 http://127.0.0.1:54321.evil.com 逃逸）。
-  // currentUrlRoot 可变：切换 profile 复用窗口换端口后 guard 跟随新 origin。
   const isSameOrigin = (targetUrl: string): boolean => {
     try {
       return new URL(targetUrl).origin === currentUrlRoot;
@@ -174,19 +174,16 @@ export function closeDshWindow(): void {
   dshWindow = null;
 }
 
-/** 隐藏 DSH 窗口（任务栏消失）：切换 profile 期间让用户以为窗口关闭。 */
+/** 隐藏 DSH 窗口（任务栏消失），供重启会话/切换期间让用户以为窗口关闭。 */
 export function hideDshWindow(): void {
   if (hasDshWindow()) dshWindow!.hide();
 }
 
-/**
- * 复用当前窗口加载新 URL 并重新显示（切换 profile 后载入新实例）。
- * 窗口未打开时退化为创建新窗口。
- */
+/** 复用当前窗口加载新 URL 并重新显示；窗口未打开时退化为创建新窗口。 */
 export function reloadDshWindow(url: string): BrowserWindow {
   if (!hasDshWindow()) return createDshWindow(url);
   const win = dshWindow!;
-  const targetUrl = rendererUrl(url, getDshShellMode());
+  const targetUrl = rendererUrl(url);
   currentUrlRoot = new URL(targetUrl).origin;
   void win.loadURL(targetUrl);
   win.show();
