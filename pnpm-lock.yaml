@@ -119,9 +119,15 @@ importers:
       '@zhima/dsh':
         specifier: workspace:*
         version: link:../../packages/dsh
+      '@zhima/dsh-base-overlay':
+        specifier: workspace:*
+        version: link:../../packages/dsh-overlay/base-overlay
       '@zhima/dsh-overlay':
         specifier: workspace:*
         version: link:../../packages/dsh-overlay
+      '@zhima/dsh-web-overlay':
+        specifier: workspace:*
+        version: link:../../packages/dsh-overlay/web-overlay
       cmdk:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.1.1(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

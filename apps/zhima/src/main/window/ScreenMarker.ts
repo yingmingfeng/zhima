@@ -7,7 +7,7 @@
  * found in https://github.com/web-infra-dev/midscene/blob/main/LICENSE
  *
  */
-import { BrowserWindow, screen, app } from 'electron';
+import { BrowserWindow, screen } from 'electron';
 
 import { PredictionParsed, Conversation } from '@zhima/shared/types';
 
@@ -172,7 +172,7 @@ class ScreenMarker {
       Math.floor(screenHeight - 400 - 32 - 64),
     );
 
-    if (!app.isPackaged && env.rendererUrl) {
+    if (env.isDev && env.rendererUrl) {
       this.widgetWindow.loadURL(env.rendererUrl + '#widget');
     } else {
       this.widgetWindow.loadFile(

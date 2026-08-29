@@ -29,6 +29,11 @@ publicHoistPattern:
   - '@deepseek-ai/*'
   # 内置插件子包提升到依赖树顶层，主进程 linkInnerPlugins / module-resolution 才能按裸包名解析
   - '@dsh-overlay/*'
+  # 内置 overlay bundle 提升到顶层：linkInnerPlugins 打包后按 @zhima/dsh-*-overlay 裸包名
+  # resolve 子插件（base-overlay 后端/web-overlay UI）。它们是容器 @zhima/dsh-overlay 的
+  # 传递依赖，不提升则 require.resolve 找不到。
+  - '@zhima/dsh-base-overlay'
+  - '@zhima/dsh-web-overlay'
 allowBuilds:
   '@computer-use/mac-screen-capture-permissions': true
   '@deepseek-ai/dsh-subprocess-local': true

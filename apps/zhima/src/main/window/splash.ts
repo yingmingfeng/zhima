@@ -5,12 +5,11 @@
 
 /**
  * DSH 启动等待窗口（splash）：
- * 应用启动时显示，遮盖后台 DSH CLI 的启动耗时；CLI 就绪、DSH 窗口建立后关闭，
+ * 应用启动时显示，遮盖后台 DSH boot 的启动耗时；DSH 就绪、窗口建立后关闭，
  * 用户视角即「splash → DSH 窗口」无缝衔接。
  *
- * 加载 renderer 的 /splash 路由页（HashRouter）：dev 用 `rendererUrl + '#/splash'`
- * （dev server 是 path 形式 URL，路由状态只认 hash，与 ScreenMarker 的 widget 窗口
- * 同构）；prod 用 loadFile 的 hash 选项。
+ * 加载 renderer 的 /splash 路由（复用现有 React Splash 组件，build 后同属静态入口）：
+ * dev 从 rendererUrl（localhost）加载；prod loadFile 到打包的 renderer/index.html。
  *
  * 窗口特性：frameless 透明卡片、置顶、不进任务栏、不可聚焦（不抢焦点，
  * DSH 窗口 show 时仍能拿到前台激活）。必须挂 preload：renderer 入口全局挂载的
@@ -18,7 +17,7 @@
  */
 import path from 'node:path';
 
-import { BrowserWindow, app } from 'electron';
+import { BrowserWindow } from 'electron';
 
 import * as env from '@main/env';
 import { logger } from '@main/logger';
@@ -36,9 +35,9 @@ export function hasSplashWindow(): boolean {
   return splashWindow !== null && !splashWindow.isDestroyed();
 }
 
-/** 加载 renderer 的 /splash 路由（dev: path URL + hash；prod: loadFile + hash）。 */
+/** 加载 renderer 的 /splash 路由（dev: rendererUrl + hash；prod: loadFile + hash）。 */
 function loadSplashRenderer(win: BrowserWindow): void {
-  if (!app.isPackaged && env.rendererUrl) {
+  if (env.isDev && env.rendererUrl) {
     void win.loadURL(env.rendererUrl + '#/splash');
   } else {
     void win.loadFile(path.join(__dirname, '../renderer/index.html'), {
@@ -73,6 +72,10 @@ export function showSplashWindow(): void {
   splashWindow.setAlwaysOnTop(true, 'screen-saver');
   splashWindow.center();
   loadSplashRenderer(splashWindow);
+  // 立即显示（不等 ready-to-show）：解决 dev 下渲染 splash 首屏（lazy 路由 + vendor chunk）
+  // 时常超过 DSH boot 耗时，导致窗口从未显示就被 close 而「看不见 splash」。
+  // showInactive 不抢焦点，DSH 窗口就绪 show 时仍能拿到前台激活；ready-to-show 后重复调用幂等。
+  splashWindow.showInactive();
   splashWindow.once('ready-to-show', () => {
     splashWindow?.showInactive();
   });

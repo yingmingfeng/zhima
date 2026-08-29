@@ -22,7 +22,7 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 
-/** DSH 运行模式：builtin=zhima 拉起内置 DSH CLI；external=连接外部手动启动的实例。 */
+/** DSH 运行模式：builtin=zhima 以 in-process boot 拉起内置 DSH；external=连接外部手动启动的实例。 */
 export type DshRunMode = 'builtin' | 'external';
 
 /** zhima DSH 私有状态目录（Electron userData/dsh/profile-selection，与 DSH Desktop 对齐）。 */

@@ -65,7 +65,9 @@
     "jose": "^6.0.11",
     "motion": "^12.42.2",
     "sharp": "0.33.3",
-    "@zhima/dsh-overlay": "workspace:*"
+    "@zhima/dsh-overlay": "workspace:*",
+    "@zhima/dsh-base-overlay": "workspace:*",
+    "@zhima/dsh-web-overlay": "workspace:*"
   },
   "devDependencies": {
     "@common/electron-build": "workspace:*",

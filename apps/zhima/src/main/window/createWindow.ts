@@ -85,7 +85,7 @@ export function createWindow({
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   console.log('renderer url', env.rendererUrl);
-  if (!app.isPackaged && env.rendererUrl) {
+  if (env.isDev && env.rendererUrl) {
     browserWindow.loadURL(env.rendererUrl + routerPath);
   } else {
     browserWindow.loadFile(path.join(__dirname, '../renderer/index.html'), {

@@ -12,6 +12,7 @@ import path from 'node:path';
 
 import { BrowserWindow, shell } from 'electron';
 
+import zhimaIcon from '@resources/icon.png?asset';
 import { logger } from '@main/logger';
 
 import { getDshRunMode } from './state';
@@ -50,6 +51,7 @@ function shellWindowOptions(): Electron.BrowserWindowConstructorOptions {
   const base: Electron.BrowserWindowConstructorOptions = {
     ...DEFAULT_WINDOW_CONFIG,
     autoHideMenuBar: true,
+    icon: zhimaIcon, // 任务栏/窗口图标用 zhima logo，避免回落 Electron 默认图标
     title: 'DeepSeek Harness',
     backgroundColor: '#ffffff',
     // 远程内容页面：注入 preload 脚本以支持 Electron API 访问。

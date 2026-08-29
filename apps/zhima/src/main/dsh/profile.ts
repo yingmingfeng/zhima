@@ -18,7 +18,7 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { app } from 'electron';
+import { isDev } from '@main/env';
 
 import {
   composeEntries,
@@ -30,9 +30,7 @@ import {
 import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader';
 import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include';
 
-import {
-  DEFAULT_DSH_PROFILE,
-} from './state';
+import { DEFAULT_DSH_PROFILE } from './state';
 
 const BIN_NAME = 'zhima-dsh';
 
@@ -78,7 +76,6 @@ function ensureZhimaBundlesDeclared(profileDir: string): void {
  * 把 zhima 的两个 overlay bundle（base-overlay/web-overlay）link 进
  * profiles/node_modules/@zhima/，使 dsh-app-boot 的 resolveBundleDir（从 profile
  * 目录或 install 树解析 bundle）能按裸包名找到它们。
- * CLI 启动（spawnDshCli）也复用：CLI 进程内 loadProfile 从 profile 目录解析 bundle。
  */
 export function linkOverlayBundles(homeDir: string): void {
   const linkRoot = join(join(homeDir, 'profiles'), 'node_modules', '@zhima');
@@ -103,7 +100,10 @@ export function linkOverlayBundles(homeDir: string): void {
 }
 
 /** dev 下定位内置插件目录：先在 base/web 两组子目录里找，退回容器根平铺。 */
-function locateOverlayPluginDir(containerDir: string, shortName: string): string {
+function locateOverlayPluginDir(
+  containerDir: string,
+  shortName: string,
+): string {
   for (const group of OVERLAY_GROUPS) {
     const candidate = join(containerDir, group, shortName);
     if (existsSync(join(candidate, 'package.json'))) return candidate;
@@ -144,10 +144,8 @@ function innerPluginsRoot(): string {
  * $DSH_HOME/profiles/node_modules/@dsh-overlay/，使 ClientModuleRegistry
  * （以 profile 目录为 createRequire 基准）与 ESM overlay 都能按裸包名解析。
  * healProfilesModuleFallback 只覆盖 @deepseek-ai/dsh 依赖闭包，不含内置插件，
- * 须由 zhima 自管这一步。新增插件只需加入容器 dependencies + cordis.patch.yml，
+ * 新增插件只需加入容器 dependencies + cordis.patch.yml，
  * 无需改此处代码。
- * CLI 启动模式（spawnDshCli）也复用它：内置插件的 bare import 在 CLI 进程内
- * 以 profile 目录为解析基准，同样需要这些 link。
  */
 export function linkInnerPlugins(homeDir: string): void {
   const containerDir = innerPluginsRoot();
@@ -173,7 +171,7 @@ export function linkInnerPlugins(homeDir: string): void {
       continue;
     }
     if (!specifier.startsWith('@zhima/')) continue;
-    const bundleDir = app.isPackaged
+    const bundleDir = !isDev
       ? dirname(resolveFromMain.resolve(`${specifier}/package.json`))
       : locateOverlayBundleDir(containerDir, specifier);
     if (bundleDir === undefined) continue;
@@ -182,7 +180,8 @@ export function linkInnerPlugins(homeDir: string): void {
         readFileSync(join(bundleDir, 'package.json'), 'utf8'),
       ) as { dependencies?: Record<string, string> };
       for (const dep of Object.keys(bundlePkg.dependencies ?? {})) {
-        if (dep.startsWith(`${INNER_PLUGINS_SCOPE}/`)) pluginSpecifiers.add(dep);
+        if (dep.startsWith(`${INNER_PLUGINS_SCOPE}/`))
+          pluginSpecifiers.add(dep);
       }
     } catch {
       // bundle manifest 缺失忽略
@@ -190,7 +189,7 @@ export function linkInnerPlugins(homeDir: string): void {
   }
   for (const specifier of pluginSpecifiers) {
     const shortName = specifier.slice(INNER_PLUGINS_SCOPE.length + 1);
-    const packageDir = app.isPackaged
+    const packageDir = !isDev
       ? dirname(resolveFromMain.resolve(`${specifier}/package.json`))
       : locateOverlayPluginDir(containerDir, shortName);
     if (!existsSync(join(packageDir, 'package.json'))) continue;
