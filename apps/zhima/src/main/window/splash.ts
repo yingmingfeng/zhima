@@ -8,23 +8,22 @@
  * 应用启动时显示，遮盖后台 DSH boot 的启动耗时；DSH 就绪、窗口建立后关闭，
  * 用户视角即「splash → DSH 窗口」无缝衔接。
  *
- * 加载 renderer 的 /splash 路由（复用现有 React Splash 组件，build 后同属静态入口）：
- * dev 从 rendererUrl（localhost）加载；prod loadFile 到打包的 renderer/index.html。
+ * 加载独立的静态页 resources/splash.html（内联 CSS 的 logo + loading 动画），
+ * 不经过 renderer/React/dev server：保证 splash 立即可见，避免因获取整个 renderer
+ * bundle 首屏而加载不出来。纯静态页无需 preload/contextIsolation 特殊处理。
  *
  * 窗口特性：frameless 透明卡片、置顶、不进任务栏、不可聚焦（不抢焦点，
- * DSH 窗口 show 时仍能拿到前台激活）。必须挂 preload：renderer 入口全局挂载的
- * DshTrayController 等组件依赖 window.dsh / window.electron。
+ * DSH 窗口 show 时仍能拿到前台激活）。
  */
 import path from 'node:path';
 
-import { BrowserWindow } from 'electron';
+import { app, BrowserWindow } from 'electron';
 
-import * as env from '@main/env';
 import { logger } from '@main/logger';
 
 const SPLASH_CONFIG = {
-  width: 380,
-  height: 220,
+  width: 300,
+  height: 216,
 } as const;
 
 /** 单例窗口；null = 未创建或已关闭。 */
@@ -35,15 +34,10 @@ export function hasSplashWindow(): boolean {
   return splashWindow !== null && !splashWindow.isDestroyed();
 }
 
-/** 加载 renderer 的 /splash 路由（dev: rendererUrl + hash；prod: loadFile + hash）。 */
+/** 加载独立的静态 splash 页（resources/splash.html）。 */
 function loadSplashRenderer(win: BrowserWindow): void {
-  if (env.isDev && env.rendererUrl) {
-    void win.loadURL(env.rendererUrl + '#/splash');
-  } else {
-    void win.loadFile(path.join(__dirname, '../renderer/index.html'), {
-      hash: '#/splash',
-    });
-  }
+  const splashHtml = path.join(app.getAppPath(), 'resources', 'splash.html');
+  void win.loadFile(splashHtml);
 }
 
 /** 创建并显示 splash（幂等：已显示则复用）。居中、置顶、不抢焦点。 */
@@ -62,19 +56,11 @@ export function showSplashWindow(): void {
     focusable: false,
     alwaysOnTop: true,
     backgroundColor: '#00000000',
-    webPreferences: {
-      // renderer 入口全局组件依赖 window.dsh / window.electron，preload 必须挂
-      preload: path.join(__dirname, '../preload/index.js'),
-      sandbox: false,
-      contextIsolation: true,
-    },
   });
   splashWindow.setAlwaysOnTop(true, 'screen-saver');
   splashWindow.center();
   loadSplashRenderer(splashWindow);
-  // 立即显示（不等 ready-to-show）：解决 dev 下渲染 splash 首屏（lazy 路由 + vendor chunk）
-  // 时常超过 DSH boot 耗时，导致窗口从未显示就被 close 而「看不见 splash」。
-  // showInactive 不抢焦点，DSH 窗口就绪 show 时仍能拿到前台激活；ready-to-show 后重复调用幂等。
+  // 立即显示（不等 ready-to-show），保证 splash 立即出现。初始化 DSH boot 的耗时由 splash 盖住。
   splashWindow.showInactive();
   splashWindow.once('ready-to-show', () => {
     splashWindow?.showInactive();

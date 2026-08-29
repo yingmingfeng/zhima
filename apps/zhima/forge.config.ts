@@ -65,6 +65,14 @@ for (const group of OVERLAY_GROUPS) {
 // 且无任何运行时代码引用它，故从打包产物剔除（源码 packages/dsh 仍保留供 build 期使用）。
 keepModules.delete('@zhima/dsh');
 
+// @zhima/dsh-overlay 是 overlay 聚合容器（dependencies 聚合 @zhima/dsh-base-overlay /
+// @zhima/dsh-web-overlay），本身不含运行时代码；运行只用后两者与 @dsh-overlay/* 插件。
+// 不剔除的话 cleanSources 无法按包名定位它（分组目录里没有名为 @zhima/dsh-overlay 的包），
+// 会落到 getModuleRoot 把整个 packages/dsh-overlay 目录平铺复制成 @zhima/dsh-overlay/，
+// 里面 base-overlay/web-overlay/子插件与单独打包的 @dsh-overlay/*、@zhima/dsh-*-overlay
+// 全部重叠嵌套，造成 unpacked 体积膨胀且重复。
+keepModules.delete('@zhima/dsh-overlay');
+
 /**
  * 内置插件（packages/dsh-overlay/ 下的 workspace 包）打包后保留运行时最小集，
  * 剔除源码/构建文件，避免体积冗余和源码暴露。
@@ -99,10 +107,27 @@ function pruneBuiltinPlugin(dir: string): void {
       rm(path.join(dir, file));
     }
   }
-  // 清理泄漏的 devDeps（纯类型 / 构建时依赖），保留运行时依赖
+  // 插件内嵌的 node_modules 一律剔除：其运行时依赖已由 keepModules 闭包
+  // （collectProdDeps，含 @dsh-overlay/* 子插件）提升到构建产物的顶层 node_modules，
+  // 插件从顶层解析即可。若保留，cp(..., { dereference: true }) 会把这个依赖树
+  // 整体平铺复制进产物，unpack 时体积膨胀（实测 @dsh-overlay 120MB + @zhima 557MB）
+  // 且与 asar 内插件条目构成双份重复。
   const nm = path.join(dir, 'node_modules');
   if (fs.existsSync(nm)) {
-    rm(path.join(nm, '@types'));
+    rm(nm);
+  }
+}
+
+// overlay bundle（@zhima/dsh-*-overlay）复制后只保留自身声明：package.json +
+// cordis.patch.yml + LICENSE*。其源码目录内平铺的子插件（advanced-shell/better-sidebar 等）
+// 与该 bundle 的 node_modules 依赖闭包，已分别经 @dsh-overlay/* 与 keepModules 顶层闭包
+// 独立交付；不剔除就会被 dereference 复制成「bundle 内嵌子插件」的嵌套重复（实测
+// @zhima/dsh-web-overlay/better-sidebar/node_modules/node-pty 65MB）。
+function keepOnlyBundleDeclarations(dir: string): void {
+  const keep = new Set(['package.json', 'cordis.patch.yml']);
+  for (const entry of fs.readdirSync(dir)) {
+    if (keep.has(entry) || /^license/i.test(entry)) continue;
+    rimrafSync(path.join(dir, entry));
   }
 }
 
@@ -297,6 +322,14 @@ async function cleanSources(
           ) {
             pruneBuiltinPlugin(dest);
           }
+          // overlay bundle 是纯声明容器（package.json + cordis.patch.yml），
+          // 内嵌子插件目录全部剔除，避免嵌套重复。
+          if (
+            item === '@zhima/dsh-base-overlay' ||
+            item === '@zhima/dsh-web-overlay'
+          ) {
+            keepOnlyBundleDeclarations(dest);
+          }
         }
       } catch (error) {
         console.error('copy_current_node_modules_error', error);
@@ -320,11 +353,15 @@ async function cleanSources(
       }
 
       if (fs.existsSync(subDependency.path)) {
-        return cp(subDependency.path, path.join(buildPath, 'node_modules', subDependency.name), {
-          recursive: true,
-          // 同上：源路径内可能含 symlink，Windows 下重建会 EPERM
-          dereference: true,
-        });
+        return cp(
+          subDependency.path,
+          path.join(buildPath, 'node_modules', subDependency.name),
+          {
+            recursive: true,
+            // 同上：源路径内可能含 symlink，Windows 下重建会 EPERM
+            dereference: true,
+          },
+        );
       }
       return;
     }),
